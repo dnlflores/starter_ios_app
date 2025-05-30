@@ -8,7 +8,7 @@ struct ContentView: View {
 
     var body: some View {
         if loggedIn {
-            WelcomeView(username: username)
+            MainTabView(username: username)
         } else {
             loginForm
         }
