@@ -28,7 +28,7 @@ func signup(username: String, password: String) {
     URLSession.shared.dataTask(with: request).resume()
 }
 
-func login(username: String, password: String) {
+func login(username: String, password: String, completion: @escaping (Bool) -> Void) {
     guard let url = URL(string: "http://localhost:3000/login") else { return }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
@@ -42,6 +42,9 @@ func login(username: String, password: String) {
            let auth = try? JSONDecoder().decode(AuthResponse.self, from: data) {
             UserDefaults.standard.set(auth.token, forKey: "authToken")
             print("Login success, token: \(auth.token)")
+            completion(true)
+        } else {
+            completion(false)
         }
     }.resume()
 }
