@@ -17,7 +17,7 @@ struct User: Codable {
 }
 
 func signup(username: String, password: String) {
-    guard let url = URL(string: "http://localhost:3000/signup") else { return }
+    guard let url = URL(string: "https://8115-69-244-64-109.ngrok-free.app/signup") else { return }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -29,7 +29,7 @@ func signup(username: String, password: String) {
 }
 
 func login(username: String, password: String, completion: @escaping (Bool) -> Void) {
-    guard let url = URL(string: "http://localhost:3000/login") else { return }
+    guard let url = URL(string: "https://8115-69-244-64-109.ngrok-free.app/login") else { return }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -51,7 +51,7 @@ func login(username: String, password: String, completion: @escaping (Bool) -> V
 
 func fetchUsers() {
     guard let token = UserDefaults.standard.string(forKey: "authToken"),
-          let url = URL(string: "http://localhost:3000/users") else { return }
+          let url = URL(string: "https://8115-69-244-64-109.ngrok-free.app/users") else { return }
 
     var request = URLRequest(url: url)
     request.httpMethod = "GET"
