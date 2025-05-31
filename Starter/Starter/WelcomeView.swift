@@ -9,17 +9,19 @@ struct WelcomeView: View {
         ZStack {
             NavigationStack {
                 VStack(spacing: 0) {
-                    // 1) Put the segmented control inside a VStack of fixed height,
-                    //    then give it a white (or .thickMaterial) background.
                     VStack {
                         Picker("View", selection: $selectedView) {
                             Text("List").tag(0)
                             Text("Map").tag(1)
                         }
                         .pickerStyle(.segmented)
-                        .padding(.horizontal)
+                        .padding()
+                        .background(Color.black)
+                        .tint(.orange)
                     }
-                    .frame(height: 48) // adjust if you need more/less vertical space
+                    .background(Color.black)
+                    .frame(height: 60)
+                    
                     
                     // 2) Now show either the List or the Map below it
                     if selectedView == 0 {
