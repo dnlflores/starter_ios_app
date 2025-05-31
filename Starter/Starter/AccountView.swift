@@ -75,6 +75,14 @@ struct AccountView: View {
                     }
                 }
                 .padding()
+
+                Button("Log Out") {
+                    logout()
+                    authToken = ""
+                    showLogin = false
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.top)
             }
             .onAppear {
                 fetchUsers { users in
