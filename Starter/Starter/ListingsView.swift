@@ -31,7 +31,9 @@ struct ListingsView: View {
                         }
                     }
                 }
-                .navigationTitle("Listings")
+                .listStyle(.plain)
+            .navigationTitle("RNTL")
+            .navigationBarTitleDisplayMode(.inline)
             }
             .onAppear {
                 loadData()
