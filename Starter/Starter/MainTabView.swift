@@ -32,10 +32,10 @@ struct MainTabView: View {
             .tag(3)
 
             AccountView(username: username, showLogin: $showLogin)
-                .tabItem {
-                    Label("Account", systemImage: "person")
-                }
-                .tag(4)
+            .tabItem {
+                Label("Account", systemImage: "person")
+            }
+            .tag(4)
         }.applyThemeBackground()
     }
 }
