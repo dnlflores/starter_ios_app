@@ -2,25 +2,40 @@ import SwiftUI
 
 struct ListingsView: View {
     let username: String
+    /// Controls presentation of the login sheet from the parent view.
+    @Binding var showLogin: Bool
+    @AppStorage("authToken") private var authToken: String = ""
     @State private var user: User?
     @State private var tools: [Tool] = []
 
     var body: some View {
-        NavigationStack {
-            List(filteredTools) { tool in
-                NavigationLink(destination: ToolDetailView(tool: tool)) {
-                    VStack(alignment: .leading) {
-                        Text(tool.name)
-                            .font(.headline)
-                        Text(tool.description ?? "No description available")
-                            .font(.subheadline)
+        if authToken.isEmpty {
+            VStack(spacing: 16) {
+                Text("You are not logged in.")
+                    .font(.title2)
+                Button("Log In") {
+                    showLogin = true
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+        } else {
+            NavigationStack {
+                List(filteredTools) { tool in
+                    NavigationLink(destination: ToolDetailView(tool: tool)) {
+                        VStack(alignment: .leading) {
+                            Text(tool.name)
+                                .font(.headline)
+                            Text(tool.description ?? "No description available")
+                                .font(.subheadline)
+                        }
                     }
                 }
+                .navigationTitle("Listings")
             }
-            .navigationTitle("Listings")
-        }
-        .onAppear {
-            loadData()
+            .onAppear {
+                loadData()
+            }
         }
     }
 
@@ -46,5 +61,5 @@ struct ListingsView: View {
 }
 
 #Preview {
-    ListingsView(username: "User")
+    ListingsView(username: "User", showLogin: .constant(false))
 }
