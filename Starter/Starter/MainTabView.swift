@@ -25,7 +25,7 @@ struct MainTabView: View {
                     Label("Listings", systemImage: "list.bullet")
                 }
 
-            AccountView()
+            AccountView(username: username)
                 .tabItem {
                     Label("Account", systemImage: "person")
                 }
