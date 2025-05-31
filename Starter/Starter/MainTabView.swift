@@ -53,6 +53,13 @@ struct MainTabView: View {
                 pendingSelection = nil
             }
         }
+        .onChange(of: authToken) { newValue in
+            if newValue.isEmpty && selection != 0 {
+                pendingSelection = selection
+                showLogin = true
+                selection = 0
+            }
+        }
     }
 }
 
