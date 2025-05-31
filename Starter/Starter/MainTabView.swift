@@ -20,7 +20,7 @@ struct MainTabView: View {
                     Label("Post", systemImage: "plus.app")
                 }
 
-            ListingsView()
+            ListingsView(username: username)
                 .tabItem {
                     Label("Listings", systemImage: "list.bullet")
                 }
