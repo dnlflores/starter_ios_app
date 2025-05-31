@@ -65,6 +65,7 @@ func login(username: String, password: String, completion: @escaping (Bool) -> V
         if let data = data,
            let auth = try? JSONDecoder().decode(AuthResponse.self, from: data) {
             UserDefaults.standard.set(auth.token, forKey: "authToken")
+            UserDefaults.standard.set(username, forKey: "username")
             print("Login success, token: \(auth.token)")
             completion(true)
         } else {
