@@ -14,6 +14,10 @@ struct ToolDetailView: View {
                 if let owner = tool.owner_id {
                     Text("Owner ID: \(owner)")
                 }
+
+                MapView()
+                    .frame(height: 200)
+
                 Spacer()
             }
             .padding()
