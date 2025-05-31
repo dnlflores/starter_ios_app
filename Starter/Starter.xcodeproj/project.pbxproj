@@ -413,11 +413,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = testing.app.Starter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
+                               SWIFT_VERSION = 5.0;
+                               TARGETED_DEVICE_FAMILY = "1,2";
+                               INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is needed to show nearby tools on the map.";
+                       };
+                       name = Debug;
+               };
 		D6D5319D2DEA5980003BCA3B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -441,11 +442,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = testing.app.Starter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
+                               SWIFT_VERSION = 5.0;
+                               TARGETED_DEVICE_FAMILY = "1,2";
+                               INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is needed to show nearby tools on the map.";
+                       };
+                       name = Release;
+               };
 		D6D5319F2DEA5980003BCA3B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
