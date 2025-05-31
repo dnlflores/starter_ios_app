@@ -12,6 +12,7 @@ struct StarterApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .accentColor(.orange)
         }
     }
 }

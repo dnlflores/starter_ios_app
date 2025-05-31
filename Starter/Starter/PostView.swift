@@ -6,20 +6,24 @@ struct PostView: View {
     @AppStorage("authToken") private var authToken: String = ""
 
     var body: some View {
-        if authToken.isEmpty {
-            VStack(spacing: 16) {
-                Text("You are not logged in.")
-                    .font(.title2)
-                Button("Log In") {
-                    showLogin = true
+        ZStack {
+            if authToken.isEmpty {
+                VStack(spacing: 16) {
+                    Text("You are not logged in.")
+                        .font(.title2)
+                    Button("Log In") {
+                        showLogin = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
                 }
-                .buttonStyle(.borderedProminent)
+                .padding()
+            } else {
+                Text("Post")
+                    .font(.largeTitle)
             }
-            .padding()
-        } else {
-            Text("Post")
-                .font(.largeTitle)
         }
+        .applyThemeBackground()
     }
 }
 

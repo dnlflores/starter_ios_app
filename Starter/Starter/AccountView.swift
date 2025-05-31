@@ -15,6 +15,7 @@ struct AccountView: View {
                     showLogin = true
                 }
                 .buttonStyle(.borderedProminent)
+                .tint(.orange)
             }
             .padding()
         } else {
@@ -98,17 +99,14 @@ struct AccountView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.white.opacity(0.8))
-                    .foregroundColor(.blue)
+                    .foregroundColor(.orange)
                     .cornerRadius(8)
                     .padding(.horizontal)
                     .padding(.top)
                 }
                 .padding(.vertical)
             }
-            .background(
-                LinearGradient(gradient: Gradient(colors: [.blue.opacity(0.6), .purple.opacity(0.6)]), startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
-            )
+            .applyThemeBackground()
             .onAppear {
                 fetchUsers { users in
                     if let match = users.first(where: { $0.username == username }) {

@@ -12,3 +12,8 @@ After logging in, the received authentication token is stored locally so you rem
 
 The account tab now features a colorful gradient background with a large profile
 icon and user details presented inside a rounded card for a cleaner look.
+
+## Theme
+
+The application now uses a black and orange color scheme applied across all tab
+views for a consistent appearance.
