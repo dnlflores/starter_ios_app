@@ -11,9 +11,12 @@ struct ToolDetailView: View {
                     .font(.largeTitle)
                     .bold()
                 Text(tool.description ?? "No description available")
-                Text("Price: \(tool.price)")
-                if let owner = tool.owner_id {
-                    Text("Owner ID: \(owner)")
+                Text("Price per hour: \(tool.price)")
+                if let ownerFirst = tool.owner_first_name, let ownerLast = tool.owner_last_name {
+                    Text("Owner: \(ownerFirst) \(ownerLast)")
+                }
+                if let ownerEmail = tool.owner_email {
+                    Text("Email: \(ownerEmail)")
                 }
 
                 MapView()
@@ -39,5 +42,5 @@ struct ToolDetailView: View {
 }
 
 #Preview {
-    ToolDetailView(tool: Tool(id: 1, name: "Hammer", price: "$10", description: "A sturdy hammer.", owner_id: 1))
+    ToolDetailView(tool: Tool(id: 1, name: "Hammer", price: "$10", description: "A sturdy hammer.", owner_id: 1, owner_username: "johndoe", owner_email: "johndoe@example.com", owner_first_name: "John", owner_last_name: "Doe"))
 }

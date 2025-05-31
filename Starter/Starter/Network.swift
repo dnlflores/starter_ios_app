@@ -34,6 +34,10 @@ struct Tool: Codable, Identifiable {
     let price: String
     let description: String?
     let owner_id: Int?
+    let owner_username: String?
+    let owner_email: String?
+    let owner_first_name: String?
+    let owner_last_name: String?
 }
 
 func signup(username: String, password: String) {
@@ -84,7 +88,6 @@ func fetchUsers(completion: @escaping ([User]) -> Void) {
         if let data = data,
            let users = try? JSONDecoder().decode([User].self, from: data) {
             completion(users)
-            print("Fetched users: \(users)")
         } else {
             completion([])
         }
