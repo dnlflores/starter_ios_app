@@ -2,15 +2,30 @@ import SwiftUI
 
 struct WelcomeView: View {
     let username: String
+    @State private var tools: [Tool] = []
 
     var body: some View {
-        VStack {
-            Spacer()
+        VStack(alignment: .leading) {
             Text("Welcome, \(username)!")
                 .font(.largeTitle)
                 .bold()
                 .padding()
-            Spacer()
+
+            List(tools) { tool in
+                VStack(alignment: .leading) {
+                    Text(tool.name)
+                        .font(.headline)
+                    Text(tool.description)
+                        .font(.subheadline)
+                }
+            }
+        }
+        .onAppear {
+            fetchTools { fetched in
+                DispatchQueue.main.async {
+                    self.tools = fetched
+                }
+            }
         }
     }
 }
