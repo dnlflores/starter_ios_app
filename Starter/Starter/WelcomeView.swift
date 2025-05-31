@@ -15,13 +15,14 @@ struct WelcomeView: View {
                 VStack(alignment: .leading) {
                     Text(tool.name)
                         .font(.headline)
-                    Text(tool.description)
+                    Text(tool.description ?? "No description available")
                         .font(.subheadline)
                 }
             }
         }
         .onAppear {
             fetchTools { fetched in
+                print("fetched tools:", fetched)
                 DispatchQueue.main.async {
                     self.tools = fetched
                 }
