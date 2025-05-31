@@ -9,36 +9,40 @@ struct ListingsView: View {
     @State private var tools: [Tool] = []
 
     var body: some View {
-        if authToken.isEmpty {
-            VStack(spacing: 16) {
-                Text("You are not logged in.")
-                    .font(.title2)
-                Button("Log In") {
-                    showLogin = true
+        ZStack {
+            if authToken.isEmpty {
+                VStack(spacing: 16) {
+                    Text("You are not logged in.")
+                        .font(.title2)
+                    Button("Log In") {
+                        showLogin = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
                 }
-                .buttonStyle(.borderedProminent)
-            }
-            .padding()
-        } else {
-            NavigationStack {
-                List(filteredTools) { tool in
-                    NavigationLink(destination: ToolDetailView(tool: tool)) {
-                        VStack(alignment: .leading) {
-                            Text(tool.name)
-                                .font(.headline)
-                            Text(tool.description ?? "No description available")
-                                .font(.subheadline)
+                .padding()
+            } else {
+                NavigationStack {
+                    List(filteredTools) { tool in
+                        NavigationLink(destination: ToolDetailView(tool: tool)) {
+                            VStack(alignment: .leading) {
+                                Text(tool.name)
+                                    .font(.headline)
+                                Text(tool.description ?? "No description available")
+                                    .font(.subheadline)
+                            }
                         }
                     }
+                    .listStyle(.plain)
+                    .navigationTitle("RNTL")
+                    .navigationBarTitleDisplayMode(.inline)
                 }
-                .listStyle(.plain)
-            .navigationTitle("RNTL")
-            .navigationBarTitleDisplayMode(.inline)
-            }
-            .onAppear {
-                loadData()
+                .onAppear {
+                    loadData()
+                }
             }
         }
+        .applyThemeBackground()
     }
 
     private var filteredTools: [Tool] {

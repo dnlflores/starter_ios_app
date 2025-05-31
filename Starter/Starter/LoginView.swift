@@ -12,8 +12,12 @@ struct LoginView: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.blue.opacity(0.6), .purple.opacity(0.6)]), startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
+            LinearGradient(
+                gradient: Gradient(colors: [Color.black.opacity(0.6), Color.orange.opacity(0.6)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
             VStack(spacing: 20) {
                 Spacer()
                 Text("Log In")
@@ -44,10 +48,11 @@ struct LoginView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.white.opacity(0.8))
-                        .foregroundColor(.blue)
+                        .foregroundColor(.orange)
                         .cornerRadius(8)
                         .padding(.horizontal)
                 }
+                .tint(.orange)
                 Spacer()
             }
         }

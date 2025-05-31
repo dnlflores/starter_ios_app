@@ -6,8 +6,9 @@ struct WelcomeView: View {
     @State private var selectedView = 0
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
+        ZStack {
+            NavigationStack {
+                VStack(spacing: 0) {
                 // 1) Put the segmented control inside a VStack of fixed height,
                 //    then give it a white (or .thickMaterial) background.
                 VStack {
@@ -43,6 +44,7 @@ struct WelcomeView: View {
             .navigationTitle("RNTL")
             .navigationBarTitleDisplayMode(.inline)
         }
+        .applyThemeBackground()
         .onAppear {
             fetchTools { fetched in
                 DispatchQueue.main.async {
