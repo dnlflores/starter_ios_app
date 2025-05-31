@@ -76,5 +76,5 @@ struct AccountView: View {
 }
 
 #Preview {
-    AccountView(username: "User")
+    AccountView(username: "daniel")
 }
