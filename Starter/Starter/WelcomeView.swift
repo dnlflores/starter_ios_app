@@ -43,7 +43,6 @@ struct WelcomeView: View {
                         // If you keep edgesIgnoringSafeArea on MapView, at least
                         // the Picker above will remain on a plain/blurred background
                         MapView()
-                            .edgesIgnoringSafeArea([.top, .bottom])
                     }
                 }
                 .applyThemeBackground()
