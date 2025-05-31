@@ -16,6 +16,26 @@ struct MapView: View {
             UserAnnotation()
         }
         .edgesIgnoringSafeArea(.all)
+        .onAppear {
+            let navAppearance = UINavigationBarAppearance()
+            navAppearance.configureWithOpaqueBackground()
+            navAppearance.backgroundColor = .black
+            navAppearance.titleTextAttributes = [.foregroundColor: UIColor.orange]
+            navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.orange]
+            UINavigationBar.appearance().standardAppearance = navAppearance
+            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+            UINavigationBar.appearance().compactAppearance = navAppearance
+        }
+        .onDisappear {
+            let navAppearance = UINavigationBarAppearance()
+            navAppearance.configureWithTransparentBackground()
+            navAppearance.backgroundColor = .black
+            navAppearance.titleTextAttributes = [.foregroundColor: UIColor.orange]
+            navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.orange]
+            UINavigationBar.appearance().standardAppearance = navAppearance
+            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+            UINavigationBar.appearance().compactAppearance = navAppearance
+        }
         .onReceive(locationManager.$location) { location in
             if let location {
                 withAnimation {
