@@ -17,24 +17,12 @@ struct MapView: View {
         }
         .edgesIgnoringSafeArea(.all)
         .onAppear {
-            let navAppearance = UINavigationBarAppearance()
-            navAppearance.configureWithOpaqueBackground()
-            navAppearance.backgroundColor = .black
-            navAppearance.titleTextAttributes = [.foregroundColor: UIColor.orange]
-            navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.orange]
-            UINavigationBar.appearance().standardAppearance = navAppearance
-            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-            UINavigationBar.appearance().compactAppearance = navAppearance
+            // Rely on the global navigation bar appearance defined in
+            // `StarterApp` so the gradient background shows through.
         }
         .onDisappear {
-            let navAppearance = UINavigationBarAppearance()
-            navAppearance.configureWithTransparentBackground()
-            navAppearance.backgroundColor = .black
-            navAppearance.titleTextAttributes = [.foregroundColor: UIColor.orange]
-            navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.orange]
-            UINavigationBar.appearance().standardAppearance = navAppearance
-            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-            UINavigationBar.appearance().compactAppearance = navAppearance
+            // Restore the global navigation bar appearance (no-op since we do
+            // not modify it here but keeps symmetry with `onAppear`).
         }
         .onReceive(locationManager.$location) { location in
             if let location {

@@ -15,7 +15,7 @@ struct StarterApp: App {
         // shows through instead of the default gray color.
         let tabAppearance = UITabBarAppearance()
         tabAppearance.configureWithTransparentBackground()
-        tabAppearance.backgroundColor = .black
+        tabAppearance.backgroundColor = .clear
         UITabBar.appearance().standardAppearance = tabAppearance
         if #available(iOS 15.0, *) {
             UITabBar.appearance().scrollEdgeAppearance = tabAppearance
@@ -24,12 +24,13 @@ struct StarterApp: App {
 
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithTransparentBackground()
-        navAppearance.backgroundColor = .black
+        navAppearance.backgroundColor = .clear
         navAppearance.titleTextAttributes = [.foregroundColor: UIColor.orange]
         navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.orange]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
         UINavigationBar.appearance().compactAppearance = navAppearance
+        UINavigationBar.appearance().tintColor = .orange
         
         UISegmentedControl.appearance().selectedSegmentTintColor = UIColor.orange
         UISegmentedControl.appearance().backgroundColor = UIColor.black
