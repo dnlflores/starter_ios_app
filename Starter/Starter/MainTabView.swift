@@ -3,8 +3,6 @@ import SwiftUI
 struct MainTabView: View {
     let username: String
     @Binding var showLogin: Bool
-    @AppStorage("authToken") private var authToken: String = ""
-
     @State private var selection = 0
 
     var body: some View {
@@ -15,37 +13,19 @@ struct MainTabView: View {
                 }
                 .tag(0)
 
-            Group {
-                if authToken.isEmpty {
-                    LoginView(showLogin: $showLogin)
-                } else {
-                    ChatView()
-                }
-            }
+            ChatView(showLogin: $showLogin)
             .tabItem {
                 Label("Chat", systemImage: "bubble.right")
             }
             .tag(1)
 
-            Group {
-                if authToken.isEmpty {
-                    LoginView(showLogin: $showLogin)
-                } else {
-                    PostView()
-                }
-            }
+            PostView(showLogin: $showLogin)
             .tabItem {
                 Label("Post", systemImage: "plus.app")
             }
             .tag(2)
 
-            Group {
-                if authToken.isEmpty {
-                    LoginView(showLogin: $showLogin)
-                } else {
-                    ListingsView(username: username)
-                }
-            }
+            ListingsView(username: username, showLogin: $showLogin)
             .tabItem {
                 Label("Listings", systemImage: "list.bullet")
             }
