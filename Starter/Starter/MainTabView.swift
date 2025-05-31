@@ -34,5 +34,5 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(username: "User")
+    MainTabView(username: "daniel")
 }
