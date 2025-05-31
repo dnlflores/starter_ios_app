@@ -23,6 +23,7 @@ struct ChatView: View {
                     .font(.largeTitle)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
     }
 }

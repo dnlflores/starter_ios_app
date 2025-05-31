@@ -23,17 +23,35 @@ struct ListingsView: View {
                 .padding()
             } else {
                 NavigationStack {
-                    List(filteredTools) { tool in
-                        NavigationLink(destination: ToolDetailView(tool: tool)) {
-                            VStack(alignment: .leading) {
-                                Text(tool.name)
-                                    .font(.headline)
-                                Text(tool.description ?? "No description available")
-                                    .font(.subheadline)
+                    ZStack {
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.black.opacity(0.6),
+                                Color.orange.opacity(0.6)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .ignoresSafeArea()
+                        List(filteredTools) { tool in
+                            NavigationLink(destination: ToolDetailView(tool: tool)) {
+                                VStack(alignment: .leading) {
+                                    Text(tool.name)
+                                        .font(.headline)
+                                    Text(tool.description ?? "No description available")
+                                        .font(.subheadline)
+                                }
                             }
+                            .listRowBackground(
+                                Color.clear
+                            )
                         }
+                        .listStyle(.plain)
+                        // This is the magic iOS 16+ call: hide the List’s sheet.
+                        .scrollContentBackground(.hidden)
+                        // And ensure whatever remains of the List’s “container” is clear:
+                        .background(Color.clear)
                     }
-                    .listStyle(.plain)
                     .navigationTitle("RNTL")
                     .navigationBarTitleDisplayMode(.inline)
                 }
@@ -42,7 +60,6 @@ struct ListingsView: View {
                 }
             }
         }
-        .applyThemeBackground()
     }
 
     private var filteredTools: [Tool] {
@@ -67,5 +84,5 @@ struct ListingsView: View {
 }
 
 #Preview {
-    ListingsView(username: "User", showLogin: .constant(false))
+    ListingsView(username: "daniel", showLogin: .constant(false))
 }

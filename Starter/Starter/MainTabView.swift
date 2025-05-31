@@ -8,10 +8,10 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selection) {
             WelcomeView(username: username)
-                .tabItem {
-                    Label("Home", systemImage: "house")
-                }
-                .tag(0)
+            .tabItem {
+                Label("Home", systemImage: "house")
+            }
+            .tag(0)
 
             ChatView(showLogin: $showLogin)
             .tabItem {
