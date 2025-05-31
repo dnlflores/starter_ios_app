@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ToolDetailView: View {
     let tool: Tool
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ScrollView {
@@ -22,7 +23,18 @@ struct ToolDetailView: View {
             }
             .padding()
         }
-        .navigationTitle(tool.name)
+        .navigationTitle("RNTL")
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+            }
+        }
     }
 }
 
