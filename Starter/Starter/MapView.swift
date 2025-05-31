@@ -27,14 +27,7 @@ struct MapView: View {
             UINavigationBar.appearance().compactAppearance = navAppearance
         }
         .onDisappear {
-            let navAppearance = UINavigationBarAppearance()
-            navAppearance.configureWithTransparentBackground()
-            navAppearance.backgroundColor = .black
-            navAppearance.titleTextAttributes = [.foregroundColor: UIColor.orange]
-            navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.orange]
-            UINavigationBar.appearance().standardAppearance = navAppearance
-            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-            UINavigationBar.appearance().compactAppearance = navAppearance
+            // Keep global black navigation bar style when leaving the map view.
         }
         .onReceive(locationManager.$location) { location in
             if let location {

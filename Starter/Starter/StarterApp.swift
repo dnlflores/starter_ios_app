@@ -11,10 +11,9 @@ import UIKit
 @main
 struct StarterApp: App {
     init() {
-        // Make tab and navigation bars transparent so the gradient background
-        // shows through instead of the default gray color.
+        // Make tab and navigation bars black to match the theme.
         let tabAppearance = UITabBarAppearance()
-        tabAppearance.configureWithTransparentBackground()
+        tabAppearance.configureWithOpaqueBackground()
         tabAppearance.backgroundColor = .black
         UITabBar.appearance().standardAppearance = tabAppearance
         if #available(iOS 15.0, *) {
@@ -23,13 +22,14 @@ struct StarterApp: App {
         UITabBar.appearance().tintColor = .orange
 
         let navAppearance = UINavigationBarAppearance()
-        navAppearance.configureWithTransparentBackground()
+        navAppearance.configureWithOpaqueBackground()
         navAppearance.backgroundColor = .black
         navAppearance.titleTextAttributes = [.foregroundColor: UIColor.orange]
         navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.orange]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
         UINavigationBar.appearance().compactAppearance = navAppearance
+        UINavigationBar.appearance().tintColor = .orange
         
         UISegmentedControl.appearance().selectedSegmentTintColor = UIColor.orange
         UISegmentedControl.appearance().backgroundColor = UIColor.black
