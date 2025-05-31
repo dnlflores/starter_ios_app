@@ -19,10 +19,20 @@ struct AccountView: View {
             .padding()
         } else {
             ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Account Details")
-                        .font(.largeTitle)
-                        .padding(.bottom, 8)
+                VStack(spacing: 20) {
+                    Image(systemName: "person.crop.circle.fill")
+                        .font(.system(size: 100))
+                        .foregroundColor(.white)
+
+                    Text(user?.username ?? username)
+                        .font(.title)
+                        .bold()
+                        .foregroundColor(.white)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Account Details")
+                            .font(.title2)
+                            .padding(.bottom, 4)
 
                     if let user = user {
                         Group {
@@ -73,17 +83,32 @@ struct AccountView: View {
                         Text("Loading user info...")
                             .foregroundColor(.secondary)
                     }
-                }
-                .padding()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
 
-                Button("Log Out") {
-                    logout()
-                    authToken = ""
-                    showLogin = false
+                    Button("Log Out") {
+                        logout()
+                        authToken = ""
+                        showLogin = false
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white.opacity(0.8))
+                    .foregroundColor(.blue)
+                    .cornerRadius(8)
+                    .padding(.horizontal)
+                    .padding(.top)
                 }
-                .buttonStyle(.borderedProminent)
-                .padding(.top)
+                .padding(.vertical)
             }
+            .background(
+                LinearGradient(gradient: Gradient(colors: [.blue.opacity(0.6), .purple.opacity(0.6)]), startPoint: .top, endPoint: .bottom)
+                    .ignoresSafeArea()
+            )
             .onAppear {
                 fetchUsers { users in
                     if let match = users.first(where: { $0.username == username }) {

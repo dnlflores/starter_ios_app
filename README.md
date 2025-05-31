@@ -7,3 +7,8 @@ The app requests access to your location when the map is displayed. If permissio
 ## Authentication Persistence
 
 After logging in, the received authentication token is stored locally so you remain logged in when reopening the app. A new **Log Out** button in the account tab clears this token if you wish to sign out.
+
+## Account Tab
+
+The account tab now features a colorful gradient background with a large profile
+icon and user details presented inside a rounded card for a cleaner look.
