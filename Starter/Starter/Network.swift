@@ -57,9 +57,12 @@ func login(username: String, password: String, completion: @escaping (Bool) -> V
     }.resume()
 }
 
-func fetchUsers() {
+func fetchUsers(completion: @escaping ([User]) -> Void) {
     guard let token = UserDefaults.standard.string(forKey: "authToken"),
-          let url = URL(string: "https://6547-76-106-54-237.ngrok-free.app/users") else { return }
+          let url = URL(string: "https://6547-76-106-54-237.ngrok-free.app/users") else {
+        completion([])
+        return
+    }
 
     var request = URLRequest(url: url)
     request.httpMethod = "GET"
@@ -68,7 +71,10 @@ func fetchUsers() {
     URLSession.shared.dataTask(with: request) { data, _, _ in
         if let data = data,
            let users = try? JSONDecoder().decode([User].self, from: data) {
+            completion(users)
             print("Fetched users: \(users)")
+        } else {
+            completion([])
         }
     }.resume()
 }
