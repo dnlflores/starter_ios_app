@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainTabView: View {
     let username: String
+    @Binding var showLogin: Bool
 
     var body: some View {
         TabView {
@@ -25,7 +26,7 @@ struct MainTabView: View {
                     Label("Listings", systemImage: "list.bullet")
                 }
 
-            AccountView(username: username)
+            AccountView(username: username, showLogin: $showLogin)
                 .tabItem {
                     Label("Account", systemImage: "person")
                 }
@@ -34,5 +35,5 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(username: "daniel")
+    MainTabView(username: "daniel", showLogin: .constant(false))
 }

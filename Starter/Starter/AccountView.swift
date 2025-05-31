@@ -2,24 +2,37 @@ import SwiftUI
 
 struct AccountView: View {
     let username: String
+    @Binding var showLogin: Bool
+    @AppStorage("authToken") private var authToken: String = ""
     @State private var user: User?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Account Details")
-                    .font(.largeTitle)
-                    .padding(.bottom, 8)
+        if authToken.isEmpty {
+            VStack(spacing: 16) {
+                Text("You are not logged in.")
+                    .font(.title2)
+                Button("Log In") {
+                    showLogin = true
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+        } else {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Account Details")
+                        .font(.largeTitle)
+                        .padding(.bottom, 8)
 
-                if let user = user {
-                    Group {
-                        Text("Username: \(user.username)")
-                            .font(.title2)
-                        Text("User ID: \(user.id)")
-                            .font(.title3)
-                        if let firstName = user.first_name {
-                            Text("First Name: \(firstName)")
-                        }
+                    if let user = user {
+                        Group {
+                            Text("Username: \(user.username)")
+                                .font(.title2)
+                            Text("User ID: \(user.id)")
+                                .font(.title3)
+                            if let firstName = user.first_name {
+                                Text("First Name: \(firstName)")
+                            }
                         if let lastName = user.last_name {
                             Text("Last Name: \(lastName)")
                         }
@@ -53,21 +66,22 @@ struct AccountView: View {
                         if let updated = user.updated_at {
                             Text("Updated: \(updated)")
                         }
+                        }
+                    } else {
+                        Text("Username: \(username)")
+                            .font(.title2)
+                        Text("Loading user info...")
+                            .foregroundColor(.secondary)
                     }
-                } else {
-                    Text("Username: \(username)")
-                        .font(.title2)
-                    Text("Loading user info...")
-                        .foregroundColor(.secondary)
                 }
+                .padding()
             }
-            .padding()
-        }
-        .onAppear {
-            fetchUsers { users in
-                if let match = users.first(where: { $0.username == username }) {
-                    DispatchQueue.main.async {
-                        self.user = match
+            .onAppear {
+                fetchUsers { users in
+                    if let match = users.first(where: { $0.username == username }) {
+                        DispatchQueue.main.async {
+                            self.user = match
+                        }
                     }
                 }
             }
@@ -76,5 +90,5 @@ struct AccountView: View {
 }
 
 #Preview {
-    AccountView(username: "daniel")
+    AccountView(username: "daniel", showLogin: .constant(false))
 }
