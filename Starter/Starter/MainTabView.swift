@@ -6,7 +6,6 @@ struct MainTabView: View {
     @AppStorage("authToken") private var authToken: String = ""
 
     @State private var selection = 0
-    @State private var pendingSelection: Int?
 
     var body: some View {
         TabView(selection: $selection) {
@@ -16,49 +15,47 @@ struct MainTabView: View {
                 }
                 .tag(0)
 
-            ChatView()
-                .tabItem {
-                    Label("Chat", systemImage: "bubble.right")
+            Group {
+                if authToken.isEmpty {
+                    LoginView(showLogin: .constant(false))
+                } else {
+                    ChatView()
                 }
-                .tag(1)
+            }
+            .tabItem {
+                Label("Chat", systemImage: "bubble.right")
+            }
+            .tag(1)
 
-            PostView()
-                .tabItem {
-                    Label("Post", systemImage: "plus.app")
+            Group {
+                if authToken.isEmpty {
+                    LoginView(showLogin: .constant(false))
+                } else {
+                    PostView()
                 }
-                .tag(2)
+            }
+            .tabItem {
+                Label("Post", systemImage: "plus.app")
+            }
+            .tag(2)
 
-            ListingsView(username: username)
-                .tabItem {
-                    Label("Listings", systemImage: "list.bullet")
+            Group {
+                if authToken.isEmpty {
+                    LoginView(showLogin: .constant(false))
+                } else {
+                    ListingsView(username: username)
                 }
-                .tag(3)
+            }
+            .tabItem {
+                Label("Listings", systemImage: "list.bullet")
+            }
+            .tag(3)
 
             AccountView(username: username, showLogin: $showLogin)
                 .tabItem {
                     Label("Account", systemImage: "person")
                 }
                 .tag(4)
-        }
-        .onChange(of: selection) { newValue in
-            if authToken.isEmpty && newValue != 0 {
-                pendingSelection = newValue
-                showLogin = true
-                selection = 0
-            }
-        }
-        .onChange(of: showLogin) { newValue in
-            if !newValue, let pending = pendingSelection, !authToken.isEmpty {
-                selection = pending
-                pendingSelection = nil
-            }
-        }
-        .onChange(of: authToken) { newValue in
-            if newValue.isEmpty && selection != 0 {
-                pendingSelection = selection
-                showLogin = true
-                selection = 0
-            }
         }
     }
 }
