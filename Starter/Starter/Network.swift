@@ -113,3 +113,9 @@ func fetchTools(completion: @escaping ([Tool]) -> Void) {
         }
     }.resume()
 }
+
+/// Clear the stored authentication token and user information.
+func logout() {
+    UserDefaults.standard.removeObject(forKey: "authToken")
+    UserDefaults.standard.removeObject(forKey: "username")
+}
