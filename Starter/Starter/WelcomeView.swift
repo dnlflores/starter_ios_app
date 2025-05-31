@@ -26,7 +26,6 @@ struct WelcomeView: View {
         }
         .onAppear {
             fetchTools { fetched in
-                print("fetched tools:", fetched)
                 DispatchQueue.main.async {
                     self.tools = fetched
                 }
