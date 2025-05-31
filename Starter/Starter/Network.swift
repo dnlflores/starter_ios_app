@@ -14,6 +14,18 @@ struct AuthResponse: Codable {
 struct User: Codable {
     let id: Int
     let username: String
+    let email: String?
+    let created_at: String?
+    let updated_at: String?
+    let is_seller: Bool?
+    let is_admin: Bool?
+    let first_name: String?
+    let last_name: String?
+    let phone: String?
+    let address: String?
+    let city: String?
+    let state: String?
+    let zip: String?
 }
 
 struct Tool: Codable, Identifiable {
