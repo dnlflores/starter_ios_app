@@ -25,8 +25,11 @@ struct ContentView: View {
                     .bold()
                     .foregroundColor(.white)
                 TextField("Username", text: $username)
+                    .textInputAutocapitalization(.never) // iOS 15+
+                    .autocapitalization(.none)           // backward compatibility
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)
+
                 SecureField("Password", text: $password)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)

@@ -92,9 +92,7 @@ func fetchTools(completion: @escaping ([Tool]) -> Void) {
         if let data = data,
            let tools = try? JSONDecoder().decode([Tool].self, from: data) {
             completion(tools)
-            print("fetched from api: \(tools)")
         } else {
-            print("error fetching tools")
             completion([])
         }
     }.resume()

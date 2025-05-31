@@ -3,7 +3,7 @@ import SwiftUI
 struct WelcomeView: View {
     let username: String
     @State private var tools: [Tool] = []
-
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading) {
@@ -11,7 +11,7 @@ struct WelcomeView: View {
                     .font(.largeTitle)
                     .bold()
                     .padding()
-
+                
                 List(tools) { tool in
                     NavigationLink(destination: ToolDetailView(tool: tool)) {
                         VStack(alignment: .leading) {
