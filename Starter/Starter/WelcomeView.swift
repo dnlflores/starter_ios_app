@@ -20,7 +20,6 @@ struct WelcomeView: View {
                         .tint(.orange)
                     }
                     .background(Color.black)
-                    .frame(height: 60)
                     
                     
                     // 2) Now show either the List or the Map below it
@@ -39,6 +38,7 @@ struct WelcomeView: View {
                             )
                         }
                         .listStyle(.plain)
+                        .padding(.vertical)
                     } else {
                         MapView()
                     }

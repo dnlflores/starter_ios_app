@@ -36,7 +36,7 @@ struct MainTabView: View {
                 Label("Account", systemImage: "person")
             }
             .tag(4)
-        }.applyThemeBackground()
+        }
     }
 }
 
