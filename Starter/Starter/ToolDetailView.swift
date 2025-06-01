@@ -7,9 +7,6 @@ struct ToolDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(tool.name)
-                    .font(.largeTitle)
-                    .bold()
                 Text(tool.description ?? "No description available")
                 Text("Price per hour: \(tool.price)")
                 if let ownerFirst = tool.owner_first_name, let ownerLast = tool.owner_last_name {
@@ -27,7 +24,6 @@ struct ToolDetailView: View {
             .padding()
         }
         .applyThemeBackground()
-        .navigationTitle("RNTL")
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -38,7 +34,18 @@ struct ToolDetailView: View {
                     }
                 }
             }
+            ToolbarItem(placement: .principal) {
+                Text(tool.name)
+                    .foregroundStyle(.orange)
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.bottom)
+            }
         }
+        .toolbarBackground(Color.black, for: .navigationBar)
+        .toolbarColorScheme(.light, for: .navigationBar)
+        .toolbarBackground(Color.black, for: .tabBar)
+        .tint(.orange)
     }
 }
 

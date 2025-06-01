@@ -14,7 +14,7 @@ struct StarterApp: App {
         // Make tab and navigation bars transparent so the gradient background
         // shows through instead of the default gray color.
         let tabAppearance = UITabBarAppearance()
-        tabAppearance.configureWithTransparentBackground()
+        tabAppearance.configureWithOpaqueBackground()
         tabAppearance.backgroundColor = .black
         UITabBar.appearance().standardAppearance = tabAppearance
         if #available(iOS 15.0, *) {

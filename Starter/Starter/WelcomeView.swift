@@ -41,6 +41,10 @@ struct WelcomeView: View {
                         .padding(.vertical)
                     } else {
                         MapView()
+                            .toolbarBackground(Color.black, for: .navigationBar)
+                            .toolbarColorScheme(.light, for: .navigationBar)
+                            .toolbarBackground(Color.black, for: .tabBar)
+                            .tint(.orange)
                     }
                 }
                 .applyThemeBackground()
@@ -52,10 +56,6 @@ struct WelcomeView: View {
                             .bold()
                     }
                 }
-                .toolbarBackground(Color.black, for: .navigationBar)
-                .toolbarColorScheme(.light, for: .navigationBar)
-                .toolbarBackground(Color.black, for: .tabBar)
-                .tint(.orange)
             }
             .onAppear {
                 fetchTools { fetched in
