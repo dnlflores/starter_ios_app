@@ -15,10 +15,6 @@ struct MapView: View {
         Map(position: $position) {
             UserAnnotation()
         }
-        .toolbarBackground(Color.black, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
-        .toolbarBackground(Color.black, for: .tabBar)
-        .toolbarColorScheme(.dark, for: .tabBar)
         .edgesIgnoringSafeArea(.all)
         .onReceive(locationManager.$location) { location in
             if let location {

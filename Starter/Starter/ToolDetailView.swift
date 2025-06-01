@@ -26,6 +26,7 @@ struct ToolDetailView: View {
             }
             .padding()
         }
+        .applyThemeBackground()
         .navigationTitle("RNTL")
         .navigationBarBackButtonHidden(true)
         .toolbar {

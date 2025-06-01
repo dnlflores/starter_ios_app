@@ -40,14 +40,22 @@ struct WelcomeView: View {
                         }
                         .listStyle(.plain)
                     } else {
-                        // If you keep edgesIgnoringSafeArea on MapView, at least
-                        // the Picker above will remain on a plain/blurred background
                         MapView()
                     }
                 }
                 .applyThemeBackground()
-                .navigationTitle("RNTL")
-                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigation) {
+                        Text("RNTL")
+                            .font(.largeTitle)
+                            .foregroundColor(.orange)
+                            .bold()
+                    }
+                }
+                .toolbarBackground(Color.black, for: .navigationBar)
+                .toolbarColorScheme(.light, for: .navigationBar)
+                .toolbarBackground(Color.black, for: .tabBar)
+                .tint(.orange)
             }
             .onAppear {
                 fetchTools { fetched in
