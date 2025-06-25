@@ -15,7 +15,7 @@ struct ChatView: View {
                         showLogin = true
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                    .tint(.purple)
                 }
                 .padding()
             } else {

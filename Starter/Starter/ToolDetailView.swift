@@ -18,7 +18,7 @@ struct ToolDetailView: View {
 
                 MapView()
                     .frame(height: 200)
-
+                    .cornerRadius(20)
                 Spacer()
             }
             .padding()
@@ -36,7 +36,7 @@ struct ToolDetailView: View {
             }
             ToolbarItem(placement: .principal) {
                 Text(tool.name)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.purple)
                     .font(.largeTitle)
                     .bold()
                     .padding(.bottom)
@@ -45,7 +45,7 @@ struct ToolDetailView: View {
         .toolbarBackground(Color.black, for: .navigationBar)
         .toolbarColorScheme(.light, for: .navigationBar)
         .toolbarBackground(Color.black, for: .tabBar)
-        .tint(.orange)
+        .tint(.purple)
     }
 }
 

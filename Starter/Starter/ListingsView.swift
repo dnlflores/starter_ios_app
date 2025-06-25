@@ -18,7 +18,7 @@ struct ListingsView: View {
                         showLogin = true
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                    .tint(.purple)
                 }
                 .padding()
             } else {
@@ -27,7 +27,7 @@ struct ListingsView: View {
                         LinearGradient(
                             gradient: Gradient(colors: [
                                 Color.black.opacity(0.6),
-                                Color.orange.opacity(0.6)
+                                Color.purple.opacity(0.6)
                             ]),
                             startPoint: .top,
                             endPoint: .bottom

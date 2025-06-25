@@ -17,7 +17,7 @@ struct WelcomeView: View {
                         .pickerStyle(.segmented)
                         .padding()
                         .background(Color.black)
-                        .tint(.orange)
+                        .tint(.purple)
                     }
                     .background(Color.black)
                     
@@ -44,7 +44,7 @@ struct WelcomeView: View {
                             .toolbarBackground(Color.black, for: .navigationBar)
                             .toolbarColorScheme(.light, for: .navigationBar)
                             .toolbarBackground(Color.black, for: .tabBar)
-                            .tint(.orange)
+                            .tint(.purple)
                     }
                 }
                 .applyThemeBackground()
@@ -52,7 +52,7 @@ struct WelcomeView: View {
                     ToolbarItem(placement: .navigation) {
                         Text("RNTL")
                             .font(.largeTitle)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.purple)
                             .bold()
                     }
                 }

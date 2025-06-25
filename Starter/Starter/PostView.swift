@@ -15,7 +15,7 @@ struct PostView: View {
                         showLogin = true
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                    .tint(.green)
                 }
                 .padding()
             } else {

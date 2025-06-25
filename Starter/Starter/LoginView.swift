@@ -13,7 +13,7 @@ struct LoginView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                gradient: Gradient(colors: [Color.black.opacity(0.6), Color.orange.opacity(0.6)]),
+                gradient: Gradient(colors: [Color.black.opacity(0.6), Color.blue.opacity(0.6)]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -48,11 +48,11 @@ struct LoginView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.white.opacity(0.8))
-                        .foregroundColor(.orange)
+                        .foregroundColor(.blue)
                         .cornerRadius(8)
                         .padding(.horizontal)
                 }
-                .tint(.orange)
+                .tint(.blue)
                 Spacer()
             }
         }

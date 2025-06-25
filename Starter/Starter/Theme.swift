@@ -1,11 +1,11 @@
 import SwiftUI
 
-struct BlackOrangeBackground: ViewModifier {
+struct BlackPurpleBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.black.opacity(0.6), Color.orange.opacity(0.6)]),
+                    gradient: Gradient(colors: [Color.black.opacity(0.6), Color.purple.opacity(0.6)]),
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -16,6 +16,6 @@ struct BlackOrangeBackground: ViewModifier {
 
 extension View {
     func applyThemeBackground() -> some View {
-        self.modifier(BlackOrangeBackground())
+        self.modifier(BlackPurpleBackground())
     }
 }

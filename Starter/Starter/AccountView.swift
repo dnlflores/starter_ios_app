@@ -15,7 +15,7 @@ struct AccountView: View {
                     showLogin = true
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.orange)
+                .tint(.purple)
             }
             .padding()
         } else {
@@ -99,7 +99,7 @@ struct AccountView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.white.opacity(0.8))
-                    .foregroundColor(.orange)
+                    .foregroundColor(.purple)
                     .cornerRadius(8)
                     .padding(.horizontal)
                     .padding(.top)

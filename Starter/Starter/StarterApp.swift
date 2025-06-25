@@ -20,27 +20,27 @@ struct StarterApp: App {
         if #available(iOS 15.0, *) {
             UITabBar.appearance().scrollEdgeAppearance = tabAppearance
         }
-        UITabBar.appearance().tintColor = .orange
+        UITabBar.appearance().tintColor = .purple
 
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithTransparentBackground()
         navAppearance.backgroundColor = .black
-        navAppearance.titleTextAttributes = [.foregroundColor: UIColor.orange]
-        navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.orange]
+        navAppearance.titleTextAttributes = [.foregroundColor: UIColor.purple]
+        navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.purple]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
         UINavigationBar.appearance().compactAppearance = navAppearance
         
-        UISegmentedControl.appearance().selectedSegmentTintColor = UIColor.orange
+        UISegmentedControl.appearance().selectedSegmentTintColor = UIColor.purple
         UISegmentedControl.appearance().backgroundColor = UIColor.black
-        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.orange], for: .normal)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.purple], for: .normal)
         UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.black], for: .selected)
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .accentColor(.orange)
+                .accentColor(.purple)
         }
     }
 }

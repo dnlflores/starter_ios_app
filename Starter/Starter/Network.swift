@@ -41,7 +41,7 @@ struct Tool: Codable, Identifiable {
 }
 
 func signup(username: String, password: String) {
-    guard let url = URL(string: "https://6547-76-106-54-237.ngrok-free.app/signup") else { return }
+    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/signup") else { return }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -53,7 +53,7 @@ func signup(username: String, password: String) {
 }
 
 func login(username: String, password: String, completion: @escaping (Bool) -> Void) {
-    guard let url = URL(string: "https://6547-76-106-54-237.ngrok-free.app/login") else { return }
+    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/login") else { return }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -76,7 +76,7 @@ func login(username: String, password: String, completion: @escaping (Bool) -> V
 
 func fetchUsers(completion: @escaping ([User]) -> Void) {
     guard let token = UserDefaults.standard.string(forKey: "authToken"),
-          let url = URL(string: "https://6547-76-106-54-237.ngrok-free.app/users") else {
+          let url = URL(string: "https://starter-ios-app-backend.onrender.com/users") else {
         completion([])
         return
     }
@@ -96,7 +96,7 @@ func fetchUsers(completion: @escaping ([User]) -> Void) {
 }
 
 func fetchTools(completion: @escaping ([Tool]) -> Void) {
-    guard let url = URL(string: "https://6547-76-106-54-237.ngrok-free.app/tools") else {
+    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools") else {
         completion([])
         return
     }
