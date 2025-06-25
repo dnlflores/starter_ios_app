@@ -119,3 +119,33 @@ func logout() {
     UserDefaults.standard.removeObject(forKey: "authToken")
     UserDefaults.standard.removeObject(forKey: "username")
 }
+
+/// Create a new tool on the server.
+func createTool(name: String, price: String, description: String, ownerId: Int, createdAt: String, authToken: String, completion: @escaping (Bool) -> Void) {
+    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools") else {
+        completion(false)
+        return
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+
+    let body: [String: Any] = [
+        "name": name,
+        "price": price,
+        "description": description,
+        "owner_id": ownerId,
+        "created_at": createdAt
+    ]
+    request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+    URLSession.shared.dataTask(with: request) { _, response, _ in
+        if let http = response as? HTTPURLResponse, http.statusCode == 201 {
+            completion(true)
+        } else {
+            completion(false)
+        }
+    }.resume()
+}

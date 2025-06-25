@@ -4,6 +4,7 @@ struct MainTabView: View {
     let username: String
     @Binding var showLogin: Bool
     @State private var selection = 0
+    @State private var previousSelection = 0
 
     var body: some View {
         TabView(selection: $selection) {
@@ -19,7 +20,7 @@ struct MainTabView: View {
             }
             .tag(1)
 
-            PostView(showLogin: $showLogin)
+            PostView(showLogin: $showLogin, selection: $selection, previousSelection: $previousSelection)
             .tabItem {
                 Label("Post", systemImage: "plus.app")
             }
@@ -36,6 +37,11 @@ struct MainTabView: View {
                 Label("Account", systemImage: "person")
             }
             .tag(4)
+        }
+        .onChange(of: selection) { newValue in
+            if newValue != 2 {
+                previousSelection = newValue
+            }
         }
     }
 }
