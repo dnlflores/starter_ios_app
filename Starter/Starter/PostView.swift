@@ -32,31 +32,30 @@ struct PostView: View {
             } else {
                 NavigationStack {
                     Form {
-                        Section {
+                        Section (header: Text("Tool Information")) {
                             TextField("Name", text: $name)
                             TextField("Price", text: $price)
                                 .keyboardType(.decimalPad)
                             TextField("Description", text: $description, axis: .vertical)
                         }
                         Section {
-                            HStack {
+                            HStack() {
                                 Spacer()
-                                Button("Save") { savePost() }
-                                    .buttonStyle(.borderedProminent)
-                                Spacer()
-                            }
-                            HStack {
-                                Spacer()
+                                Button("Save") {
+                                    savePost()
+                                }
+                                .buttonStyle(.borderedProminent)
                                 Button("Cancel") {
                                     selection = previousSelection
                                 }
                                 .buttonStyle(.bordered)
                                 Spacer()
                             }
+                            .padding()
                         }
                     }
+                    .accentColor(.purple)
                     .navigationTitle("New Listing")
-                    .navigationBarTitleDisplayMode(.inline)
                 }
             }
         }
