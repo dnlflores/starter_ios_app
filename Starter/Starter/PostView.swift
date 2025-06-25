@@ -8,14 +8,22 @@ struct PostView: View {
     @Binding var selection: Int
     /// Stores the previously selected tab so we can return to it.
     @Binding var previousSelection: Int
-
+    
     @AppStorage("authToken") private var authToken: String = ""
     @AppStorage("username") private var username: String = "Guest"
-
+    
     @State private var name = ""
-    @State private var price = ""
+    @State private var price: Double = 0.0
     @State private var description = ""
-
+    
+    private var currencyFormatter: NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "en_US") // U.S. Dollar
+        formatter.maximumFractionDigits = 2
+        return formatter
+    }
+    
     var body: some View {
         ZStack {
             if authToken.isEmpty {
@@ -31,38 +39,82 @@ struct PostView: View {
                 .padding()
             } else {
                 NavigationStack {
-                    Form {
-                        Section (header: Text("Tool Information")) {
-                            TextField("Name", text: $name)
-                            TextField("Price", text: $price)
-                                .keyboardType(.decimalPad)
-                            TextField("Description", text: $description, axis: .vertical)
-                        }
+                    VStack (spacing: 16){
                         Section {
-                            HStack() {
-                                Spacer()
-                                Button("Save") {
-                                    savePost()
+                            ZStack {
+                                TextField("", text: $name)
+                                    .padding()
+                                    .background(.black.opacity(0.4))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8.0)
+                                    .padding(.horizontal, 18)
+                                if name.isEmpty {
+                                    Text("Tool Name")
+                                        .foregroundColor(.gray.opacity(0.4))
                                 }
-                                .buttonStyle(.borderedProminent)
-                                Button("Cancel") {
-                                    selection = previousSelection
-                                }
-                                .buttonStyle(.bordered)
-                                Spacer()
                             }
-                            .padding()
+                            .padding(.top, 16)
+                            ZStack {
+                                TextEditor(text: $description)
+                                    .padding()
+                                    .scrollContentBackground(.hidden)
+                                    .background(.black.opacity(0.4))
+                                    .cornerRadius(8)
+                                    .frame(width: 365, height: 150)
+                                    .foregroundColor(.white)
+                                if description.isEmpty {
+                                    Text("Tool Description")
+                                        .foregroundColor(.gray.opacity(0.4))
+                                }
+                            }
+                            Text("Price")
+                                .font(.system(size: 14))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 20)
+                                .padding(.bottom, 0)
+                            TextField("", value: $price, formatter: currencyFormatter)
+                                .keyboardType(.decimalPad)
+                                .padding()
+                                .background(.black.opacity(0.4))
+                                .foregroundColor(.white)
+                                .cornerRadius(8.0)
+                                .padding(.horizontal, 18)
+                        }
+                        Button(action: {
+                            savePost()
+                        }) {
+                            Text("Save")
+                                .padding(8)
+                                .frame(width: 200)
+                        }
+                        .font(.title)
+                        .background(Color.black.opacity(0.4))
+                        .shadow(radius: 8)
+                        .cornerRadius(8)
+                        
+                        Spacer()
+                    }
+                    .navigationTitle("New Listing")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .applyThemeBackground()
+                    .tint(.purple)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Cancel") {
+                                selection = previousSelection
+                            }
+                            .tint(.red)
+                            .foregroundStyle(Color.red)
                         }
                     }
-                    .accentColor(.purple)
-                    .navigationTitle("New Listing")
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
     }
-
+    
     /// Save the entered data to the server and return to the previous tab on success.
     private func savePost() {
         fetchUsers { users in
@@ -75,7 +127,7 @@ struct PostView: View {
                 if success {
                     DispatchQueue.main.async {
                         name = ""
-                        price = ""
+                        price = 0.0
                         description = ""
                         selection = previousSelection
                     }

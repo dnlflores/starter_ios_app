@@ -121,7 +121,7 @@ func logout() {
 }
 
 /// Create a new tool on the server.
-func createTool(name: String, price: String, description: String, ownerId: Int, createdAt: String, authToken: String, completion: @escaping (Bool) -> Void) {
+func createTool(name: String, price: Double, description: String, ownerId: Int, createdAt: String, authToken: String, completion: @escaping (Bool) -> Void) {
     guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools") else {
         completion(false)
         return

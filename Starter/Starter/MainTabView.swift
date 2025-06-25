@@ -5,40 +5,40 @@ struct MainTabView: View {
     @Binding var showLogin: Bool
     @State private var selection = 0
     @State private var previousSelection = 0
-
+    
     var body: some View {
         TabView(selection: $selection) {
             WelcomeView(username: username)
-            .tabItem {
-                Label("Home", systemImage: "house")
-            }
-            .tag(0)
-
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+                .tag(0)
+            
             ChatView(showLogin: $showLogin)
-            .tabItem {
-                Label("Chat", systemImage: "bubble.right")
-            }
-            .tag(1)
-
+                .tabItem {
+                    Label("Chat", systemImage: "bubble.right")
+                }
+                .tag(1)
+            
             PostView(showLogin: $showLogin, selection: $selection, previousSelection: $previousSelection)
-            .tabItem {
-                Label("Post", systemImage: "plus.app")
-            }
-            .tag(2)
-
+                .tabItem {
+                    Label("Post", systemImage: "plus.app")
+                }
+                .tag(2)
+            
             ListingsView(username: username, showLogin: $showLogin)
-            .tabItem {
-                Label("Listings", systemImage: "list.bullet")
-            }
-            .tag(3)
-
+                .tabItem {
+                    Label("Listings", systemImage: "list.bullet")
+                }
+                .tag(3)
+            
             AccountView(username: username, showLogin: $showLogin)
-            .tabItem {
-                Label("Account", systemImage: "person")
-            }
-            .tag(4)
+                .tabItem {
+                    Label("Account", systemImage: "person")
+                }
+                .tag(4)
         }
-        .onChange(of: selection) { newValue in
+        .onChange(of: selection, initial: false) { newValue, _ in
             if newValue != 2 {
                 previousSelection = newValue
             }
