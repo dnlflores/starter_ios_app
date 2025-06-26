@@ -43,7 +43,8 @@ struct PostView: View {
                 .padding()
             } else {
                 NavigationStack {
-                    VStack (spacing: 16){
+                    ScrollView {
+                        VStack(spacing: 16) {
                         Text("New Listing")
                             .font(.title)
                             .bold()
@@ -93,20 +94,23 @@ struct PostView: View {
                                 .cornerRadius(8.0)
                                 .padding(.horizontal, 18)
                         }
-                        Button(action: {
-                            savePost()
-                        }) {
-                            Text("Save")
-                                .padding(8)
-                                .frame(width: 200)
+                            Button(action: {
+                                savePost()
+                            }) {
+                                Text("Save")
+                                    .padding(8)
+                                    .frame(width: 200)
+                            }
+                            .font(.title)
+                            .background(Color.black.opacity(0.4))
+                            .shadow(radius: 8)
+                            .cornerRadius(8)
+
+                            Spacer()
                         }
-                        .font(.title)
-                        .background(Color.black.opacity(0.4))
-                        .shadow(radius: 8)
-                        .cornerRadius(8)
-                        
-                        Spacer()
+                        .frame(maxWidth: .infinity)
                     }
+                    .scrollDismissesKeyboard(.interactively)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .applyThemeBackground()
                     .tint(.purple)
