@@ -1,4 +1,5 @@
 import SwiftUI
+import MapKit
 
 struct PostView: View {
     /// Controls presentation of the login sheet from the parent view.
@@ -15,6 +16,10 @@ struct PostView: View {
     @State private var name = ""
     @State private var price: Double = 0.0
     @State private var description = ""
+    @StateObject private var addressSearch = AddressSearchService()
+    @State private var selectedCoordinate: CLLocationCoordinate2D?
+    @State private var latitude: Double?
+    @State private var longitude: Double?
     
     private var currencyFormatter: NumberFormatter {
         let formatter = NumberFormatter()
@@ -72,6 +77,50 @@ struct PostView: View {
                                     Text("Tool Description")
                                         .foregroundColor(.gray.opacity(0.4))
                                 }
+                            }
+                            ZStack {
+                                TextField("", text: $addressSearch.query)
+                                    .padding()
+                                    .background(.black.opacity(0.4))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8.0)
+                                    .padding(.horizontal, 18)
+                                if addressSearch.query.isEmpty {
+                                    Text("Address")
+                                        .foregroundColor(.gray.opacity(0.4))
+                                }
+                            }
+                            if !addressSearch.results.isEmpty && !addressSearch.query.isEmpty {
+                                List(addressSearch.results) { result in
+                                    VStack(alignment: .leading) {
+                                        Text(result.title)
+                                            .font(.body)
+                                        if !result.subtitle.isEmpty {
+                                            Text(result.subtitle)
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        addressSearch.query = result.title + (result.subtitle.isEmpty ? "" : ", \(result.subtitle)")
+                                        addressSearch.coordinate(for: result) { coord in
+                                            selectedCoordinate = coord
+                                            latitude = coord?.latitude
+                                            longitude = coord?.longitude
+                                        }
+                                        addressSearch.results = []
+                                    }
+                                }
+                                .listStyle(.plain)
+                                .frame(maxHeight: 150)
+                            }
+                            if let lat = latitude, let lon = longitude {
+                                Text("Lat: \(lat), Lon: \(lon)")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.horizontal, 20)
                             }
                             Text("Price")
                                 .font(.system(size: 18))
