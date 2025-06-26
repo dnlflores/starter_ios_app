@@ -43,7 +43,8 @@ struct PostView: View {
                 .padding()
             } else {
                 NavigationStack {
-                    VStack (spacing: 16){
+                    ScrollView {
+                        VStack (spacing: 16){
                         Text("New Listing")
                             .font(.title)
                             .bold()
@@ -105,8 +106,11 @@ struct PostView: View {
                         .shadow(radius: 8)
                         .cornerRadius(8)
                         
-                        Spacer()
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity)
                     }
+                    .scrollDismissesKeyboard(.interactively)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .applyThemeBackground()
                     .tint(.purple)
