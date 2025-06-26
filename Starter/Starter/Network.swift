@@ -38,6 +38,8 @@ struct Tool: Codable, Identifiable {
     let owner_email: String?
     let owner_first_name: String?
     let owner_last_name: String?
+    let latitude: Double?
+    let longitude: Double?
 }
 
 func signup(username: String, password: String) {
@@ -121,31 +123,75 @@ func logout() {
 }
 
 /// Create a new tool on the server.
-func createTool(name: String, price: Double, description: String, ownerId: Int, createdAt: String, authToken: String, completion: @escaping (Bool) -> Void) {
-    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools") else {
-        completion(false)
-        return
-    }
-
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+func createTool(
+    name: String,
+    price: Double,
+    description: String,
+    ownerId: Int,
+    createdAt: String,
+    latitude: Double,
+    longitude: Double,
+    authToken: String,
+    completion: @escaping (Bool) -> Void
+) {
+    let baseURL = "https://starter-ios-app-backend.onrender.com/tools"
 
     let body: [String: Any] = [
         "name": name,
         "price": price,
         "description": description,
         "owner_id": ownerId,
-        "created_at": createdAt
+        "created_at": createdAt,
+        "latitude": latitude,
+        "longitude": longitude
     ]
-    request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
-    URLSession.shared.dataTask(with: request) { _, response, _ in
-        if let http = response as? HTTPURLResponse, http.statusCode == 201 {
-            completion(true)
+    guard let checkURL = URL(string: "\(baseURL)/name/\(name.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? name)") else {
+        completion(false)
+        return
+    }
+
+    // First check if a tool with the same name exists
+    URLSession.shared.dataTask(with: checkURL) { data, response, _ in
+        if let http = response as? HTTPURLResponse, http.statusCode == 200,
+           let data = data,
+           let existingTool = try? JSONDecoder().decode(Tool.self, from: data) {
+            // Tool exists, update it
+            guard let url = URL(string: "\(baseURL)/\(existingTool.id)") else {
+                completion(false)
+                return
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "PUT"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+            URLSession.shared.dataTask(with: request) { _, response, _ in
+                if let http = response as? HTTPURLResponse, http.statusCode == 200 {
+                    completion(true)
+                } else {
+                    completion(false)
+                }
+            }.resume()
         } else {
-            completion(false)
+            // Tool does not exist, create a new one
+            guard let url = URL(string: baseURL) else {
+                completion(false)
+                return
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+            URLSession.shared.dataTask(with: request) { _, response, _ in
+                if let http = response as? HTTPURLResponse, http.statusCode == 201 {
+                    completion(true)
+                } else {
+                    completion(false)
+                }
+            }.resume()
         }
     }.resume()
 }

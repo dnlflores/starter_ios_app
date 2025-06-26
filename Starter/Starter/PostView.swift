@@ -139,18 +139,30 @@ struct PostView: View {
     
     /// Save the entered data to the server and return to the previous tab on success.
     private func savePost() {
+        guard let coordinate = selectedCoordinate else { return }
         fetchUsers { users in
             guard let match = users.first(where: { $0.username == username }) else {
                 return
             }
             let ownerId = match.id
             let createdAt = ISO8601DateFormatter().string(from: Date())
-            createTool(name: name, price: price, description: description, ownerId: ownerId, createdAt: createdAt, authToken: authToken) { success in
+            createTool(
+                name: name,
+                price: price,
+                description: description,
+                ownerId: ownerId,
+                createdAt: createdAt,
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude,
+                authToken: authToken
+            ) { success in
                 if success {
                     DispatchQueue.main.async {
                         name = ""
                         price = 0.0
                         description = ""
+                        address = ""
+                        selectedCoordinate = nil
                         selection = previousSelection
                     }
                 }
