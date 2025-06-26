@@ -22,22 +22,27 @@ struct AddressSearchField: View {
                 }
             }
             if !service.results.isEmpty && service.query != selectedAddress {
-                List(service.results, id: \.self) { completion in
-                    VStack(alignment: .leading) {
-                        Text(completion.title)
-                            .foregroundColor(.white)
-                        if !completion.subtitle.isEmpty {
-                            Text(completion.subtitle)
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(service.results, id: \.self) { completion in
+                            VStack(alignment: .leading) {
+                                Text(completion.title)
+                                    .foregroundColor(.white)
+                                if !completion.subtitle.isEmpty {
+                                    Text(completion.subtitle)
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.black.opacity(0.6))
+                            .onTapGesture {
+                                select(completion)
+                            }
                         }
                     }
-                    .listRowBackground(Color.black.opacity(0.6))
-                    .onTapGesture {
-                        select(completion)
-                    }
                 }
-                .listStyle(.plain)
                 .frame(maxHeight: 150)
             }
         }

@@ -17,3 +17,7 @@ icon and user details presented inside a rounded card for a cleaner look.
 
 The application now uses a black and orange color scheme applied across all tab
 views for a consistent appearance.
+
+## Posting Tools
+
+The new listing screen now scrolls while the keyboard is visible, allowing address search results to remain visible without dismissing the keyboard.
