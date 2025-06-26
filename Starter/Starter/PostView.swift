@@ -40,7 +40,13 @@ struct PostView: View {
             } else {
                 NavigationStack {
                     VStack (spacing: 16){
-                        Section {
+                        Text("New Listing")
+                            .font(.title)
+                            .bold()
+                            .padding(.top, 16)
+                            .padding(.horizontal, 20)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        VStack {
                             ZStack {
                                 TextField("", text: $name)
                                     .padding()
@@ -68,10 +74,12 @@ struct PostView: View {
                                 }
                             }
                             Text("Price")
-                                .font(.system(size: 14))
+                                .font(.system(size: 18))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 20)
                                 .padding(.bottom, 0)
+                                .padding(.top, 8)
+                                .bold()
                             TextField("", value: $price, formatter: currencyFormatter)
                                 .keyboardType(.decimalPad)
                                 .padding()
@@ -94,8 +102,6 @@ struct PostView: View {
                         
                         Spacer()
                     }
-                    .navigationTitle("New Listing")
-                    .navigationBarTitleDisplayMode(.inline)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .applyThemeBackground()
                     .tint(.purple)
@@ -104,8 +110,15 @@ struct PostView: View {
                             Button("Cancel") {
                                 selection = previousSelection
                             }
-                            .tint(.red)
                             .foregroundStyle(Color.red)
+                        }
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Save") {
+                                savePost()
+                            }
+                            .foregroundStyle(Color.purple)
+                            .bold()
+                            .font(.title3)
                         }
                     }
                 }
