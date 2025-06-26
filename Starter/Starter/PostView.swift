@@ -1,4 +1,5 @@
 import SwiftUI
+import MapKit
 
 struct PostView: View {
     /// Controls presentation of the login sheet from the parent view.
@@ -16,6 +17,9 @@ struct PostView: View {
     @State private var price: Double = 0.0
     @State private var description = ""
     
+    @StateObject private var addressService = AddressSearchService()
+    @State private var address = ""
+    @State private var selectedCoordinate: CLLocationCoordinate2D?
     private var currencyFormatter: NumberFormatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -73,6 +77,7 @@ struct PostView: View {
                                         .foregroundColor(.gray.opacity(0.4))
                                 }
                             }
+                            AddressSearchField(service: addressService, selectedAddress: $address, selectedCoordinate: $selectedCoordinate)
                             Text("Price")
                                 .font(.system(size: 18))
                                 .frame(maxWidth: .infinity, alignment: .leading)
