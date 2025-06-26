@@ -145,7 +145,16 @@ struct PostView: View {
             }
             let ownerId = match.id
             let createdAt = ISO8601DateFormatter().string(from: Date())
-            createTool(name: name, price: price, description: description, ownerId: ownerId, createdAt: createdAt, authToken: authToken) { success in
+            createTool(
+                name: name,
+                price: price,
+                description: description,
+                ownerId: ownerId,
+                createdAt: createdAt,
+                authToken: authToken,
+                latitude: selectedCoordinate?.latitude,
+                longitude: selectedCoordinate?.longitude
+            ) { success in
                 if success {
                     DispatchQueue.main.async {
                         name = ""
