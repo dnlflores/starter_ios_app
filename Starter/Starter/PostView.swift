@@ -125,6 +125,13 @@ struct PostView: View {
                             .bold()
                             .font(.title3)
                         }
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") { hideKeyboard() }
+                        }
+                    }
+                    .onTapGesture {
+                        hideKeyboard()
                     }
                 }
             }
