@@ -43,7 +43,8 @@ struct PostView: View {
                 .padding()
             } else {
                 NavigationStack {
-                    VStack (spacing: 16){
+                    ScrollView {
+                        VStack (spacing: 16){
                         Text("New Listing")
                             .font(.title)
                             .bold()
@@ -107,7 +108,9 @@ struct PostView: View {
                         
                         Spacer()
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 16)
+                    }
                     .applyThemeBackground()
                     .tint(.purple)
                     .toolbar {
