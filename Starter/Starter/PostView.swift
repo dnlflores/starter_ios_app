@@ -43,7 +43,8 @@ struct PostView: View {
                 .padding()
             } else {
                 NavigationStack {
-                    VStack (spacing: 16){
+                    ScrollView {
+                        VStack(spacing: 16) {
                         Text("New Listing")
                             .font(.title)
                             .bold()
@@ -105,11 +106,14 @@ struct PostView: View {
                         .shadow(radius: 8)
                         .cornerRadius(8)
                         
-                        Spacer()
+                            Spacer()
+                        }
+                        .padding(.bottom, 20)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(maxWidth: .infinity)
                     .applyThemeBackground()
                     .tint(.purple)
+                    .scrollDismissesKeyboard(.interactively)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button("Cancel") {
