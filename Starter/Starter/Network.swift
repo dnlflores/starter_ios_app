@@ -121,7 +121,25 @@ func logout() {
 }
 
 /// Create a new tool on the server.
-func createTool(name: String, price: Double, description: String, ownerId: Int, createdAt: String, authToken: String, completion: @escaping (Bool) -> Void) {
+/// - Parameters:
+///   - name: Name of the tool.
+///   - price: Price per hour.
+///   - description: Description of the tool.
+///   - ownerId: ID of the user creating the post.
+///   - createdAt: ISO8601 timestamp for creation.
+///   - latitude: Optional latitude if location is provided.
+///   - longitude: Optional longitude if location is provided.
+///   - authToken: Authentication token for the request.
+///   - completion: Callback indicating success.
+func createTool(name: String,
+                price: Double,
+                description: String,
+                ownerId: Int,
+                createdAt: String,
+                latitude: Double? = nil,
+                longitude: Double? = nil,
+                authToken: String,
+                completion: @escaping (Bool) -> Void) {
     guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools") else {
         completion(false)
         return
@@ -132,13 +150,20 @@ func createTool(name: String, price: Double, description: String, ownerId: Int, 
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
 
-    let body: [String: Any] = [
+    var body: [String: Any] = [
         "name": name,
         "price": price,
         "description": description,
         "owner_id": ownerId,
         "created_at": createdAt
     ]
+
+    if let latitude {
+        body["latitude"] = latitude
+    }
+    if let longitude {
+        body["longitude"] = longitude
+    }
     request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
     URLSession.shared.dataTask(with: request) { _, response, _ in

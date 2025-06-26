@@ -1,4 +1,5 @@
 import SwiftUI
+import MapKit
 
 struct PostView: View {
     /// Controls presentation of the login sheet from the parent view.
@@ -15,6 +16,10 @@ struct PostView: View {
     @State private var name = ""
     @State private var price: Double = 0.0
     @State private var description = ""
+    @State private var addressQuery = ""
+    @StateObject private var searchCompleter = MKLocalSearchCompleter()
+    @State private var searchResults: [MKLocalSearchCompletion] = []
+    @State private var selectedCoordinate: CLLocationCoordinate2D?
     
     private var currencyFormatter: NumberFormatter {
         let formatter = NumberFormatter()
@@ -73,6 +78,39 @@ struct PostView: View {
                                         .foregroundColor(.gray.opacity(0.4))
                                 }
                             }
+                            ZStack {
+                                TextField("", text: $addressQuery)
+                                    .padding()
+                                    .background(.black.opacity(0.4))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8.0)
+                                    .padding(.horizontal, 18)
+                                    .onChange(of: addressQuery) { newValue in
+                                        searchCompleter.queryFragment = newValue
+                                    }
+                                if addressQuery.isEmpty {
+                                    Text("Address")
+                                        .foregroundColor(.gray.opacity(0.4))
+                                }
+                            }
+                            if !searchResults.isEmpty {
+                                List(searchResults.indices, id: \.self) { index in
+                                    let result = searchResults[index]
+                                    VStack(alignment: .leading) {
+                                        Text(result.title)
+                                        if !result.subtitle.isEmpty {
+                                            Text(result.subtitle)
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        }
+                                    }
+                                    .onTapGesture {
+                                        selectCompletion(result)
+                                    }
+                                }
+                                .frame(maxHeight: 150)
+                                .listStyle(.plain)
+                            }
                             Text("Price")
                                 .font(.system(size: 18))
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -126,8 +164,26 @@ struct PostView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
+        .onAppear {
+            searchCompleter.resultTypes = .address
+        }
+        .onReceive(searchCompleter.$results) { results in
+            searchResults = results
+        }
     }
-    
+
+    /// Perform a search using the selected completion to obtain coordinates.
+    private func selectCompletion(_ completion: MKLocalSearchCompletion) {
+        let request = MKLocalSearch.Request(completion: completion)
+        MKLocalSearch(request: request).start { response, _ in
+            if let item = response?.mapItems.first {
+                selectedCoordinate = item.placemark.coordinate
+                addressQuery = completion.title + ", " + completion.subtitle
+                searchResults.removeAll()
+            }
+        }
+    }
+
     /// Save the entered data to the server and return to the previous tab on success.
     private func savePost() {
         fetchUsers { users in
@@ -136,7 +192,14 @@ struct PostView: View {
             }
             let ownerId = match.id
             let createdAt = ISO8601DateFormatter().string(from: Date())
-            createTool(name: name, price: price, description: description, ownerId: ownerId, createdAt: createdAt, authToken: authToken) { success in
+            createTool(name: name,
+                       price: price,
+                       description: description,
+                       ownerId: ownerId,
+                       createdAt: createdAt,
+                       latitude: selectedCoordinate?.latitude,
+                       longitude: selectedCoordinate?.longitude,
+                       authToken: authToken) { success in
                 if success {
                     DispatchQueue.main.async {
                         name = ""
