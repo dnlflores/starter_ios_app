@@ -5,6 +5,7 @@ struct AddressSearchField: View {
     @ObservedObject var service: AddressSearchService
     @Binding var selectedAddress: String
     @Binding var selectedCoordinate: CLLocationCoordinate2D?
+    @StateObject private var keyboard = KeyboardResponder()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -41,6 +42,7 @@ struct AddressSearchField: View {
                 .frame(maxHeight: 150)
             }
         }
+        .padding(.bottom, keyboard.keyboardHeight)
     }
 
     private func select(_ completion: MKLocalSearchCompletion) {
