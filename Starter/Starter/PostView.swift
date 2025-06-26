@@ -110,26 +110,26 @@ struct PostView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .applyThemeBackground()
                     .tint(.purple)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Cancel") {
-                                selection = previousSelection
-                            }
-                            .foregroundStyle(Color.red)
+                }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Cancel") {
+                            selection = previousSelection
                         }
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button("Save") {
-                                savePost()
-                            }
-                            .foregroundStyle(Color.purple)
-                            .bold()
-                            .font(.title3)
+                        .foregroundStyle(Color.red)
+                    }
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Save") {
+                            savePost()
                         }
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Spacer()
-                            Button("Done") {
-                                hideKeyboard()
-                            }
+                        .foregroundStyle(Color.purple)
+                        .bold()
+                        .font(.title3)
+                    }
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") {
+                            hideKeyboard()
                         }
                     }
                 }
