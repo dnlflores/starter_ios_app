@@ -20,6 +20,7 @@ struct PostView: View {
     @StateObject private var addressService = AddressSearchService()
     @State private var address = ""
     @State private var selectedCoordinate: CLLocationCoordinate2D?
+    @StateObject private var keyboard = KeyboardResponder()
     private var currencyFormatter: NumberFormatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -43,7 +44,8 @@ struct PostView: View {
                 .padding()
             } else {
                 NavigationStack {
-                    VStack (spacing: 16){
+                    ScrollView {
+                        VStack(spacing: 16) {
                         Text("New Listing")
                             .font(.title)
                             .bold()
@@ -106,11 +108,14 @@ struct PostView: View {
                         .cornerRadius(8)
                         
                         Spacer()
+                            .frame(height: 0)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, keyboard.keyboardHeight)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .applyThemeBackground()
-                    .tint(.purple)
-                    .toolbar {
+                .tint(.purple)
+                .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button("Cancel") {
                                 selection = previousSelection
