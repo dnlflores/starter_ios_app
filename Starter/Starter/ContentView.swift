@@ -7,7 +7,6 @@ struct ContentView: View {
     @AppStorage("username") private var storedUsername: String = "Guest"
     @State private var showLogin = false
     @State private var showSignUp = false
-    @State private var showSignUp = false
 
     var body: some View {
         MainTabView(username: storedUsername, showLogin: $showLogin, showSignUp: $showSignUp)
