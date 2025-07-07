@@ -4,6 +4,8 @@ struct ListingsView: View {
     let username: String
     /// Controls presentation of the login sheet from the parent view.
     @Binding var showLogin: Bool
+    /// Controls presentation of the signup sheet from the parent view.
+    @Binding var showSignUp: Bool
     @AppStorage("authToken") private var authToken: String = ""
     @State private var user: User?
     @State private var tools: [Tool] = []
@@ -18,6 +20,11 @@ struct ListingsView: View {
                         showLogin = true
                     }
                     .buttonStyle(.borderedProminent)
+                    .tint(.purple)
+                    Button("Sign Up") {
+                        showSignUp = true
+                    }
+                    .buttonStyle(.bordered)
                     .tint(.purple)
                 }
                 .padding()
@@ -84,5 +91,5 @@ struct ListingsView: View {
 }
 
 #Preview {
-    ListingsView(username: "daniel", showLogin: .constant(false))
+    ListingsView(username: "daniel", showLogin: .constant(false), showSignUp: .constant(false))
 }

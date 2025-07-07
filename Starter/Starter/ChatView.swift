@@ -3,6 +3,8 @@ import SwiftUI
 struct ChatView: View {
     /// Controls presentation of the login sheet from the parent view.
     @Binding var showLogin: Bool
+    /// Controls presentation of the signup sheet from the parent view.
+    @Binding var showSignUp: Bool
     @AppStorage("authToken") private var authToken: String = ""
 
     var body: some View {
@@ -15,6 +17,11 @@ struct ChatView: View {
                         showLogin = true
                     }
                     .buttonStyle(.borderedProminent)
+                    .tint(.purple)
+                    Button("Sign Up") {
+                        showSignUp = true
+                    }
+                    .buttonStyle(.bordered)
                     .tint(.purple)
                 }
                 .padding()
@@ -29,5 +36,5 @@ struct ChatView: View {
 }
 
 #Preview {
-    ChatView(showLogin: .constant(false))
+    ChatView(showLogin: .constant(false), showSignUp: .constant(false))
 }

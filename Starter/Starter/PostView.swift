@@ -4,6 +4,8 @@ import MapKit
 struct PostView: View {
     /// Controls presentation of the login sheet from the parent view.
     @Binding var showLogin: Bool
+    /// Controls presentation of the signup sheet from the parent view.
+    @Binding var showSignUp: Bool
     /// Binding to the selected tab from `MainTabView` so the view can switch
     /// tabs when canceling or after saving a post.
     @Binding var selection: Int
@@ -38,6 +40,11 @@ struct PostView: View {
                         showLogin = true
                     }
                     .buttonStyle(.borderedProminent)
+                    .tint(.green)
+                    Button("Sign Up") {
+                        showSignUp = true
+                    }
+                    .buttonStyle(.bordered)
                     .tint(.green)
                 }
                 .padding()
@@ -160,5 +167,5 @@ struct PostView: View {
 }
 
 #Preview {
-    PostView(showLogin: .constant(false), selection: .constant(2), previousSelection: .constant(0))
+    PostView(showLogin: .constant(false), showSignUp: .constant(false), selection: .constant(2), previousSelection: .constant(0))
 }
