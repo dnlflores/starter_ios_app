@@ -14,7 +14,7 @@ struct ContentView: View {
                 LoginView(showLogin: $showLogin, showSignUp: $showSignUp)
             }
             .sheet(isPresented: $showSignUp) {
-                SignUpView(showSignUp: $showSignUp)
+                SignUpView(showSignUp: $showSignUp, showLogin: $showLogin)
             }
     }
 }

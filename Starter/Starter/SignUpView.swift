@@ -4,6 +4,8 @@ import SwiftUI
 struct SignUpView: View {
     /// Controls presentation from the parent view.
     @Binding var showSignUp: Bool
+    /// Binding back to the login sheet so it can be dismissed on success.
+    @Binding var showLogin: Bool
     @State private var username: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
@@ -48,7 +50,16 @@ struct SignUpView: View {
                     signup(username: username, email: email, password: password, street: street, city: city, state: state, zip: zip, phone: phone) { success in
                         DispatchQueue.main.async {
                             if success {
-                                showSignUp = false
+                                login(username: username, password: password) { loggedIn in
+                                    DispatchQueue.main.async {
+                                        if loggedIn {
+                                            showSignUp = false
+                                            showLogin = false
+                                        } else {
+                                            showingAlert = true
+                                        }
+                                    }
+                                }
                             } else {
                                 showingAlert = true
                             }
@@ -71,5 +82,5 @@ struct SignUpView: View {
 }
 
 #Preview {
-    SignUpView(showSignUp: .constant(true))
+    SignUpView(showSignUp: .constant(true), showLogin: .constant(false))
 }
