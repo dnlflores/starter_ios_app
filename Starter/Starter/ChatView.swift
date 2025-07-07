@@ -4,6 +4,8 @@ struct ChatView: View {
     /// Controls presentation of the login sheet from the parent view.
     @Binding var showLogin: Bool
     @AppStorage("authToken") private var authToken: String = ""
+    @AppStorage("username") private var username: String = "Guest"
+    @EnvironmentObject var chatManager: ChatManager
 
     var body: some View {
         ZStack {
@@ -19,15 +21,27 @@ struct ChatView: View {
                 }
                 .padding()
             } else {
-                Text("Chat")
-                    .font(.largeTitle)
+                NavigationStack {
+                    List(chatManager.chats) { chat in
+                        NavigationLink(destination: ChatDetailView(chatID: chat.id)) {
+                            Text(chat.otherUsername)
+                        }
+                        .listRowBackground(Color.clear)
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+                    .navigationTitle("Chats")
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
+        .task { chatManager.loadChats(for: username) }
     }
 }
 
 #Preview {
     ChatView(showLogin: .constant(false))
+        .environmentObject(ChatManager())
 }

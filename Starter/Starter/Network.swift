@@ -149,3 +149,67 @@ func createTool(name: String, price: Double, description: String, ownerId: Int, 
         }
     }.resume()
 }
+
+struct ChatAPIMessage: Codable, Identifiable {
+    let id: Int
+    let sender_id: Int
+    let recipient_id: Int
+    let message: String
+    let image_url: String?
+    let is_edited: Bool
+    let created_at: String
+    let updated_at: String
+    let edited_at: String?
+}
+
+/// Retrieve all chat messages from the server.
+func fetchChats(completion: @escaping ([ChatAPIMessage]) -> Void) {
+    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/chats") else {
+        completion([])
+        return
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+    if let token = UserDefaults.standard.string(forKey: "authToken") {
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    }
+
+    URLSession.shared.dataTask(with: request) { data, _, _ in
+        if let data = data,
+           let chats = try? JSONDecoder().decode([ChatAPIMessage].self, from: data) {
+            completion(chats)
+        } else {
+            completion([])
+        }
+    }.resume()
+}
+
+/// Post a new chat message.
+func createChatMessage(senderId: Int, recipientId: Int, message: String, authToken: String, completion: @escaping (ChatAPIMessage?) -> Void) {
+    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/chats") else {
+        completion(nil)
+        return
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+
+    let body: [String: Any] = [
+        "sender_id": senderId,
+        "recipient_id": recipientId,
+        "message": message
+    ]
+    request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+    URLSession.shared.dataTask(with: request) { data, _, _ in
+        if let data = data,
+           let chat = try? JSONDecoder().decode(ChatAPIMessage.self, from: data) {
+            completion(chat)
+        } else {
+            completion(nil)
+        }
+    }.resume()
+}
