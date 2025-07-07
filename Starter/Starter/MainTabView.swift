@@ -3,6 +3,7 @@ import SwiftUI
 struct MainTabView: View {
     let username: String
     @Binding var showLogin: Bool
+    @Binding var showSignUp: Bool
     @State private var selection = 0
     @State private var previousSelection = 0
     
@@ -14,25 +15,25 @@ struct MainTabView: View {
                 }
                 .tag(0)
             
-            ChatView(showLogin: $showLogin)
+            ChatView(showLogin: $showLogin, showSignUp: $showSignUp)
                 .tabItem {
                     Label("Chat", systemImage: "bubble.right")
                 }
                 .tag(1)
             
-            PostView(showLogin: $showLogin, selection: $selection, previousSelection: $previousSelection)
+            PostView(showLogin: $showLogin, showSignUp: $showSignUp, selection: $selection, previousSelection: $previousSelection)
                 .tabItem {
                     Label("Post", systemImage: "plus.app")
                 }
                 .tag(2)
             
-            ListingsView(username: username, showLogin: $showLogin)
+            ListingsView(username: username, showLogin: $showLogin, showSignUp: $showSignUp)
                 .tabItem {
                     Label("Listings", systemImage: "list.bullet")
                 }
                 .tag(3)
             
-            AccountView(username: username, showLogin: $showLogin)
+            AccountView(username: username, showLogin: $showLogin, showSignUp: $showSignUp)
                 .tabItem {
                     Label("Account", systemImage: "person")
                 }
@@ -47,5 +48,5 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(username: "daniel", showLogin: .constant(false))
+    MainTabView(username: "daniel", showLogin: .constant(false), showSignUp: .constant(false))
 }

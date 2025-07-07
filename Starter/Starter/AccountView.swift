@@ -3,6 +3,7 @@ import SwiftUI
 struct AccountView: View {
     let username: String
     @Binding var showLogin: Bool
+    @Binding var showSignUp: Bool
     @AppStorage("authToken") private var authToken: String = ""
     @State private var user: User?
 
@@ -15,6 +16,11 @@ struct AccountView: View {
                     showLogin = true
                 }
                 .buttonStyle(.borderedProminent)
+                .tint(.purple)
+                Button("Sign Up") {
+                    showSignUp = true
+                }
+                .buttonStyle(.bordered)
                 .tint(.purple)
             }
             .padding()
@@ -121,5 +127,5 @@ struct AccountView: View {
 }
 
 #Preview {
-    AccountView(username: "daniel", showLogin: .constant(false))
+    AccountView(username: "daniel", showLogin: .constant(false), showSignUp: .constant(false))
 }
