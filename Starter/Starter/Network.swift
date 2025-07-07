@@ -40,16 +40,31 @@ struct Tool: Codable, Identifiable {
     let owner_last_name: String?
 }
 
-func signup(username: String, password: String) {
-    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/signup") else { return }
+func signup(username: String, email: String, password: String, street: String, city: String, state: String, zip: String, phone: String, completion: @escaping (Bool) -> Void) {
+    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/signup") else { completion(false); return }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    let body = ["username": username, "password": password]
+    let body: [String: Any] = [
+        "username": username,
+        "email": email,
+        "password": password,
+        "address": street,
+        "city": city,
+        "state": state,
+        "zip": zip,
+        "phone": phone
+    ]
     request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
-    URLSession.shared.dataTask(with: request).resume()
+    URLSession.shared.dataTask(with: request) { _, response, _ in
+        if let http = response as? HTTPURLResponse, http.statusCode == 201 {
+            completion(true)
+        } else {
+            completion(false)
+        }
+    }.resume()
 }
 
 func login(username: String, password: String, completion: @escaping (Bool) -> Void) {

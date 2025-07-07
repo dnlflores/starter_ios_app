@@ -4,6 +4,8 @@ import SwiftUI
 struct LoginView: View {
     /// Controls presentation from the parent view.
     @Binding var showLogin: Bool
+    /// Controls presentation of the signup sheet from the parent view.
+    @Binding var showSignUp: Bool
     @AppStorage("username") private var storedUsername: String = "Guest"
     @AppStorage("authToken") private var authToken: String = ""
     @State private var username: String = ""
@@ -53,6 +55,10 @@ struct LoginView: View {
                         .padding(.horizontal)
                 }
                 .tint(.blue)
+                Button("Sign Up") {
+                    showSignUp = true
+                }
+                .foregroundColor(.white)
                 Spacer()
             }
         }
@@ -63,5 +69,5 @@ struct LoginView: View {
 }
 
 #Preview {
-    LoginView(showLogin: .constant(true))
+    LoginView(showLogin: .constant(true), showSignUp: .constant(false))
 }
