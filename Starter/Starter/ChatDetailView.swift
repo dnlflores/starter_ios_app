@@ -13,7 +13,7 @@ struct ChatDetailView: View {
         VStack {
             ScrollViewReader { proxy in
                 ScrollView {
-                    ForEach(chat?.messages ?? []) { msg in
+                    ForEach((chat?.messages ?? []).reversed()) { msg in
                         HStack {
                             if msg.senderId == chatManager.currentUser {
                                 Spacer()
@@ -37,7 +37,7 @@ struct ChatDetailView: View {
                 }
                 .onChange(of: chat?.messages.count ?? 0) { _ in
                     if let last = chat?.messages.last {
-                        proxy.scrollTo(last.id, anchor: .bottom)
+                        proxy.scrollTo(last.id, anchor: .top)
                     }
                 }
             }
@@ -58,4 +58,9 @@ struct ChatDetailView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
     }
+}
+
+#Preview {
+    ChatDetailView(chatID: 1)
+        .environmentObject(ChatManager())
 }

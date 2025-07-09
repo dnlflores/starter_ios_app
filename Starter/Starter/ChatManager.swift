@@ -80,7 +80,7 @@ final class ChatManager: ObservableObject {
     func send(_ text: String, to otherUserId: Int) {
         guard let myId = currentUserId else { return }
         let token = UserDefaults.standard.string(forKey: "authToken") ?? ""
-        createChatMessage(senderId: myId, recipientId: otherUserId, message: text, authToken: token) { [weak self] created in
+        createChatMessage(recipientId: otherUserId, message: text, authToken: token) { [weak self] created in
             guard let self = self, let created = created else { return }
             let message = ChatMessage(
                 id: created.id,
@@ -89,7 +89,7 @@ final class ChatManager: ObservableObject {
                 date: self.dateFormatter.date(from: created.created_at) ?? Date())
             DispatchQueue.main.async {
                 if let index = self.chats.firstIndex(where: { $0.otherUserId == otherUserId }) {
-                    self.chats[index].messages.append(message)
+                    self.chats[index].messages.insert(message, at: 0)
                 } else {
                     let chat = Chat(id: otherUserId,
                                     otherUserId: otherUserId,
