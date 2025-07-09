@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import UserNotifications
 
 @main
 struct StarterApp: App {
@@ -41,6 +42,9 @@ struct StarterApp: App {
         WindowGroup {
             ContentView()
                 .accentColor(.purple)
+                .onAppear {
+                    NotificationManager.shared.requestPermission()
+                }
         }
     }
 }

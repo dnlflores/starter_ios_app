@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Combine
 
 struct ChatMessage: Identifiable {
     let id: Int
@@ -24,12 +25,120 @@ final class ChatManager: ObservableObject {
     private var currentUserId: Int?
     private var userLookup: [Int: String] = [:]
     private let dateFormatter = ISO8601DateFormatter()
+    private var cancellables = Set<AnyCancellable>()
+    private var pollingTimer: Timer?
+    private var currentUsername: String = ""
 
     /// Identifier of the authenticated user loaded via `loadChats`.
     var currentUser: Int? { currentUserId }
 
+    init() {
+        setupNotificationObservers()
+    }
+    
+    deinit {
+        pollingTimer?.invalidate()
+    }
+    
+    private func setupNotificationObservers() {
+        NotificationCenter.default.publisher(for: .newChatMessage)
+            .sink { [weak self] notification in
+                self?.handleNewMessageNotification(notification)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func handleNewMessageNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let senderId = userInfo["sender_id"] as? Int,
+              let messageText = userInfo["message"] as? String,
+              let fullUserInfo = userInfo["userInfo"] as? [String: Any],
+              let messageId = fullUserInfo["message_id"] as? Int,
+              let createdAt = fullUserInfo["created_at"] as? String else {
+            return
+        }
+        
+        let message = ChatMessage(
+            id: messageId,
+            senderId: senderId,
+            text: messageText,
+            date: dateFormatter.date(from: createdAt) ?? Date()
+        )
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.addMessageToChat(message, fromUserId: senderId)
+        }
+    }
+    
+    private func addMessageToChat(_ message: ChatMessage, fromUserId: Int) {
+        if let index = chats.firstIndex(where: { $0.otherUserId == fromUserId }) {
+            // Check if message already exists to avoid duplicates
+            if !chats[index].messages.contains(where: { $0.id == message.id }) {
+                chats[index].messages.insert(message, at: 0)
+                // Move chat to top of list
+                let chat = chats.remove(at: index)
+                chats.insert(chat, at: 0)
+            }
+        } else {
+            // Create new chat
+            let chat = Chat(
+                id: fromUserId,
+                otherUserId: fromUserId,
+                otherUsername: userLookup[fromUserId] ?? "User",
+                messages: [message]
+            )
+            chats.insert(chat, at: 0)
+        }
+    }
+    
+    private func startPolling() {
+        pollingTimer?.invalidate()
+        pollingTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+            self?.refreshChats()
+        }
+    }
+    
+    private func refreshChats() {
+        guard !currentUsername.isEmpty else { return }
+        
+        fetchChats { [weak self] rawMessages in
+            guard let self = self,
+                  let myId = self.currentUserId else { return }
+            
+            let relevant = rawMessages.filter { $0.sender_id == myId || $0.recipient_id == myId }
+            var hasNewMessages = false
+            
+            for raw in relevant {
+                let otherId = raw.sender_id == myId ? raw.recipient_id : raw.sender_id
+                
+                // Check if this is a new message
+                if let chatIndex = self.chats.firstIndex(where: { $0.otherUserId == otherId }) {
+                    if !self.chats[chatIndex].messages.contains(where: { $0.id == raw.id }) {
+                        let message = ChatMessage(
+                            id: raw.id,
+                            senderId: raw.sender_id,
+                            text: raw.message,
+                            date: self.dateFormatter.date(from: raw.created_at) ?? Date()
+                        )
+                        DispatchQueue.main.async {
+                            self.chats[chatIndex].messages.insert(message, at: 0)
+                        }
+                        hasNewMessages = true
+                    }
+                }
+            }
+            
+            if hasNewMessages {
+                DispatchQueue.main.async {
+                    self.objectWillChange.send()
+                }
+            }
+        }
+    }
+
     /// Load all chats involving the provided username from the backend.
     func loadChats(for username: String) {
+        currentUsername = username
         fetchUsers { [weak self] users in
             guard let self = self,
                   let me = users.first(where: { $0.username == username }) else { return }
@@ -61,6 +170,7 @@ final class ChatManager: ObservableObject {
 
                 DispatchQueue.main.async {
                     self.chats = sorted
+                    self.startPolling() // Start polling for new messages
                 }
             }
         }

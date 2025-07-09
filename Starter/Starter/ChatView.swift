@@ -1,4 +1,5 @@
 import SwiftUI
+import os
 
 struct ChatView: View {
     /// Controls presentation of the login sheet from the parent view.
@@ -8,6 +9,9 @@ struct ChatView: View {
     @AppStorage("authToken") private var authToken: String = ""
     @AppStorage("username") private var username: String = "Guest"
     @EnvironmentObject var chatManager: ChatManager
+    
+    // Logger for debugging
+    private let logger = Logger(subsystem: "com.starter.app", category: "ChatView")
 
     var body: some View {
         ZStack {
@@ -16,6 +20,7 @@ struct ChatView: View {
                     Text("You are not logged in.")
                         .font(.title2)
                     Button("Log In") {
+                        logger.info("User tapped Log In button")
                         showLogin = true
                     }
                     .buttonStyle(.borderedProminent)
