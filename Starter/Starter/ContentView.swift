@@ -7,9 +7,13 @@ struct ContentView: View {
     @AppStorage("username") private var storedUsername: String = "Guest"
     @State private var showLogin = false
     @State private var showSignUp = false
+    @StateObject private var chatManager = ChatManager()
 
     var body: some View {
+
+
         MainTabView(username: storedUsername, showLogin: $showLogin, showSignUp: $showSignUp)
+            .environmentObject(chatManager)
             .sheet(isPresented: $showLogin) {
                 LoginView(showLogin: $showLogin, showSignUp: $showSignUp)
             }
