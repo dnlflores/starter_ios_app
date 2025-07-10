@@ -20,6 +20,7 @@ struct Chat: Identifiable {
 /// Manages retrieving and sending chat messages.
 final class ChatManager: ObservableObject {
     @Published var chats: [Chat] = []
+    @Published var webSocketManager = WebSocketManager()
 
     private var currentUserId: Int?
     private var userLookup: [Int: String] = [:]
@@ -27,6 +28,16 @@ final class ChatManager: ObservableObject {
 
     /// Identifier of the authenticated user loaded via `loadChats`.
     var currentUser: Int? { currentUserId }
+    
+    init() {
+        // Set up the relationship between WebSocket manager and chat manager
+        webSocketManager.chatManager = self
+        
+        // Connect to WebSocket if user is already authenticated
+        if let token = UserDefaults.standard.string(forKey: "authToken"), !token.isEmpty {
+            webSocketManager.connect(with: token)
+        }
+    }
 
     /// Load all chats involving the provided username from the backend.
     func loadChats(for username: String) {
@@ -61,6 +72,11 @@ final class ChatManager: ObservableObject {
 
                 DispatchQueue.main.async {
                     self.chats = sorted
+                    
+                    // Connect to WebSocket after successful chat loading
+                    if let token = UserDefaults.standard.string(forKey: "authToken"), !token.isEmpty {
+                        self.webSocketManager.connect(with: token)
+                    }
                 }
             }
         }
@@ -104,5 +120,46 @@ final class ChatManager: ObservableObject {
     /// Retrieve chat by the other user's identifier.
     func chat(with otherUserId: Int) -> Chat? {
         chats.first { $0.otherUserId == otherUserId }
+    }
+    
+    /// Handle real-time messages received via WebSocket
+    func handleRealTimeMessage(_ apiMessage: ChatAPIMessage) {
+        guard let currentUserId = currentUserId else { return }
+        
+        // Don't add messages we sent ourselves (they're already added when sending)
+        if apiMessage.sender_id == currentUserId {
+            return
+        }
+        
+        let otherId = apiMessage.sender_id
+        let message = ChatMessage(
+            id: apiMessage.id,
+            senderId: apiMessage.sender_id,
+            text: apiMessage.message,
+            date: dateFormatter.date(from: apiMessage.created_at) ?? Date()
+        )
+        
+        // Find existing chat or create new one
+        if let chatIndex = chats.firstIndex(where: { $0.otherUserId == otherId }) {
+            // Add message to existing chat and move it to the top
+            chats[chatIndex].messages.insert(message, at: 0)
+            let updatedChat = chats.remove(at: chatIndex)
+            chats.insert(updatedChat, at: 0)
+        } else {
+            // Create new chat
+            let otherUsername = userLookup[otherId] ?? "User"
+            let newChat = Chat(
+                id: otherId,
+                otherUserId: otherId,
+                otherUsername: otherUsername,
+                messages: [message]
+            )
+            chats.insert(newChat, at: 0)
+        }
+    }
+    
+    /// Disconnect from WebSocket
+    func disconnect() {
+        webSocketManager.disconnect()
     }
 }

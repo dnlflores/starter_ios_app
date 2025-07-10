@@ -130,9 +130,12 @@ func fetchTools(completion: @escaping ([Tool]) -> Void) {
 }
 
 /// Clear the stored authentication token and user information.
-func logout() {
+func logout(chatManager: ChatManager? = nil) {
     UserDefaults.standard.removeObject(forKey: "authToken")
     UserDefaults.standard.removeObject(forKey: "username")
+    
+    // Disconnect from WebSocket
+    chatManager?.disconnect()
 }
 
 /// Create a new tool on the server.
