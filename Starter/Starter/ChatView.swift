@@ -31,7 +31,15 @@ struct ChatView: View {
                 NavigationStack {
                     List(chatManager.chats) { chat in
                         NavigationLink(destination: ChatDetailView(chatID: chat.id)) {
-                            Text(chat.otherUsername)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(chat.otherUsername)
+                                    .font(.headline)
+                                if let toolName = chat.toolName {
+                                    Text("About: \(toolName)")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
                         }
                         .listRowBackground(Color.clear)
                     }

@@ -5,7 +5,7 @@ struct ToolDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var chatManager: ChatManager
     @State private var showChat = false
-    @State private var startedChatID: Int?
+    @State private var startedChatID: String?
 
     var body: some View {
         ScrollView {
@@ -24,7 +24,12 @@ struct ToolDetailView: View {
                     .cornerRadius(20)
 
                 Button(action: {
-                    let chat = chatManager.startChat(with: tool.owner_id ?? 0, username: tool.owner_username ?? "User")
+                    let chat = chatManager.startChat(
+                        with: tool.owner_id ?? 0,
+                        username: tool.owner_username ?? "User",
+                        toolId: tool.id,
+                        toolName: tool.name
+                    )
                     startedChatID = chat.id
                     showChat = true
                 }) {
@@ -44,7 +49,7 @@ struct ToolDetailView: View {
             .padding()
         }
         .background(
-            NavigationLink(destination: ChatDetailView(chatID: startedChatID ?? 0), isActive: $showChat) { EmptyView() }
+            NavigationLink(destination: ChatDetailView(chatID: startedChatID ?? ""), isActive: $showChat) { EmptyView() }
                 .hidden()
         )
         .applyThemeBackground()

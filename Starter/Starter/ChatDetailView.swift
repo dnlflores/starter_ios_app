@@ -1,12 +1,21 @@
 import SwiftUI
 
 struct ChatDetailView: View {
-    let chatID: Int
+    let chatID: String
     @EnvironmentObject var chatManager: ChatManager
     @State private var messageText = ""
 
     private var chat: Chat? {
-        chatManager.chat(with: chatID)
+        chatManager.chats.first { $0.id == chatID }
+    }
+    
+    private var chatTitle: String {
+        guard let chat = chat else { return "Chat" }
+        if let toolName = chat.toolName {
+            return "\(chat.otherUsername) - \(toolName)"
+        } else {
+            return chat.otherUsername
+        }
     }
 
     var body: some View {
@@ -45,8 +54,9 @@ struct ChatDetailView: View {
                 TextField("Message", text: $messageText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 Button("Send") {
-                    guard !messageText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                    chatManager.send(messageText, to: chatID)
+                    guard !messageText.trimmingCharacters(in: .whitespaces).isEmpty,
+                          let chat = chat else { return }
+                    chatManager.send(messageText, to: chat.otherUserId, toolId: chat.toolId)
                     messageText = ""
                 }
                 .buttonStyle(.borderedProminent)
@@ -54,13 +64,13 @@ struct ChatDetailView: View {
             }
             .padding()
         }
-        .navigationTitle(chat?.otherUsername ?? "Chat")
+        .navigationTitle(chatTitle)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
     }
 }
 
 #Preview {
-    ChatDetailView(chatID: 1)
+    ChatDetailView(chatID: "1")
         .environmentObject(ChatManager())
 }

@@ -6,15 +6,27 @@ struct ChatMessage: Identifiable {
     let senderId: Int
     let text: String
     let date: Date
+    let toolId: Int?
 }
 
 struct Chat: Identifiable {
-    /// The `id` corresponds to the other user's identifier so we can uniquely
-    /// map conversations to a specific user.
-    let id: Int
+    /// The `id` corresponds to a unique identifier for the conversation.
+    /// For tool-specific chats, it's constructed from user and tool IDs.
+    let id: String
     let otherUserId: Int
     var otherUsername: String
+    let toolId: Int?
+    var toolName: String?
     var messages: [ChatMessage] = []
+    
+    /// Generate a unique identifier for tool-specific conversations
+    static func generateId(otherUserId: Int, toolId: Int?) -> String {
+        if let toolId = toolId {
+            return "\(otherUserId)_\(toolId)"
+        } else {
+            return "\(otherUserId)"
+        }
+    }
 }
 
 /// Manages retrieving and sending chat messages.
@@ -48,22 +60,31 @@ final class ChatManager: ObservableObject {
             self.userLookup = Dictionary(uniqueKeysWithValues: users.map { ($0.id, $0.username) })
 
             fetchChats { rawMessages in
-                var grouped: [Int: Chat] = [:]
+                var grouped: [String: Chat] = [:]
                 let relevant = rawMessages.filter { $0.sender_id == me.id || $0.recipient_id == me.id }
 
                 for raw in relevant {
                     let otherId = raw.sender_id == me.id ? raw.recipient_id : raw.sender_id
-                    var chat = grouped[otherId] ?? Chat(id: otherId,
-                                                       otherUserId: otherId,
-                                                       otherUsername: self.userLookup[otherId] ?? "User",
-                                                       messages: [])
+                    let chatId = Chat.generateId(otherUserId: otherId, toolId: raw.tool_id)
+                    
+                    var chat = grouped[chatId] ?? Chat(
+                        id: chatId,
+                        otherUserId: otherId,
+                        otherUsername: self.userLookup[otherId] ?? "User",
+                        toolId: raw.tool_id,
+                        toolName: nil, // Will be fetched from tool data if needed
+                        messages: []
+                    )
+                    
                     let message = ChatMessage(
                         id: raw.id,
                         senderId: raw.sender_id,
                         text: raw.message,
-                        date: self.dateFormatter.date(from: raw.created_at) ?? Date())
+                        date: self.dateFormatter.date(from: raw.created_at) ?? Date(),
+                        toolId: raw.tool_id
+                    )
                     chat.messages.append(message)
-                    grouped[otherId] = chat
+                    grouped[chatId] = chat
                 }
 
                 let sorted = grouped.values.sorted {
@@ -82,44 +103,60 @@ final class ChatManager: ObservableObject {
         }
     }
 
-    /// Ensure a chat exists with the specified user id and username.
-    func startChat(with otherUserId: Int, username: String) -> Chat {
-        if let existing = chats.first(where: { $0.otherUserId == otherUserId }) {
+    /// Ensure a chat exists with the specified user id, username, and tool information.
+    func startChat(with otherUserId: Int, username: String, toolId: Int? = nil, toolName: String? = nil) -> Chat {
+        let chatId = Chat.generateId(otherUserId: otherUserId, toolId: toolId)
+        if let existing = chats.first(where: { $0.id == chatId }) {
             return existing
         }
-        let chat = Chat(id: otherUserId, otherUserId: otherUserId, otherUsername: username, messages: [])
+        let chat = Chat(
+            id: chatId,
+            otherUserId: otherUserId,
+            otherUsername: username,
+            toolId: toolId,
+            toolName: toolName,
+            messages: []
+        )
         chats.append(chat)
         return chat
     }
 
     /// Send a message to the given user and append it locally if successful.
-    func send(_ text: String, to otherUserId: Int) {
+    func send(_ text: String, to otherUserId: Int, toolId: Int? = nil) {
         guard let myId = currentUserId else { return }
         let token = UserDefaults.standard.string(forKey: "authToken") ?? ""
-        createChatMessage(recipientId: otherUserId, message: text, authToken: token) { [weak self] created in
+        createChatMessage(recipientId: otherUserId, message: text, toolId: toolId, authToken: token) { [weak self] created in
             guard let self = self, let created = created else { return }
             let message = ChatMessage(
                 id: created.id,
                 senderId: created.sender_id,
                 text: created.message,
-                date: self.dateFormatter.date(from: created.created_at) ?? Date())
+                date: self.dateFormatter.date(from: created.created_at) ?? Date(),
+                toolId: created.tool_id
+            )
             DispatchQueue.main.async {
-                if let index = self.chats.firstIndex(where: { $0.otherUserId == otherUserId }) {
+                let chatId = Chat.generateId(otherUserId: otherUserId, toolId: toolId)
+                if let index = self.chats.firstIndex(where: { $0.id == chatId }) {
                     self.chats[index].messages.insert(message, at: 0)
                 } else {
-                    let chat = Chat(id: otherUserId,
-                                    otherUserId: otherUserId,
-                                    otherUsername: self.userLookup[otherUserId] ?? "User",
-                                    messages: [message])
+                    let chat = Chat(
+                        id: chatId,
+                        otherUserId: otherUserId,
+                        otherUsername: self.userLookup[otherUserId] ?? "User",
+                        toolId: toolId,
+                        toolName: nil,
+                        messages: [message]
+                    )
                     self.chats.append(chat)
                 }
             }
         }
     }
 
-    /// Retrieve chat by the other user's identifier.
-    func chat(with otherUserId: Int) -> Chat? {
-        chats.first { $0.otherUserId == otherUserId }
+    /// Retrieve chat by the other user's identifier and optional tool ID.
+    func chat(with otherUserId: Int, toolId: Int? = nil) -> Chat? {
+        let chatId = Chat.generateId(otherUserId: otherUserId, toolId: toolId)
+        return chats.first { $0.id == chatId }
     }
     
     /// Handle real-time messages received via WebSocket
@@ -132,15 +169,17 @@ final class ChatManager: ObservableObject {
         }
         
         let otherId = apiMessage.sender_id
+        let chatId = Chat.generateId(otherUserId: otherId, toolId: apiMessage.tool_id)
         let message = ChatMessage(
             id: apiMessage.id,
             senderId: apiMessage.sender_id,
             text: apiMessage.message,
-            date: dateFormatter.date(from: apiMessage.created_at) ?? Date()
+            date: dateFormatter.date(from: apiMessage.created_at) ?? Date(),
+            toolId: apiMessage.tool_id
         )
         
         // Find existing chat or create new one
-        if let chatIndex = chats.firstIndex(where: { $0.otherUserId == otherId }) {
+        if let chatIndex = chats.firstIndex(where: { $0.id == chatId }) {
             // Add message to existing chat and move it to the top
             chats[chatIndex].messages.insert(message, at: 0)
             let updatedChat = chats.remove(at: chatIndex)
@@ -149,9 +188,11 @@ final class ChatManager: ObservableObject {
             // Create new chat
             let otherUsername = userLookup[otherId] ?? "User"
             let newChat = Chat(
-                id: otherId,
+                id: chatId,
                 otherUserId: otherId,
                 otherUsername: otherUsername,
+                toolId: apiMessage.tool_id,
+                toolName: nil,
                 messages: [message]
             )
             chats.insert(newChat, at: 0)

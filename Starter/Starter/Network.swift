@@ -173,6 +173,7 @@ struct ChatAPIMessage: Codable, Identifiable {
     let id: Int
     let sender_id: Int
     let recipient_id: Int
+    let tool_id: Int?
     let message: String
     let image_url: String?
     let is_edited: Bool
@@ -186,6 +187,7 @@ struct ChatAPIMessage: Codable, Identifiable {
         id = try container.decode(Int.self, forKey: .id)
         sender_id = try container.decode(Int.self, forKey: .sender_id)
         recipient_id = try container.decode(Int.self, forKey: .recipient_id)
+        tool_id = try container.decodeIfPresent(Int.self, forKey: .tool_id)
         message = try container.decode(String.self, forKey: .message)
         image_url = try container.decodeIfPresent(String.self, forKey: .image_url)
         is_edited = try container.decodeIfPresent(Bool.self, forKey: .is_edited) ?? false
@@ -195,10 +197,11 @@ struct ChatAPIMessage: Codable, Identifiable {
     }
     
     // Default memberwise initializer for creating instances
-    init(id: Int, sender_id: Int, recipient_id: Int, message: String, image_url: String? = nil, is_edited: Bool = false, created_at: String, updated_at: String, edited_at: String? = nil) {
+    init(id: Int, sender_id: Int, recipient_id: Int, tool_id: Int? = nil, message: String, image_url: String? = nil, is_edited: Bool = false, created_at: String, updated_at: String, edited_at: String? = nil) {
         self.id = id
         self.sender_id = sender_id
         self.recipient_id = recipient_id
+        self.tool_id = tool_id
         self.message = message
         self.image_url = image_url
         self.is_edited = is_edited
@@ -213,6 +216,7 @@ struct DetailedChatAPIMessage: Codable, Identifiable {
     let id: Int
     let sender_id: Int
     let recipient_id: Int
+    let tool_id: Int?
     let message: String
     let image_url: String?
     let is_edited: Bool
@@ -225,6 +229,8 @@ struct DetailedChatAPIMessage: Codable, Identifiable {
     let recipient_username: String?
     let recipient_first_name: String?
     let recipient_last_name: String?
+    let tool_name: String?
+    let tool_description: String?
     
     // Custom initializer to handle potential nil values from database defaults
     init(from decoder: Decoder) throws {
@@ -232,6 +238,7 @@ struct DetailedChatAPIMessage: Codable, Identifiable {
         id = try container.decode(Int.self, forKey: .id)
         sender_id = try container.decode(Int.self, forKey: .sender_id)
         recipient_id = try container.decode(Int.self, forKey: .recipient_id)
+        tool_id = try container.decodeIfPresent(Int.self, forKey: .tool_id)
         message = try container.decode(String.self, forKey: .message)
         image_url = try container.decodeIfPresent(String.self, forKey: .image_url)
         is_edited = try container.decodeIfPresent(Bool.self, forKey: .is_edited) ?? false
@@ -244,6 +251,8 @@ struct DetailedChatAPIMessage: Codable, Identifiable {
         recipient_username = try container.decodeIfPresent(String.self, forKey: .recipient_username)
         recipient_first_name = try container.decodeIfPresent(String.self, forKey: .recipient_first_name)
         recipient_last_name = try container.decodeIfPresent(String.self, forKey: .recipient_last_name)
+        tool_name = try container.decodeIfPresent(String.self, forKey: .tool_name)
+        tool_description = try container.decodeIfPresent(String.self, forKey: .tool_description)
     }
 }
 
@@ -292,6 +301,7 @@ func fetchChats(completion: @escaping ([ChatAPIMessage]) -> Void) {
                         id: detailed.id,
                         sender_id: detailed.sender_id,
                         recipient_id: detailed.recipient_id,
+                        tool_id: detailed.tool_id,
                         message: detailed.message,
                         image_url: detailed.image_url,
                         is_edited: detailed.is_edited,
@@ -315,7 +325,7 @@ func fetchChats(completion: @escaping ([ChatAPIMessage]) -> Void) {
 }
 
 /// Post a new chat message.
-func createChatMessage(recipientId: Int, message: String, authToken: String, completion: @escaping (ChatAPIMessage?) -> Void) {
+func createChatMessage(recipientId: Int, message: String, toolId: Int? = nil, authToken: String, completion: @escaping (ChatAPIMessage?) -> Void) {
     guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/chats") else {
         completion(nil)
         return
@@ -326,10 +336,15 @@ func createChatMessage(recipientId: Int, message: String, authToken: String, com
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
 
-    let body: [String: Any] = [
+    var body: [String: Any] = [
         "recipient_id": recipientId,
         "message": message
     ]
+    
+    if let toolId = toolId {
+        body["tool_id"] = toolId
+    }
+    
     request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
     URLSession.shared.dataTask(with: request) { data, response, error in
