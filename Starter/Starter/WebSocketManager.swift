@@ -10,6 +10,14 @@ class WebSocketManager: NSObject, ObservableObject {
     private let baseURL = "wss://starter-ios-app-backend.onrender.com/ws"
     private var authToken: String?
     private var pingTimer: Timer?
+    private var reconnectTimer: Timer?
+    
+    // Connection state management
+    private var isConnecting = false
+    private var reconnectAttempts = 0
+    private let maxReconnectAttempts = 10
+    private var reconnectDelay: TimeInterval = 1.0
+    private let maxReconnectDelay: TimeInterval = 30.0
     
     weak var chatManager: ChatManager?
     
@@ -19,14 +27,24 @@ class WebSocketManager: NSObject, ObservableObject {
     }
     
     func connect(with token: String) {
+        // Prevent multiple concurrent connections
+        guard !isConnecting else {
+            print("WebSocket connection already in progress")
+            return
+        }
+        
         guard let url = URL(string: baseURL) else {
             print("Invalid WebSocket URL")
             return
         }
         
+        isConnecting = true
         self.authToken = token
         
+        // Cancel any existing connection and timers
+        stopReconnectTimer()
         webSocket?.cancel(with: .goingAway, reason: nil)
+        
         webSocket = urlSession?.webSocketTask(with: url)
         webSocket?.resume()
         
@@ -36,16 +54,24 @@ class WebSocketManager: NSObject, ObservableObject {
         // Send authentication message
         authenticate()
         
-        // Start ping timer for connection health
-        startPingTimer()
-        
         DispatchQueue.main.async {
             self.connectionStatus = "Connecting..."
         }
+        
+        print("WebSocket connecting to \(baseURL)")
     }
     
     func disconnect() {
+        print("WebSocket disconnecting...")
+        
+        // Clean up all state and timers
         stopPingTimer()
+        stopReconnectTimer()
+        
+        isConnecting = false
+        reconnectAttempts = 0
+        reconnectDelay = 1.0
+        
         webSocket?.cancel(with: .goingAway, reason: nil)
         webSocket = nil
         
@@ -101,16 +127,45 @@ class WebSocketManager: NSObject, ObservableObject {
                 self?.receiveMessage()
                 
             case .failure(let error):
-                print("WebSocket receive error: \(error)")
-                DispatchQueue.main.async {
-                    self?.isConnected = false
-                    self?.connectionStatus = "Connection Error"
-                }
-                // Try to reconnect after a delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    self?.reconnect()
-                }
+                self?.handleReceiveError(error)
             }
+        }
+    }
+    
+    private func handleReceiveError(_ error: Error) {
+        print("WebSocket receive error: \(error)")
+        
+        DispatchQueue.main.async {
+            self.isConnected = false
+            self.isConnecting = false
+        }
+        
+        // Don't reconnect for certain error types
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .cancelled:
+                print("WebSocket connection was cancelled - not reconnecting")
+                DispatchQueue.main.async {
+                    self.connectionStatus = "Disconnected"
+                }
+                return
+            case .networkConnectionLost, .notConnectedToInternet:
+                print("Network connectivity issue - will retry with exponential backoff")
+            case .timedOut:
+                print("Connection timed out - will retry")
+            default:
+                print("WebSocket error: \(urlError.localizedDescription)")
+            }
+        }
+        
+        // Check if we should attempt to reconnect
+        if reconnectAttempts < maxReconnectAttempts {
+            scheduleReconnect()
+        } else {
+            DispatchQueue.main.async {
+                self.connectionStatus = "Connection Failed - Max Retries Exceeded"
+            }
+            print("Max reconnection attempts reached. Stopping reconnection attempts.")
         }
     }
     
@@ -126,11 +181,21 @@ class WebSocketManager: NSObject, ObservableObject {
             switch type {
             case "auth_success":
                 self.isConnected = true
+                self.isConnecting = false
                 self.connectionStatus = "Connected"
+                
+                // Reset reconnection state on successful connection
+                self.reconnectAttempts = 0
+                self.reconnectDelay = 1.0
+                
+                // Start ping timer for connection health
+                self.startPingTimer()
+                
                 print("WebSocket authenticated successfully")
                 
             case "auth_error":
                 self.isConnected = false
+                self.isConnecting = false
                 self.connectionStatus = "Authentication Failed"
                 print("WebSocket authentication failed")
                 
@@ -139,6 +204,7 @@ class WebSocketManager: NSObject, ObservableObject {
                 
             case "pong":
                 // Connection is alive
+                print("WebSocket pong received")
                 break
                 
             case "error":
@@ -173,7 +239,8 @@ class WebSocketManager: NSObject, ObservableObject {
     
     private func startPingTimer() {
         stopPingTimer()
-        pingTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+        // Increase ping interval to reduce server load
+        pingTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             self?.sendPing()
         }
     }
@@ -188,23 +255,69 @@ class WebSocketManager: NSObject, ObservableObject {
         sendMessage(pingMessage)
     }
     
+    private func scheduleReconnect() {
+        stopReconnectTimer()
+        
+        reconnectAttempts += 1
+        
+        DispatchQueue.main.async {
+            self.connectionStatus = "Reconnecting... (Attempt \(self.reconnectAttempts)/\(self.maxReconnectAttempts))"
+        }
+        
+        print("Scheduling reconnection attempt \(reconnectAttempts) in \(reconnectDelay) seconds")
+        
+        reconnectTimer = Timer.scheduledTimer(withTimeInterval: reconnectDelay, repeats: false) { [weak self] _ in
+            self?.reconnect()
+        }
+        
+        // Exponential backoff with jitter
+        reconnectDelay = min(reconnectDelay * 2 + Double.random(in: 0...1), maxReconnectDelay)
+    }
+    
+    private func stopReconnectTimer() {
+        reconnectTimer?.invalidate()
+        reconnectTimer = nil
+    }
+    
     private func reconnect() {
         guard let token = authToken else { return }
+        print("Attempting to reconnect...")
         connect(with: token)
+    }
+    
+    /// Reset connection state and attempt to reconnect immediately
+    func resetAndReconnect() {
+        print("Resetting WebSocket connection state...")
+        reconnectAttempts = 0
+        reconnectDelay = 1.0
+        
+        if let token = authToken {
+            connect(with: token)
+        }
     }
 }
 
 // MARK: - URLSessionWebSocketDelegate
 extension WebSocketManager: URLSessionWebSocketDelegate {
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
-        print("WebSocket connected")
+        print("WebSocket connection opened")
+        // Don't set isConnected here - wait for authentication success
     }
     
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
-        print("WebSocket disconnected")
+        let reasonString = reason.flatMap { String(data: $0, encoding: .utf8) } ?? "Unknown"
+        print("WebSocket connection closed with code: \(closeCode.rawValue), reason: \(reasonString)")
+        
         DispatchQueue.main.async {
             self.isConnected = false
-            self.connectionStatus = "Disconnected"
+            self.isConnecting = false
+            
+            // Only attempt reconnection if this wasn't a manual disconnect
+            if closeCode != .goingAway && self.reconnectAttempts < self.maxReconnectAttempts {
+                self.scheduleReconnect()
+            } else {
+                self.connectionStatus = "Disconnected"
+            }
         }
     }
 }

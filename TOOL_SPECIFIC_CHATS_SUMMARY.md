@@ -36,12 +36,15 @@ The chat feature has been updated to support tool-specific conversations. Now, w
 - Updated `ChatMessage` struct to include `toolId` field
 - Updated `Chat` struct to include:
   - `toolId` field
-  - `toolName` field
+  - `toolName` field (populated from tool lookup)
   - Changed `id` from `Int` to `String` for unique tool-specific identifiers
   - Added `generateId` static method for creating unique chat IDs
+  - Added computed properties: `displayName`, `displaySubtitle`, `chatTitle`
+- Added `toolLookup` dictionary to map tool IDs to Tool objects
+- Updated chat loading to fetch tools and populate tool names properly
 - Updated chat grouping logic to create separate conversations for each tool
-- Updated `startChat` method to accept tool information
-- Updated `send` method to include tool ID
+- Updated `startChat` method to automatically resolve tool names from tool IDs
+- Updated `send` method to include tool ID and resolve tool names
 - Updated `chat` retrieval method to handle tool-specific lookups
 - Updated real-time message handling for tool-specific conversations
 
@@ -54,12 +57,14 @@ The chat feature has been updated to support tool-specific conversations. Now, w
 - Format: "Username - Tool Name" for tool-specific chats
 
 ##### ChatView (`ChatView.swift`)
-- Updated chat list to display tool information
-- Shows "About: [Tool Name]" for tool-specific conversations
+- Updated chat list to prioritize tool names over usernames
+- Uses computed properties for clean display: `displayName` and `displaySubtitle`
+- Shows tool name as primary text, "with [Username]" as secondary text
+- Falls back to username and "General chat" for non-tool conversations
 
 ##### ToolDetailView (`ToolDetailView.swift`)
 - Updated "Start Chat" button to create tool-specific conversations
-- Passes tool ID and name to the chat creation
+- Passes tool ID to chat creation (tool name resolved automatically)
 
 ## How It Works
 

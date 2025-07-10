@@ -10,12 +10,7 @@ struct ChatDetailView: View {
     }
     
     private var chatTitle: String {
-        guard let chat = chat else { return "Chat" }
-        if let toolName = chat.toolName {
-            return "\(chat.otherUsername) - \(toolName)"
-        } else {
-            return chat.otherUsername
-        }
+        return chat?.chatTitle ?? "Chat"
     }
 
     var body: some View {

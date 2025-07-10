@@ -92,19 +92,42 @@ func login(username: String, password: String, completion: @escaping (Bool) -> V
 func fetchUsers(completion: @escaping ([User]) -> Void) {
     guard let token = UserDefaults.standard.string(forKey: "authToken"),
           let url = URL(string: "https://starter-ios-app-backend.onrender.com/users") else {
+        print("Network: fetchUsers failed - missing token or invalid URL")
         completion([])
         return
     }
 
+    print("Network: Fetching users from API...")
+    
     var request = URLRequest(url: url)
     request.httpMethod = "GET"
     request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-    URLSession.shared.dataTask(with: request) { data, _, _ in
-        if let data = data,
-           let users = try? JSONDecoder().decode([User].self, from: data) {
-            completion(users)
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Network: fetchUsers failed with error: \(error.localizedDescription)")
+            completion([])
+            return
+        }
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("Network: fetchUsers response code: \(httpResponse.statusCode)")
+        }
+        
+        if let data = data {
+            print("Network: fetchUsers received \(data.count) bytes of data")
+            if let users = try? JSONDecoder().decode([User].self, from: data) {
+                print("Network: Successfully decoded \(users.count) users")
+                completion(users)
+            } else {
+                print("Network: Failed to decode users JSON")
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("Network: Raw JSON: \(jsonString)")
+                }
+                completion([])
+            }
         } else {
+            print("Network: fetchUsers received no data")
             completion([])
         }
     }.resume()
@@ -112,18 +135,41 @@ func fetchUsers(completion: @escaping ([User]) -> Void) {
 
 func fetchTools(completion: @escaping ([Tool]) -> Void) {
     guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools") else {
+        print("Network: fetchTools failed - invalid URL")
         completion([])
         return
     }
 
+    print("Network: Fetching tools from API...")
+    
     var request = URLRequest(url: url)
     request.httpMethod = "GET"
 
-    URLSession.shared.dataTask(with: request) { data, _, _ in
-        if let data = data,
-           let tools = try? JSONDecoder().decode([Tool].self, from: data) {
-            completion(tools)
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Network: fetchTools failed with error: \(error.localizedDescription)")
+            completion([])
+            return
+        }
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("Network: fetchTools response code: \(httpResponse.statusCode)")
+        }
+        
+        if let data = data {
+            print("Network: fetchTools received \(data.count) bytes of data")
+            if let tools = try? JSONDecoder().decode([Tool].self, from: data) {
+                print("Network: Successfully decoded \(tools.count) tools")
+                completion(tools)
+            } else {
+                print("Network: Failed to decode tools JSON")
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("Network: Raw JSON: \(jsonString)")
+                }
+                completion([])
+            }
         } else {
+            print("Network: fetchTools received no data")
             completion([])
         }
     }.resume()
@@ -259,7 +305,7 @@ struct DetailedChatAPIMessage: Codable, Identifiable {
 /// Retrieve all chat messages from the server.
 func fetchChats(completion: @escaping ([ChatAPIMessage]) -> Void) {
     guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/chats") else {
-        print("Invalid URL for chats endpoint")
+        print("Network: fetchChats failed - invalid URL")
         completion([])
         return
     }
@@ -268,24 +314,27 @@ func fetchChats(completion: @escaping ([ChatAPIMessage]) -> Void) {
     request.httpMethod = "GET"
     
     guard let token = UserDefaults.standard.string(forKey: "authToken"), !token.isEmpty else {
-        print("No auth token available for fetchChats")
+        print("Network: fetchChats failed - no auth token available")
         completion([])
         return
     }
+    
+    print("Network: Fetching chats from API...")
     
     request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
     URLSession.shared.dataTask(with: request) { data, response, error in
         if let error = error {
-            print("Network error in fetchChats: \(error)")
+            print("Network: fetchChats failed with error: \(error.localizedDescription)")
             completion([])
             return
         }
         
         if let httpResponse = response as? HTTPURLResponse {
+            print("Network: fetchChats response code: \(httpResponse.statusCode)")
             if httpResponse.statusCode != 200 {
                 if let data = data, let errorString = String(data: data, encoding: .utf8) {
-                    print("FetchChats error response: \(errorString)")
+                    print("Network: fetchChats error response: \(errorString)")
                 }
                 completion([])
                 return
@@ -293,8 +342,12 @@ func fetchChats(completion: @escaping ([ChatAPIMessage]) -> Void) {
         }
         
         if let data = data {
+            print("Network: fetchChats received \(data.count) bytes of data")
+            
             // First try to decode as detailed messages (GET response)
             if let detailedChats = try? JSONDecoder().decode([DetailedChatAPIMessage].self, from: data) {
+                print("Network: Successfully decoded \(detailedChats.count) detailed chat messages")
+                
                 // Convert to simple ChatAPIMessage format
                 let simpleChats = detailedChats.map { detailed in
                     ChatAPIMessage(
@@ -312,13 +365,17 @@ func fetchChats(completion: @escaping ([ChatAPIMessage]) -> Void) {
                 }
                 completion(simpleChats)
             } else if let chats = try? JSONDecoder().decode([ChatAPIMessage].self, from: data) {
+                print("Network: Successfully decoded \(chats.count) simple chat messages")
                 completion(chats)
             } else {
-                print("Failed to decode chat messages from response")
+                print("Network: Failed to decode chat messages from response")
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("Network: Raw JSON: \(jsonString)")
+                }
                 completion([])
             }
         } else {
-            print("No data received from fetchChats")
+            print("Network: fetchChats received no data")
             completion([])
         }
     }.resume()

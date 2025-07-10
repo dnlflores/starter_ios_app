@@ -29,23 +29,45 @@ struct ChatView: View {
                 .padding()
             } else {
                 NavigationStack {
-                    List(chatManager.chats) { chat in
-                        NavigationLink(destination: ChatDetailView(chatID: chat.id)) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(chat.otherUsername)
-                                    .font(.headline)
-                                if let toolName = chat.toolName {
-                                    Text("About: \(toolName)")
+                    VStack {
+                        // WebSocket Status Indicator
+                        if !chatManager.webSocketManager.isConnected {
+                            HStack {
+                                Image(systemName: "wifi.slash")
+                                    .foregroundColor(.orange)
+                                Text(chatManager.webSocketStatus)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Button("Retry") {
+                                    chatManager.reconnectWebSocket()
+                                }
+                                .font(.caption)
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
+                            .background(Color.yellow.opacity(0.1))
+                        }
+                        
+                        List(chatManager.chats) { chat in
+                            NavigationLink(destination: ChatDetailView(chatID: chat.id)) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(chat.displayName)
+                                        .font(.headline)
+                                        .foregroundColor(.primary)
+                                    Text(chat.displaySubtitle)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
                             }
+                            .listRowBackground(Color.clear)
                         }
-                        .listRowBackground(Color.clear)
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
-                    .background(Color.clear)
                     .navigationTitle("Chats")
                 }
             }

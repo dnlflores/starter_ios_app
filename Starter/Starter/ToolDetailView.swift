@@ -27,8 +27,7 @@ struct ToolDetailView: View {
                     let chat = chatManager.startChat(
                         with: tool.owner_id ?? 0,
                         username: tool.owner_username ?? "User",
-                        toolId: tool.id,
-                        toolName: tool.name
+                        toolId: tool.id
                     )
                     startedChatID = chat.id
                     showChat = true
