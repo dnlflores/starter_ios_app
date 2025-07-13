@@ -120,10 +120,10 @@ struct ChatView: View {
                                             .foregroundColor(.primary)
                                         Text(chatData.subtitle)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Color.white)
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 2)
-                                            .background(Color.blue.opacity(0.2))
+                                            .background(Color.blue.opacity(0.4))
                                             .cornerRadius(4)
                                         
                                         // Show demo indicator for default chats
@@ -193,8 +193,11 @@ struct ChatView: View {
 }
 
 #Preview {
-    ChatView(showLogin: .constant(false), showSignUp: .constant(false))
-        .environmentObject(ChatManager())
+    let previewChatManager = ChatManager()
+    previewChatManager.setupPreviewData()
+    
+    return ChatView(showLogin: .constant(false), showSignUp: .constant(false))
+        .environmentObject(previewChatManager)
         .onAppear {
             UserDefaults.standard.set("daniel", forKey: "username")
         }

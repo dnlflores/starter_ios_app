@@ -48,8 +48,11 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(username: "daniel", showLogin: .constant(false), showSignUp: .constant(false))
-        .environmentObject(ChatManager())
+    let previewChatManager = ChatManager()
+    previewChatManager.setupPreviewData()
+    
+    return MainTabView(username: "daniel", showLogin: .constant(false), showSignUp: .constant(false))
+        .environmentObject(previewChatManager)
         .onAppear {
             UserDefaults.standard.set("daniel", forKey: "username")
         }

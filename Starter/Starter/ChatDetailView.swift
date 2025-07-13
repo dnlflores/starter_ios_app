@@ -122,6 +122,62 @@ struct ChatDetailView: View {
 }
 
 #Preview {
-    ChatDetailView(chatID: "1")
-        .environmentObject(ChatManager())
+    // Create a ChatManager with sample data for preview
+    let previewChatManager = ChatManager()
+    
+    // Set up the ChatManager with sample user and tool data
+    previewChatManager.setupPreviewData()
+    
+    // Create sample messages
+    let sampleMessages = [
+        ChatMessage(
+            id: 1,
+            senderId: 1,
+            text: "Hi! I'm interested in renting your power drill.",
+            date: Date().addingTimeInterval(-3600), // 1 hour ago
+            toolId: 1
+        ),
+        ChatMessage(
+            id: 2,
+            senderId: 2,
+            text: "Great! It's available this weekend. $15 per day.",
+            date: Date().addingTimeInterval(-3000), // 50 minutes ago
+            toolId: 1
+        ),
+        ChatMessage(
+            id: 3,
+            senderId: 1,
+            text: "Perfect! I'll take it for Saturday and Sunday.",
+            date: Date().addingTimeInterval(-2400), // 40 minutes ago
+            toolId: 1
+        ),
+        ChatMessage(
+            id: 4,
+            senderId: 2,
+            text: "Sounds good! I'll have it ready for pickup on Saturday morning.",
+            date: Date().addingTimeInterval(-1800), // 30 minutes ago
+            toolId: 1
+        )
+    ]
+    
+    // Create sample chat with the ID expected by the preview
+    let sampleChat = Chat(
+        id: "1",
+        otherUserId: 2,
+        otherUsername: "Sarah",
+        toolId: 1,
+        toolName: "Power Drill",
+        messages: sampleMessages
+    )
+    
+    // Set up the ChatManager with sample data
+    previewChatManager.chats = [sampleChat]
+    
+    return ChatDetailView(chatID: "1")
+        .environmentObject(previewChatManager)
+        .onAppear {
+            // Set up UserDefaults for preview
+            UserDefaults.standard.set("Daniel", forKey: "username")
+            UserDefaults.standard.set("sample_token", forKey: "authToken")
+        }
 }

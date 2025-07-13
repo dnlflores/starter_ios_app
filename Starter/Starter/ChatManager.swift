@@ -313,4 +313,23 @@ final class ChatManager: ObservableObject {
     func getUsername(for userId: Int) -> String {
         return userLookup[userId] ?? "Unknown User"
     }
+    
+    // MARK: - Preview Support
+    
+    /// Set up sample data for SwiftUI previews
+    func setupPreviewData() {
+        // Set up sample user data
+        currentUserId = 1
+        userLookup = [
+            1: "Daniel",
+            2: "Sarah",
+            3: "Mike"
+        ]
+        
+        // Set up sample tool data
+        toolLookup = [
+            1: Tool(id: 1, name: "Power Drill", price: "$15", description: "High-quality cordless drill", owner_id: 2, owner_username: "Sarah", owner_email: "sarah@example.com", owner_first_name: "Sarah", owner_last_name: "Johnson"),
+            2: Tool(id: 2, name: "Circular Saw", price: "$25", description: "Professional-grade saw", owner_id: 3, owner_username: "Mike", owner_email: "mike@example.com", owner_first_name: "Mike", owner_last_name: "Wilson")
+        ]
+    }
 }

@@ -78,6 +78,9 @@ struct ToolDetailView: View {
 }
 
 #Preview {
-    ToolDetailView(tool: Tool(id: 1, name: "Hammer", price: "$10", description: "A sturdy hammer.", owner_id: 1, owner_username: "johndoe", owner_email: "johndoe@example.com", owner_first_name: "John", owner_last_name: "Doe"))
-        .environmentObject(ChatManager())
+    let previewChatManager = ChatManager()
+    previewChatManager.setupPreviewData()
+    
+    return ToolDetailView(tool: Tool(id: 1, name: "Hammer", price: "$10", description: "A sturdy hammer.", owner_id: 1, owner_username: "johndoe", owner_email: "johndoe@example.com", owner_first_name: "John", owner_last_name: "Doe"))
+        .environmentObject(previewChatManager)
 }
