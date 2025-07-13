@@ -97,16 +97,18 @@ struct AccountView: View {
                     .cornerRadius(12)
                     .padding(.horizontal)
 
-                    Button("Log Out") {
-                        logout()
+                    Button(action: {
                         authToken = ""
                         showLogin = false
+                    }) {
+                        Text("Log Out")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white.opacity(0.8))
+                            .foregroundColor(.purple)
+                            .cornerRadius(8)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.white.opacity(0.8))
-                    .foregroundColor(.purple)
-                    .cornerRadius(8)
+                    .buttonStyle(PlainButtonStyle())
                     .padding(.horizontal)
                     .padding(.top)
                 }

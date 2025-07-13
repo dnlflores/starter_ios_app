@@ -4,6 +4,7 @@ struct WelcomeView: View {
     let username: String
     @State private var tools: [Tool] = []
     @State private var selectedView = 0
+    @State private var isLoading = false
     
     var body: some View {
         ZStack {
@@ -24,33 +25,43 @@ struct WelcomeView: View {
                     
                     // 2) Now show either the List or the Map below it
                     if selectedView == 0 {
-                        List(tools) { tool in
-                            NavigationLink(destination: ToolDetailView(tool: tool)) {
-                                VStack(alignment: .leading) {
-                                    Text(tool.name)
-                                        .font(.headline)
-                                    Text(truncateText(tool.description ?? "No description available", maxLength: 50))
-                                        .font(.subheadline)
-                                    HStack {
-                                        Text("$\(tool.price) / day")
-                                            .font(.caption)
-                                            .foregroundColor(.green)
-                                            .bold()
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 5)
-                                            .background(Color.black.opacity(0.3))
-                                            .cornerRadius(5)
-                                        Spacer()
+                        ZStack {
+                            List(tools) { tool in
+                                NavigationLink(destination: ToolDetailView(tool: tool)) {
+                                    VStack(alignment: .leading) {
+                                        Text(tool.name)
+                                            .font(.headline)
+                                        Text(truncateText(tool.description ?? "No description available", maxLength: 80))
+                                            .font(.subheadline)
+                                        HStack {
+                                            Text("$\(tool.price) / day")
+                                                .font(.caption)
+                                                .foregroundColor(.green)
+                                                .bold()
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 5)
+                                                .background(Color.black.opacity(0.3))
+                                                .cornerRadius(5)
+                                            Spacer()
+                                        }
                                     }
                                 }
+                                .listRowBackground(
+                                    Color.clear
+                                )
                             }
-                            .listRowBackground(
-                                Color.clear
-                            )
+                            .listStyle(.plain)
+                            .padding(.bottom, 84)
+                            .ignoresSafeArea()
+                            
+                            // Loading indicator
+                            if isLoading || tools.isEmpty {
+                                ProgressView("Loading available tools...")
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .background(Color.black.opacity(0.3))
+                            }
                         }
-                        .listStyle(.plain)
-                        .padding(.bottom, 84)
-                        .ignoresSafeArea()
                     } else {
                         MapView()
                             .toolbarBackground(Color.black, for: .navigationBar)
@@ -70,11 +81,7 @@ struct WelcomeView: View {
                 }
             }
             .onAppear {
-                fetchTools { fetched in
-                    DispatchQueue.main.async {
-                        self.tools = fetched
-                    }
-                }
+                loadTools()
             }
         }
     }
@@ -85,6 +92,17 @@ struct WelcomeView: View {
             return text
         } else {
             return String(text.prefix(maxLength)) + "..."
+        }
+    }
+    
+    // Load tools with loading state management
+    private func loadTools() {
+        isLoading = true
+        fetchTools { fetched in
+            DispatchQueue.main.async {
+                self.tools = fetched
+                self.isLoading = false
+            }
         }
     }
 }

@@ -308,4 +308,9 @@ final class ChatManager: ObservableObject {
     var webSocketStatus: String {
         return webSocketManager.connectionStatus
     }
+    
+    /// Get username for a given user ID
+    func getUsername(for userId: Int) -> String {
+        return userLookup[userId] ?? "Unknown User"
+    }
 }

@@ -1,5 +1,68 @@
 import SwiftUI
 
+// Separate component for message bubbles
+struct MessageBubbleView: View {
+    let message: ChatMessage
+    let isCurrentUser: Bool
+    let username: String
+    
+    // Helper to format the timestamp
+    private func formatTimestamp(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+    
+    var body: some View {
+        HStack {
+            if isCurrentUser {
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(message.text)
+                        .padding(8)
+                        .background(Color.purple.opacity(0.7))
+                        .cornerRadius(8)
+                        .foregroundColor(.white)
+                    
+                    HStack(spacing: 4) {
+                        Text(username)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("•")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(formatTimestamp(message.date))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(message.text)
+                        .padding(8)
+                        .background(Color.black.opacity(0.4))
+                        .cornerRadius(8)
+                        .foregroundColor(.white)
+                    
+                    HStack(spacing: 4) {
+                        Text(username)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("•")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(formatTimestamp(message.date))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                Spacer()
+            }
+        }
+    }
+}
+
 struct ChatDetailView: View {
     let chatID: String
     @EnvironmentObject var chatManager: ChatManager
@@ -12,29 +75,22 @@ struct ChatDetailView: View {
     private var chatTitle: String {
         return chat?.chatTitle ?? "Chat"
     }
+    
+    // Helper to get username for a sender ID
+    private func getUsername(for senderId: Int) -> String {
+        return chatManager.getUsername(for: senderId)
+    }
 
     var body: some View {
         VStack {
             ScrollViewReader { proxy in
                 ScrollView {
                     ForEach((chat?.messages ?? []).reversed()) { msg in
-                        HStack {
-                            if msg.senderId == chatManager.currentUser {
-                                Spacer()
-                                Text(msg.text)
-                                    .padding(8)
-                                    .background(Color.purple.opacity(0.7))
-                                    .cornerRadius(8)
-                                    .foregroundColor(.white)
-                            } else {
-                                Text(msg.text)
-                                    .padding(8)
-                                    .background(Color.black.opacity(0.4))
-                                    .cornerRadius(8)
-                                    .foregroundColor(.white)
-                                Spacer()
-                            }
-                        }
+                        MessageBubbleView(
+                            message: msg,
+                            isCurrentUser: msg.senderId == chatManager.currentUser,
+                            username: getUsername(for: msg.senderId)
+                        )
                         .padding(4)
                         .id(msg.id)
                     }

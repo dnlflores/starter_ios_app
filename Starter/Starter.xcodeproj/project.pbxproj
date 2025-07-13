@@ -29,9 +29,22 @@
 		D6D531912DEA5980003BCA3B /* StarterUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D6C6E9152E23864500770C51 /* Exceptions for "Starter" folder in "Starter" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D6D531792DEA597F003BCA3B /* Starter */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D6D5317C2DEA597F003BCA3B /* Starter */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D6C6E9152E23864500770C51 /* Exceptions for "Starter" folder in "Starter" target */,
+			);
 			path = Starter;
 			sourceTree = "<group>";
 		};

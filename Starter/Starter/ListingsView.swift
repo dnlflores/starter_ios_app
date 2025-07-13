@@ -53,7 +53,7 @@ struct ListingsView: View {
                                         Text(tool.name)
                                             .font(.headline)
                                             .foregroundColor(.black)
-                                        Text(truncateText(tool.description ?? "No description available", maxLength: 150))
+                                        Text(truncateText(tool.description ?? "No description available", maxLength: 80))
                                             .font(.subheadline)
                                             .foregroundColor(.black)
                                         HStack {
