@@ -29,46 +29,66 @@ struct ChatView: View {
                 .padding()
             } else {
                 NavigationStack {
-                    VStack {
-                        // WebSocket Status Indicator
-                        if !chatManager.webSocketManager.isConnected {
+                    VStack(spacing: 0) {
+                        // Custom extended navigation header
+                        VStack {
                             HStack {
-                                Image(systemName: "wifi.slash")
-                                    .foregroundColor(.orange)
-                                Text(chatManager.webSocketStatus)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                Text("Chats")
+                                    .font(.largeTitle)
+                                    .foregroundColor(.purple)
+                                    .bold()
                                 Spacer()
-                                Button("Retry") {
-                                    chatManager.reconnectWebSocket()
-                                }
-                                .font(.caption)
-                                .buttonStyle(.bordered)
-                                .controlSize(.small)
                             }
                             .padding(.horizontal)
-                            .padding(.vertical, 8)
-                            .background(Color.yellow.opacity(0.1))
+                            
+                            // Extended black area below the title
+                            Color.black
+                                .frame(height: 0) // Adjust this height as needed
                         }
+                        .background(Color.black)
                         
-                        List(chatManager.chats) { chat in
-                            NavigationLink(destination: ChatDetailView(chatID: chat.id)) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(chat.displayName)
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                    Text(chat.displaySubtitle)
+                        VStack {
+                            // WebSocket Status Indicator
+                            if !chatManager.webSocketManager.isConnected {
+                                HStack {
+                                    Image(systemName: "wifi.slash")
+                                        .foregroundColor(.orange)
+                                    Text(chatManager.webSocketStatus)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
+                                    Spacer()
+                                    Button("Retry") {
+                                        chatManager.reconnectWebSocket()
+                                    }
+                                    .font(.caption)
+                                    .buttonStyle(.bordered)
+                                    .controlSize(.small)
                                 }
+                                .padding(.horizontal)
+                                .padding(.vertical, 8)
+                                .background(Color.yellow.opacity(0.1))
                             }
-                            .listRowBackground(Color.clear)
+                            
+                            List(chatManager.chats) { chat in
+                                NavigationLink(destination: ChatDetailView(chatID: chat.id)) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(chat.displayName)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        Text(chat.displaySubtitle)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .listRowBackground(Color.clear)
+                            }
+                            .padding(.top, 5)
+                            .listStyle(.plain)
+                            .scrollContentBackground(.hidden)
+                            .applyThemeBackground()
                         }
-                        .listStyle(.plain)
-                        .scrollContentBackground(.hidden)
-                        .background(Color.clear)
                     }
-                    .navigationTitle("Chats")
+                    .navigationBarHidden(true) // Hide the default navigation bar
                 }
             }
         }
@@ -81,4 +101,7 @@ struct ChatView: View {
 #Preview {
     ChatView(showLogin: .constant(false), showSignUp: .constant(false))
         .environmentObject(ChatManager())
+        .onAppear {
+            UserDefaults.standard.set("daniel", forKey: "username")
+        }
 }

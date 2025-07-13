@@ -29,8 +29,19 @@ struct WelcomeView: View {
                                 VStack(alignment: .leading) {
                                     Text(tool.name)
                                         .font(.headline)
-                                    Text(tool.description ?? "No description available")
+                                    Text(truncateText(tool.description ?? "No description available", maxLength: 50))
                                         .font(.subheadline)
+                                    HStack {
+                                        Text("$\(tool.price) / day")
+                                            .font(.caption)
+                                            .foregroundColor(.green)
+                                            .bold()
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 5)
+                                            .background(Color.black.opacity(0.3))
+                                            .cornerRadius(5)
+                                        Spacer()
+                                    }
                                 }
                             }
                             .listRowBackground(
@@ -38,7 +49,8 @@ struct WelcomeView: View {
                             )
                         }
                         .listStyle(.plain)
-                        .padding(.vertical)
+                        .padding(.bottom, 84)
+                        .ignoresSafeArea()
                     } else {
                         MapView()
                             .toolbarBackground(Color.black, for: .navigationBar)
@@ -64,6 +76,15 @@ struct WelcomeView: View {
                     }
                 }
             }
+        }
+    }
+    
+    // Helper function to truncate text to specified length
+    private func truncateText(_ text: String, maxLength: Int) -> String {
+        if text.count <= maxLength {
+            return text
+        } else {
+            return String(text.prefix(maxLength)) + "..."
         }
     }
 }

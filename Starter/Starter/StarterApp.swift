@@ -27,6 +27,9 @@ struct StarterApp: App {
         navAppearance.backgroundColor = .black
         navAppearance.titleTextAttributes = [.foregroundColor: UIColor.purple]
         navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.purple]
+        // Hide the navigation bar separator line
+        navAppearance.shadowImage = UIImage()
+        navAppearance.shadowColor = .clear
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
         UINavigationBar.appearance().compactAppearance = navAppearance
