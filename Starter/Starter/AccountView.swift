@@ -98,8 +98,9 @@ struct AccountView: View {
                     .padding(.horizontal)
 
                     Button(action: {
-                        authToken = ""
-                        showLogin = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            authToken = ""
+                        }
                     }) {
                         Text("Log Out")
                             .frame(maxWidth: .infinity)

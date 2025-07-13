@@ -14,7 +14,7 @@ struct ChatView: View {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
     
-    // Simple default chat data for display
+    // Simple default chat data for display in Preview only
     private var defaultChatData: [(id: String, name: String, subtitle: String)] {
         [
             ("demo_1", "John", "General chat"),
@@ -23,9 +23,14 @@ struct ChatView: View {
         ]
     }
     
-    // Check if we should show default data
-    private var shouldShowDefaultData: Bool {
-        return chatManager.chats.isEmpty
+    // Check if we should show default data (only in Preview mode)
+    private var shouldShowPreviewData: Bool {
+        return isInPreview && chatManager.chats.isEmpty
+    }
+    
+    // Check if we should show empty state (only in normal app mode)
+    private var shouldShowEmptyState: Bool {
+        return !isInPreview && chatManager.chats.isEmpty
     }
 
     var body: some View {
@@ -52,67 +57,54 @@ struct ChatView: View {
                         // Custom extended navigation header
                         VStack {
                             HStack {
-                                Text("Chats")
+                                Text("Chat")
                                     .font(.largeTitle)
                                     .foregroundColor(.purple)
                                     .bold()
                                 Spacer()
+                                
+                                // Show WebSocket connection status
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(chatManager.webSocketManager.isConnected ? Color.green : Color.red)
+                                        .frame(width: 8, height: 8)
+                                    Text(chatManager.webSocketStatus)
+                                        .font(.caption)
+                                        .foregroundColor(Color.white)
+                                }
                             }
                             .padding(.horizontal)
-                            
-                            // Extended black area below the title
-                            Color.black
-                                .frame(height: 0) // Adjust this height as needed
+                            .padding(.bottom)
                         }
                         .background(Color.black)
                         
-                        VStack {
-                            // WebSocket Status Indicator - hide in preview mode
-                            if !isInPreview && !chatManager.webSocketManager.isConnected {
-                                HStack {
-                                    Image(systemName: "wifi.slash")
-                                        .foregroundColor(.orange)
-                                    Text(chatManager.webSocketStatus)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                    Spacer()
-                                    Button("Retry") {
-                                        chatManager.reconnectWebSocket()
-                                    }
-                                    .font(.caption)
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.small)
-                                }
-                                .padding(.horizontal)
-                                .padding(.vertical, 8)
-                                .background(Color.yellow.opacity(0.1))
-                            }
-                            
-                            // Show default message when using demo data
-                            if shouldShowDefaultData && !isInPreview {
-                                HStack {
+                        // Content area
+                        ZStack {
+                            // Show empty state message when no chats in normal app mode
+                            if shouldShowEmptyState {
+                                VStack(spacing: 16) {
                                     Image(systemName: "message.circle")
-                                        .foregroundColor(.blue)
-                                    Text("No chats yet. Demo data shown below.")
-                                        .font(.caption)
+                                        .font(.system(size: 60))
+                                        .foregroundColor(.gray)
+                                    Text("No chats yet")
+                                        .font(.title2)
+                                        .foregroundColor(.primary)
+                                    Text("Start a conversation by browsing available tools and contacting their owners.")
+                                        .font(.body)
                                         .foregroundColor(.secondary)
-                                    Spacer()
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal)
                                     Button("Refresh") {
                                         print("Manual refresh requested")
                                         chatManager.loadChats(for: username)
                                     }
-                                    .font(.caption)
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.small)
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.purple)
                                 }
-                                .padding(.horizontal)
-                                .padding(.vertical, 8)
-                                .background(Color.blue.opacity(0.1))
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
-                            
-                            // Show real chats with navigation or demo data without navigation
-                            if shouldShowDefaultData {
-                                // Demo data (non-clickable)
+                            // Show dummy data in Preview mode when no real chats
+                            else if shouldShowPreviewData {
                                 List(defaultChatData, id: \.id) { chatData in
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(chatData.name)
@@ -120,31 +112,20 @@ struct ChatView: View {
                                             .foregroundColor(.primary)
                                         Text(chatData.subtitle)
                                             .font(.caption)
-                                            .foregroundColor(Color.white)
+                                            .foregroundColor(.secondary)
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 2)
-                                            .background(Color.blue.opacity(0.4))
+                                            .background(Color.blue.opacity(0.2))
                                             .cornerRadius(4)
-                                        
-                                        // Show demo indicator for default chats
-                                        if !isInPreview {
-                                            Text("DEMO")
-                                                .font(.caption2)
-                                                .foregroundColor(.orange)
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 2)
-                                                .background(Color.orange.opacity(0.2))
-                                                .cornerRadius(4)
-                                        }
                                     }
                                     .listRowBackground(Color.clear)
                                 }
                                 .padding(.top, 5)
                                 .listStyle(.plain)
                                 .scrollContentBackground(.hidden)
-                                .applyThemeBackground()
-                            } else {
-                                // Real chats (clickable with navigation)
+                            }
+                            // Show real chats with navigation
+                            else {
                                 List(chatManager.chats) { chat in
                                     NavigationLink(value: chat.id) {
                                         VStack(alignment: .leading, spacing: 4) {
@@ -165,9 +146,9 @@ struct ChatView: View {
                                 .padding(.top, 5)
                                 .listStyle(.plain)
                                 .scrollContentBackground(.hidden)
-                                .applyThemeBackground()
                             }
                         }
+                        .applyThemeBackground()
                     }
                     .navigationBarHidden(true) // Hide the default navigation bar
                     .navigationDestination(for: String.self) { chatID in
@@ -177,11 +158,11 @@ struct ChatView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .applyThemeBackground()
-        .task { 
+        .modifier(BlackPurpleBackground())
+        .task {
             print("ChatView: Starting task - loading chats for username: \(username)")
             print("ChatView: Auth token present: \(!authToken.isEmpty)")
-            chatManager.loadChats(for: username) 
+            chatManager.loadChats(for: username)
         }
         .onAppear {
             print("ChatView: onAppear - Current state:")
@@ -192,13 +173,18 @@ struct ChatView: View {
     }
 }
 
-#Preview {
-    let previewChatManager = ChatManager()
-    previewChatManager.setupPreviewData()
+struct ChatView_Previews: PreviewProvider {
+    static var previews: some View {
+        ChatView(showLogin: .constant(false), showSignUp: .constant(false))
+            .environmentObject(previewChatManager)
+            .onAppear {
+                UserDefaults.standard.set("daniel", forKey: "username")
+            }
+    }
     
-    return ChatView(showLogin: .constant(false), showSignUp: .constant(false))
-        .environmentObject(previewChatManager)
-        .onAppear {
-            UserDefaults.standard.set("daniel", forKey: "username")
-        }
+    static var previewChatManager: ChatManager {
+        let manager = ChatManager()
+        manager.setupPreviewData()
+        return manager
+    }
 }

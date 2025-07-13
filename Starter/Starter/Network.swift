@@ -423,3 +423,52 @@ func createChatMessage(recipientId: Int, message: String, toolId: Int? = nil, au
         }
     }.resume()
 }
+
+/// Edit an existing chat message.
+func editChatMessage(messageId: Int, newMessage: String, authToken: String, completion: @escaping (ChatAPIMessage?) -> Void) {
+    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/chats/\(messageId)") else {
+        completion(nil)
+        return
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "PUT"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+
+    let body: [String: Any] = [
+        "message": newMessage
+    ]
+    
+    request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Network error editing message: \(error)")
+            completion(nil)
+            return
+        }
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("Network: editChatMessage response code: \(httpResponse.statusCode)")
+            if httpResponse.statusCode == 404 {
+                print("Network: Message not found or not authorized to edit")
+                completion(nil)
+                return
+            }
+        }
+        
+        if let data = data {
+            if let editedMessage = try? JSONDecoder().decode(ChatAPIMessage.self, from: data) {
+                print("Network: Successfully edited message")
+                completion(editedMessage)
+            } else {
+                print("Network: Failed to decode edited ChatAPIMessage")
+                completion(nil)
+            }
+        } else {
+            print("Network: editChatMessage received no data")
+            completion(nil)
+        }
+    }.resume()
+}

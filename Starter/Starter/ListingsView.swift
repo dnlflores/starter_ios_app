@@ -10,6 +10,27 @@ struct ListingsView: View {
     @State private var user: User?
     @State private var tools: [Tool] = []
     @State private var isLoading = false
+    
+    // Check if we're in preview mode
+    private var isInPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
+    // Filter tools by current user (original logic)
+    private var filteredTools: [Tool] {
+        guard let user = user else { return [] }
+        return tools.filter { $0.owner_id == user.id }
+    }
+    
+    // Check if we should show empty state (only in normal app mode)
+    private var shouldShowEmptyState: Bool {
+        return !isInPreview && filteredTools.isEmpty && !isLoading
+    }
+    
+    // Check if we should show dummy data (only in Preview mode)
+    private var shouldShowDummyData: Bool {
+        return isInPreview && filteredTools.isEmpty && !isLoading
+    }
 
     var body: some View {
         ZStack {
@@ -47,8 +68,31 @@ struct ListingsView: View {
                         .background(Color.black)
                         
                         ZStack {
-                            List(displayedTools) { tool in
-                                NavigationLink(destination: ToolDetailView(tool: tool)) {
+                            // Show empty state message when no tools in normal app mode
+                            if shouldShowEmptyState {
+                                VStack(spacing: 16) {
+                                    Image(systemName: "wrench.and.screwdriver")
+                                        .font(.system(size: 60))
+                                        .foregroundColor(.gray)
+                                    Text("No tools listed yet")
+                                        .font(.title2)
+                                        .foregroundColor(.primary)
+                                    Text("Post your first tool to start earning money by sharing your items with the community.")
+                                        .font(.body)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal)
+                                    Button("Refresh") {
+                                        loadData()
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.purple)
+                                }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            }
+                            // Show dummy data in Preview mode when no real tools
+                            else if shouldShowDummyData {
+                                List(dummyTools) { tool in
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(tool.name)
                                             .font(.headline)
@@ -66,27 +110,46 @@ struct ListingsView: View {
                                                 .background(Color.black.opacity(0.3))
                                                 .cornerRadius(5)
                                             Spacer()
-                                            // Show indicator if this is dummy data
-                                            if filteredTools.isEmpty && !isLoading {
-                                                Text("DEMO")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.orange)
-                                                    .padding(.horizontal, 8)
-                                                    .padding(.vertical, 2)
-                                                    .background(Color.orange.opacity(0.2))
-                                                    .cornerRadius(4)
-                                            }
                                         }
                                     }
                                     .padding(.vertical, 4)
+                                    .listRowBackground(Color.clear)
                                 }
-                                .listRowBackground(Color.clear)
+                                .listStyle(.plain)
+                                .scrollContentBackground(.hidden)
+                                .ignoresSafeArea()
+                                .padding(.bottom, 0.5)
                             }
-                            .listStyle(.plain)
-                            .scrollContentBackground(.hidden)
-                            .ignoresSafeArea()
-                            .applyThemeBackground()
-                            .padding(.bottom, 0.5)
+                            // Show real tools
+                            else {
+                                List(filteredTools) { tool in
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(tool.name)
+                                            .font(.headline)
+                                            .foregroundColor(.black)
+                                        Text(truncateText(tool.description ?? "No description available", maxLength: 80))
+                                            .font(.subheadline)
+                                            .foregroundColor(.black)
+                                        HStack {
+                                            Text("\(tool.price)/day")
+                                                .font(.caption)
+                                                .foregroundColor(.green)
+                                                .bold()
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 5)
+                                                .background(Color.black.opacity(0.3))
+                                                .cornerRadius(5)
+                                            Spacer()
+                                        }
+                                    }
+                                    .padding(.vertical, 4)
+                                    .listRowBackground(Color.clear)
+                                }
+                                .listStyle(.plain)
+                                .scrollContentBackground(.hidden)
+                                .ignoresSafeArea()
+                                .padding(.bottom, 0.5)
+                            }
                             
                             // Loading indicator
                             if isLoading {
@@ -96,6 +159,7 @@ struct ListingsView: View {
                                     .background(Color.black.opacity(0.3))
                             }
                         }
+                        .applyThemeBackground()
                     }
                     .navigationBarHidden(true)
                 }
@@ -115,22 +179,7 @@ struct ListingsView: View {
         }
     }
     
-    // Computed property to show either real tools or dummy tools
-    private var displayedTools: [Tool] {
-        if filteredTools.isEmpty && !isLoading {
-            return dummyTools
-        } else {
-            return filteredTools
-        }
-    }
-    
-    // Filter tools by current user (original logic)
-    private var filteredTools: [Tool] {
-        guard let user = user else { return [] }
-        return tools.filter { $0.owner_id == user.id }
-    }
-    
-    // Dummy tools as fallback
+    // Dummy tools for Preview mode only
     private var dummyTools: [Tool] {
         return [
             Tool(

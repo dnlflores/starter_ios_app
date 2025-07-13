@@ -5,13 +5,39 @@ struct MessageBubbleView: View {
     let message: ChatMessage
     let isCurrentUser: Bool
     let username: String
+    let onEdit: ((Int, String) -> Void)?
+    
+    @State private var isEditing = false
+    @State private var editedText = ""
     
     // Helper to format the timestamp
     private func formatTimestamp(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
+        let calendar = Calendar.current
+        
+        let timeFormatter = DateFormatter()
+        timeFormatter.timeStyle = .short
+        timeFormatter.dateStyle = .none
+        
+        if calendar.isDateInToday(date) {
+            return "Today • \(timeFormatter.string(from: date))"
+        } else if calendar.isDateInYesterday(date) {
+            return "Yesterday • \(timeFormatter.string(from: date))"
+        } else {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MM/dd/yyyy"
+            return "\(dateFormatter.string(from: date)) • \(timeFormatter.string(from: date))"
+        }
+    }
+    
+    // Helper to determine if the message was edited
+    private var isMessageEdited: Bool {
+        return message.isEdited
+    }
+    
+    // Helper to format timestamp with edited status
+    private func formatTimestampWithEditedStatus() -> String {
+        let timestamp = formatTimestamp(message.date)
+        return isMessageEdited ? "\(timestamp) • Edited" : timestamp
     }
     
     var body: some View {
@@ -19,23 +45,49 @@ struct MessageBubbleView: View {
             if isCurrentUser {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text(message.text)
+                    if isEditing {
+                        // Edit mode
+                        HStack {
+                            TextField("Edit message", text: $editedText)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .onAppear {
+                                    editedText = message.text
+                                }
+                            
+                            Button("Save") {
+                                onEdit?(message.id, editedText)
+                                isEditing = false
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.purple)
+                            .disabled(editedText.trimmingCharacters(in: .whitespaces).isEmpty)
+                            
+                            Button("Cancel") {
+                                isEditing = false
+                                editedText = message.text
+                            }
+                            .buttonStyle(.bordered)
+                        }
                         .padding(8)
                         .background(Color.purple.opacity(0.7))
                         .cornerRadius(8)
-                        .foregroundColor(.white)
-                    
-                    HStack(spacing: 4) {
-                        Text(username)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text("•")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(formatTimestamp(message.date))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    } else {
+                        // Display mode
+                        Text(message.text)
+                            .padding(8)
+                            .background(Color.purple.opacity(0.7))
+                            .cornerRadius(8)
+                            .foregroundColor(.white)
+                            .onLongPressGesture {
+                                isEditing = true
+                                editedText = message.text
+                            }
                     }
+                    
+                    Text(formatTimestampWithEditedStatus())
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.trailing, 8)
                 }
             } else {
                 VStack(alignment: .leading, spacing: 4) {
@@ -45,17 +97,10 @@ struct MessageBubbleView: View {
                         .cornerRadius(8)
                         .foregroundColor(.white)
                     
-                    HStack(spacing: 4) {
-                        Text(username)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text("•")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(formatTimestamp(message.date))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                    Text(formatTimestampWithEditedStatus())
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.leading, 8)
                 }
                 Spacer()
             }
@@ -83,16 +128,22 @@ struct ChatDetailView: View {
 
     var body: some View {
         VStack {
+            // Messages scroll view
             ScrollViewReader { proxy in
                 ScrollView {
-                    ForEach((chat?.messages ?? []).reversed()) { msg in
-                        MessageBubbleView(
-                            message: msg,
-                            isCurrentUser: msg.senderId == chatManager.currentUser,
-                            username: getUsername(for: msg.senderId)
-                        )
-                        .padding(4)
-                        .id(msg.id)
+                    LazyVStack {
+                        ForEach((chat?.messages ?? []).reversed()) { msg in
+                            MessageBubbleView(
+                                message: msg,
+                                isCurrentUser: msg.senderId == chatManager.currentUser,
+                                username: getUsername(for: msg.senderId),
+                                onEdit: { messageId, newText in
+                                    chatManager.editMessage(messageId: messageId, newText: newText, in: chatID)
+                                }
+                            )
+                            .padding(4)
+                            .id(msg.id)
+                        }
                     }
                 }
                 .onChange(of: chat?.messages.count ?? 0) { _ in
@@ -101,6 +152,8 @@ struct ChatDetailView: View {
                     }
                 }
             }
+            
+            // Message input area
             HStack {
                 TextField("Message", text: $messageText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -121,63 +174,66 @@ struct ChatDetailView: View {
     }
 }
 
-#Preview {
-    // Create a ChatManager with sample data for preview
-    let previewChatManager = ChatManager()
-    
-    // Set up the ChatManager with sample user and tool data
-    previewChatManager.setupPreviewData()
-    
-    // Create sample messages
-    let sampleMessages = [
-        ChatMessage(
-            id: 1,
-            senderId: 1,
-            text: "Hi! I'm interested in renting your power drill.",
-            date: Date().addingTimeInterval(-3600), // 1 hour ago
-            toolId: 1
-        ),
-        ChatMessage(
-            id: 2,
-            senderId: 2,
-            text: "Great! It's available this weekend. $15 per day.",
-            date: Date().addingTimeInterval(-3000), // 50 minutes ago
-            toolId: 1
-        ),
-        ChatMessage(
-            id: 3,
-            senderId: 1,
-            text: "Perfect! I'll take it for Saturday and Sunday.",
-            date: Date().addingTimeInterval(-2400), // 40 minutes ago
-            toolId: 1
-        ),
-        ChatMessage(
-            id: 4,
-            senderId: 2,
-            text: "Sounds good! I'll have it ready for pickup on Saturday morning.",
-            date: Date().addingTimeInterval(-1800), // 30 minutes ago
-            toolId: 1
+struct ChatDetailView_Previews: PreviewProvider {
+    static var previews: some View {
+        ChatDetailView(chatID: "1")
+            .environmentObject(previewChatManager)
+            .onAppear {
+                UserDefaults.standard.set("Daniel", forKey: "username")
+                UserDefaults.standard.set("sample_token", forKey: "authToken")
+            }
+    }
+
+    static var previewChatManager: ChatManager {
+        let manager = ChatManager()
+        manager.setupPreviewData()
+        let sampleMessages = [
+            ChatMessage(
+                id: 1,
+                senderId: 1,
+                text: "Hi! I'm interested in renting your power drill.",
+                date: Date().addingTimeInterval(-3600),
+                toolId: 1,
+                isEdited: false,
+                updatedAt: Date().addingTimeInterval(-3600)
+            ),
+            ChatMessage(
+                id: 2,
+                senderId: 2,
+                text: "Great! It's available this weekend. $15 per day.",
+                date: Date().addingTimeInterval(-3000),
+                toolId: 1,
+                isEdited: false,
+                updatedAt: Date().addingTimeInterval(-3000)
+            ),
+            ChatMessage(
+                id: 3,
+                senderId: 1,
+                text: "Perfect! I'll take it for Saturday and Sunday.",
+                date: Date().addingTimeInterval(-2400),
+                toolId: 1,
+                isEdited: false,
+                updatedAt: Date().addingTimeInterval(-2400)
+            ),
+            ChatMessage(
+                id: 4,
+                senderId: 2,
+                text: "Sounds good! I'll have it ready for pickup on Saturday morning.",
+                date: Date().addingTimeInterval(-1800),
+                toolId: 1,
+                isEdited: false,
+                updatedAt: Date().addingTimeInterval(-1800)
+            )
+        ]
+        let sampleChat = Chat(
+            id: "1",
+            otherUserId: 2,
+            otherUsername: "Sarah",
+            toolId: 1,
+            toolName: "Power Drill",
+            messages: sampleMessages
         )
-    ]
-    
-    // Create sample chat with the ID expected by the preview
-    let sampleChat = Chat(
-        id: "1",
-        otherUserId: 2,
-        otherUsername: "Sarah",
-        toolId: 1,
-        toolName: "Power Drill",
-        messages: sampleMessages
-    )
-    
-    // Set up the ChatManager with sample data
-    previewChatManager.chats = [sampleChat]
-    
-    return ChatDetailView(chatID: "1")
-        .environmentObject(previewChatManager)
-        .onAppear {
-            // Set up UserDefaults for preview
-            UserDefaults.standard.set("Daniel", forKey: "username")
-            UserDefaults.standard.set("sample_token", forKey: "authToken")
-        }
+        manager.chats = [sampleChat]
+        return manager
+    }
 }

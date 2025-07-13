@@ -7,6 +7,8 @@ struct ChatMessage: Identifiable {
     let text: String
     let date: Date
     let toolId: Int?
+    let isEdited: Bool
+    let updatedAt: Date
 }
 
 struct Chat: Identifiable {
@@ -148,7 +150,9 @@ final class ChatManager: ObservableObject {
                         senderId: raw.sender_id,
                         text: raw.message,
                         date: self.dateFormatter.date(from: raw.created_at) ?? Date(),
-                        toolId: raw.tool_id
+                        toolId: raw.tool_id,
+                        isEdited: raw.is_edited,
+                        updatedAt: self.dateFormatter.date(from: raw.updated_at) ?? Date()
                     )
                     chat.messages.append(message)
                     grouped[chatId] = chat
@@ -208,7 +212,9 @@ final class ChatManager: ObservableObject {
                 senderId: created.sender_id,
                 text: created.message,
                 date: self.dateFormatter.date(from: created.created_at) ?? Date(),
-                toolId: created.tool_id
+                toolId: created.tool_id,
+                isEdited: created.is_edited,
+                updatedAt: self.dateFormatter.date(from: created.updated_at) ?? Date()
             )
             DispatchQueue.main.async {
                 let chatId = Chat.generateId(otherUserId: otherUserId, toolId: toolId)
@@ -229,6 +235,40 @@ final class ChatManager: ObservableObject {
                     self.chats.append(chat)
                 }
             }
+        }
+    }
+    
+    /// Edit a message that was sent by the current user
+    func editMessage(messageId: Int, newText: String, in chatId: String) {
+        guard let currentUserId = currentUserId else { return }
+        
+        // Check if the message exists and belongs to the current user
+        if let chatIndex = chats.firstIndex(where: { $0.id == chatId }),
+           let messageIndex = chats[chatIndex].messages.firstIndex(where: { $0.id == messageId }),
+           chats[chatIndex].messages[messageIndex].senderId == currentUserId {
+            
+            print("ChatManager: Editing message \(messageId) with new text: \(newText)")
+            
+            // For now, update the message locally
+            // In a full implementation, this would make a network call to the backend
+            let currentMessage = chats[chatIndex].messages[messageIndex]
+            let updatedMessage = ChatMessage(
+                id: currentMessage.id,
+                senderId: currentMessage.senderId,
+                text: newText,
+                date: currentMessage.date,
+                toolId: currentMessage.toolId,
+                isEdited: true,
+                updatedAt: Date()
+            )
+            
+            chats[chatIndex].messages[messageIndex] = updatedMessage
+            print("ChatManager: Successfully updated message \(messageId)")
+            
+            // TODO: Implement actual network call to backend
+            // The editChatMessage function in Network.swift is ready to use
+        } else {
+            print("ChatManager: Message not found or not authorized to edit")
         }
     }
     
@@ -264,7 +304,9 @@ final class ChatManager: ObservableObject {
             senderId: apiMessage.sender_id,
             text: apiMessage.message,
             date: dateFormatter.date(from: apiMessage.created_at) ?? Date(),
-            toolId: apiMessage.tool_id
+            toolId: apiMessage.tool_id,
+            isEdited: apiMessage.is_edited,
+            updatedAt: dateFormatter.date(from: apiMessage.updated_at) ?? Date()
         )
         
         // Find existing chat or create new one
@@ -318,6 +360,11 @@ final class ChatManager: ObservableObject {
     
     /// Set up sample data for SwiftUI previews
     func setupPreviewData() {
+        // Only set up data if we're in preview mode
+        guard ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" else {
+            return
+        }
+        
         // Set up sample user data
         currentUserId = 1
         userLookup = [
@@ -331,5 +378,100 @@ final class ChatManager: ObservableObject {
             1: Tool(id: 1, name: "Power Drill", price: "$15", description: "High-quality cordless drill", owner_id: 2, owner_username: "Sarah", owner_email: "sarah@example.com", owner_first_name: "Sarah", owner_last_name: "Johnson"),
             2: Tool(id: 2, name: "Circular Saw", price: "$25", description: "Professional-grade saw", owner_id: 3, owner_username: "Mike", owner_email: "mike@example.com", owner_first_name: "Mike", owner_last_name: "Wilson")
         ]
+        
+        // Set up sample chat data for preview
+        setupPreviewChats()
+    }
+    
+    /// Set up sample chat conversations for preview mode
+    private func setupPreviewChats() {
+        // Only add dummy chats if we're in preview mode
+        guard ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" else {
+            return
+        }
+        
+        // Create sample messages for different chats
+        let sampleMessages1 = [
+            ChatMessage(
+                id: 1,
+                senderId: 2,
+                text: "Hi! I'm interested in renting your power drill.",
+                date: Date().addingTimeInterval(-3600), // 1 hour ago
+                toolId: 1,
+                isEdited: false,
+                updatedAt: Date()
+            ),
+            ChatMessage(
+                id: 2,
+                senderId: 1,
+                text: "Great! It's available this weekend. $15 per day.",
+                date: Date().addingTimeInterval(-3000), // 50 minutes ago
+                toolId: 1,
+                isEdited: false,
+                updatedAt: Date()
+            )
+        ]
+        
+        let sampleMessages2 = [
+            ChatMessage(
+                id: 3,
+                senderId: 3,
+                text: "Is the circular saw still available?",
+                date: Date().addingTimeInterval(-7200), // 2 hours ago
+                toolId: 2,
+                isEdited: false,
+                updatedAt: Date()
+            ),
+            ChatMessage(
+                id: 4,
+                senderId: 1,
+                text: "Yes, it's available. When do you need it?",
+                date: Date().addingTimeInterval(-7000), // 1 hour 56 minutes ago
+                toolId: 2,
+                isEdited: false,
+                updatedAt: Date()
+            )
+        ]
+        
+        // Create sample chats
+        let sampleChats = [
+            Chat(
+                id: Chat.generateId(otherUserId: 2, toolId: 1),
+                otherUserId: 2,
+                otherUsername: "Sarah",
+                toolId: 1,
+                toolName: "Power Drill",
+                messages: sampleMessages1
+            ),
+            Chat(
+                id: Chat.generateId(otherUserId: 3, toolId: 2),
+                otherUserId: 3,
+                otherUsername: "Mike",
+                toolId: 2,
+                toolName: "Circular Saw",
+                messages: sampleMessages2
+            ),
+            Chat(
+                id: Chat.generateId(otherUserId: 2, toolId: nil),
+                otherUserId: 2,
+                otherUsername: "Sarah",
+                toolId: nil,
+                toolName: nil,
+                messages: [
+                    ChatMessage(
+                        id: 5,
+                        senderId: 2,
+                        text: "Thanks for the great tool rental experience!",
+                        date: Date().addingTimeInterval(-86400), // 1 day ago
+                        toolId: nil,
+                        isEdited: false,
+                        updatedAt: Date()
+                    )
+                ]
+            )
+        ]
+        
+        // Only set the chats if we're in preview mode
+        chats = sampleChats
     }
 }
