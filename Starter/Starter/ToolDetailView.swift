@@ -14,6 +14,7 @@ struct ToolDetailView: View {
                     .frame(height: 34)
                     .padding(.top, 15)
                     .padding(.horizontal)
+                    .fontWeight(.bold)
             }
             VStack(alignment: .leading, spacing: 16) {
                 Text("Description")
@@ -101,6 +102,16 @@ struct ToolDetailView: View {
                         Image(systemName: "chevron.left")
                         Text("Back")
                     }
+                }
+            }
+            ToolbarItem(placement: .principal) {
+                Button(action: { dismiss() }) {
+                    HStack {
+                        Text("RNTL")
+                            .fontWeight(.bold)
+                            .font(.title)
+                    }
+                    .padding(.bottom, 5)
                 }
             }
         }
