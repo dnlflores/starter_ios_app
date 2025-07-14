@@ -10,10 +10,9 @@ struct ToolDetailView: View {
     var body: some View {
         ScrollView {
             ZStack {
-                Text("\(tool.name)")
-                    .font(.title)
-                    .multilineTextAlignment(.leading)
-                    .padding(.top, 5)
+                ScrollingText(tool.name, font: .title, color: .primary)
+                    .frame(height: 34)
+                    .padding(.top, 15)
                     .padding(.horizontal)
             }
             VStack(alignment: .leading, spacing: 16) {
@@ -46,8 +45,9 @@ struct ToolDetailView: View {
                         }
                         .padding(.leading, 3)
                     }
-                    .padding()
-                    .background(Color.green.opacity(0.3).cornerRadius(10))
+                        .padding()
+                        .background(Color.green.opacity(0.3).cornerRadius(10))
+                        .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 4)
                     Spacer()
                     HStack {
                         Image(systemName: "person.crop.circle.fill")
@@ -57,6 +57,7 @@ struct ToolDetailView: View {
                     }
                     .padding()
                     .background(Color.gray.opacity(0.3).cornerRadius(10))
+                    .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 4)
                 }
 
                 MapView()

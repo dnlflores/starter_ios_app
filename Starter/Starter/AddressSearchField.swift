@@ -36,8 +36,8 @@ struct AddressSearchField: View {
                     LazyVStack(spacing: 0) {
                         ForEach(service.results, id: \.self) { completion in
                             VStack(alignment: .leading) {
-                                Text(completion.title)
-                                    .foregroundColor(.white)
+                                ScrollingText(completion.title, font: .body, color: .white)
+                                    .frame(height: 24)
                                 if !completion.subtitle.isEmpty {
                                     Text(completion.subtitle)
                                         .font(.caption)

@@ -94,9 +94,8 @@ struct ListingsView: View {
                             else if shouldShowDummyData {
                                 List(dummyTools) { tool in
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(tool.name)
-                                            .font(.headline)
-                                            .foregroundColor(.black)
+                                        ScrollingText(tool.name, font: .headline, color: .black)
+                                            .frame(height: 26)
                                         Text(truncateText(tool.description ?? "No description available", maxLength: 80))
                                             .font(.subheadline)
                                             .foregroundColor(.black)
@@ -124,9 +123,8 @@ struct ListingsView: View {
                             else {
                                 List(filteredTools) { tool in
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(tool.name)
-                                            .font(.headline)
-                                            .foregroundColor(.black)
+                                        ScrollingText(tool.name, font: .headline, color: .black)
+                                            .frame(height: 26)
                                         Text(truncateText(tool.description ?? "No description available", maxLength: 80))
                                             .font(.subheadline)
                                             .foregroundColor(.black)
