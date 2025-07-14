@@ -19,3 +19,24 @@ extension View {
         self.modifier(BlackPurpleBackground())
     }
 }
+
+struct KeyboardDismissModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .gesture(
+                DragGesture()
+                    .onEnded { value in
+                        // Detect swipe down gesture
+                        if value.translation.height > 50 && abs(value.translation.width) < 100 {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        }
+                    }
+            )
+    }
+}
+
+extension View {
+    func dismissKeyboardOnSwipeDown() -> some View {
+        modifier(KeyboardDismissModifier())
+    }
+}

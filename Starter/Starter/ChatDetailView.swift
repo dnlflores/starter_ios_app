@@ -50,6 +50,7 @@ struct MessageBubbleView: View {
                         HStack {
                             TextField("Edit message", text: $editedText)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .dismissKeyboardOnSwipeDown()
                                 .onAppear {
                                     editedText = message.text
                                 }
@@ -157,6 +158,7 @@ struct ChatDetailView: View {
             HStack {
                 TextField("Message", text: $messageText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .dismissKeyboardOnSwipeDown()
                 Button("Send") {
                     guard !messageText.trimmingCharacters(in: .whitespaces).isEmpty,
                           let chat = chat else { return }

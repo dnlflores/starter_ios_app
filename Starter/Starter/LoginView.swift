@@ -31,9 +31,11 @@ struct LoginView: View {
                     .autocapitalization(.none)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)
+                    .dismissKeyboardOnSwipeDown()
                 SecureField("Password", text: $password)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)
+                    .dismissKeyboardOnSwipeDown()
                 Button(action: {
                     login(username: username, password: password) { success in
                         DispatchQueue.main.async {

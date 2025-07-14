@@ -46,6 +46,7 @@ struct SignUpView: View {
                 }
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
+                .dismissKeyboardOnSwipeDown()
                 Button("Create Account") {
                     signup(username: username, email: email, password: password, street: street, city: city, state: state, zip: zip, phone: phone) { success in
                         DispatchQueue.main.async {

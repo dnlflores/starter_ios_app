@@ -9,14 +9,54 @@ struct ToolDetailView: View {
 
     var body: some View {
         ScrollView {
+            ZStack {
+                Text("\(tool.name)")
+                    .font(.title)
+                    .multilineTextAlignment(.leading)
+                    .padding(.top, 5)
+                    .padding(.horizontal)
+            }
             VStack(alignment: .leading, spacing: 16) {
-                Text(tool.description ?? "No description available")
-                Text("Price per hour: \(tool.price)")
-                if let ownerFirst = tool.owner_first_name, let ownerLast = tool.owner_last_name {
-                    Text("Owner: \(ownerFirst) \(ownerLast)")
+                Text("Description")
+                    .font(.system(size: 14, weight: .bold))
+                ZStack {
+                    Text(tool.description ?? "No description available")
+                        .font(.system(size: 14))
+                        .multilineTextAlignment(.center)
+                        .padding()
                 }
-                if let ownerEmail = tool.owner_email {
-                    Text("Email: \(ownerEmail)")
+                    .background(Color.purple.opacity(0.3))
+                    .cornerRadius(8)
+                    .shadow(color: .black.opacity(0.7), radius: 10, x: 0, y: 4)
+                HStack {
+                    HStack (spacing: 0) {
+                        Text("$\(tool.price)")
+                            .font(.system(size: 26))
+                            .padding(0)
+                            .foregroundColor(Color.green)
+                        VStack {
+                            Text("Per")
+                                .padding(.top, 4)
+                                .font(.system(size: 8))
+                                .foregroundColor(Color.green)
+                            Text("Day")
+                                .padding(.bottom, 4)
+                                .font(.system(size: 8))
+                                .foregroundColor(Color.green)
+                        }
+                        .padding(.leading, 3)
+                    }
+                    .padding()
+                    .background(Color.green.opacity(0.3).cornerRadius(10))
+                    Spacer()
+                    HStack {
+                        Image(systemName: "person.crop.circle.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(.white)
+                        Text("\(tool.owner_first_name ?? "Unknown") \(tool.owner_last_name ?? "User")")
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.3).cornerRadius(10))
                 }
 
                 MapView()
@@ -62,13 +102,6 @@ struct ToolDetailView: View {
                     }
                 }
             }
-            ToolbarItem(placement: .principal) {
-                Text(tool.name)
-                    .foregroundStyle(.purple)
-                    .font(.largeTitle)
-                    .bold()
-                    .padding(.bottom)
-            }
         }
         .toolbarBackground(Color.black, for: .navigationBar)
         .toolbarColorScheme(.light, for: .navigationBar)
@@ -81,6 +114,6 @@ struct ToolDetailView: View {
     let previewChatManager = ChatManager()
     previewChatManager.setupPreviewData()
     
-    return ToolDetailView(tool: Tool(id: 1, name: "Hammer", price: "$10", description: "A sturdy hammer.", owner_id: 1, owner_username: "johndoe", owner_email: "johndoe@example.com", owner_first_name: "John", owner_last_name: "Doe"))
+    return ToolDetailView(tool: Tool(id: 1, name: "Professional Needle Nose Pliers And This Is A Really Long Title So I Can Test What It Looks Like", price: "10", description: "Heavy-duty 25-foot tape measure with standout up to 7 feet for one-person measuring. Features a durable nylon-coated steel blade with clear, easy-to-read markings in both imperial and metric units. The True Zero end hook moves in and out for inside and outside measurements. Cushioned case design withstands 10-foot drops. Belt clip attachment for convenient carrying. Blade width: 1 inch. Includes fraction markings down to 1/16 inch for precise measurements. Perfect for construction, home improvement, and professional contracting work.", owner_id: 1, owner_username: "johndoe", owner_email: "johndoe@example.com", owner_first_name: "John", owner_last_name: "Doe"))
         .environmentObject(previewChatManager)
 }

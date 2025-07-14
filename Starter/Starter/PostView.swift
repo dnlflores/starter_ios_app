@@ -66,6 +66,7 @@ struct PostView: View {
                                     .foregroundColor(.white)
                                     .cornerRadius(8.0)
                                     .padding(.horizontal, 18)
+                                    .dismissKeyboardOnSwipeDown()
                                 if name.isEmpty {
                                     Text("Tool Name")
                                         .foregroundColor(.gray.opacity(0.4))
@@ -80,6 +81,7 @@ struct PostView: View {
                                     .cornerRadius(8)
                                     .frame(width: 365, height: 150)
                                     .foregroundColor(.white)
+                                    .dismissKeyboardOnSwipeDown()
                                 if description.isEmpty {
                                     Text("Tool Description")
                                         .foregroundColor(.gray.opacity(0.4))
@@ -100,6 +102,7 @@ struct PostView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(8.0)
                                 .padding(.horizontal, 18)
+                                .dismissKeyboardOnSwipeDown()
                         }
                             Button(action: {
                                 savePost()

@@ -16,6 +16,7 @@ struct AddressSearchField: View {
                 .foregroundColor(.white)
                 .cornerRadius(8)
                 .padding(.horizontal, 18)
+                .dismissKeyboardOnSwipeDown()
                 .background(
                     GeometryReader { geo in
                         Color.clear
