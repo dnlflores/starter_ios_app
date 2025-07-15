@@ -31,133 +31,126 @@ struct ListingsView: View {
     private var shouldShowDummyData: Bool {
         return isInPreview && filteredTools.isEmpty && !isLoading
     }
+    
+    private let columns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
 
     var body: some View {
         ZStack {
             if authToken.isEmpty {
-                VStack(spacing: 16) {
-                    Text("You are not logged in.")
-                        .font(.title2)
-                    Button("Log In") {
-                        showLogin = true
+                VStack(spacing: 24) {
+                    VStack(spacing: 12) {
+                        Image(systemName: "lock.shield")
+                            .font(.system(size: 60))
+                            .foregroundColor(.white.opacity(0.8))
+                        Text("You are not logged in")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        Text("Please log in to view your tools")
+                            .font(.body)
+                            .foregroundColor(.white.opacity(0.8))
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.purple)
-                    Button("Sign Up") {
-                        showSignUp = true
+                    
+                    VStack(spacing: 12) {
+                        Button("Log In") {
+                            showLogin = true
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
+                        
+                        Button("Sign Up") {
+                            showSignUp = true
+                        }
+                        .buttonStyle(SecondaryButtonStyle())
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.red)
                 }
-                .padding()
+                .padding(.horizontal, 24)
+                .applyThemeBackground()
             } else {
                 NavigationStack {
                     VStack(spacing: 0) {
-                        // Custom extended navigation header
-                        VStack {
+                        // Modern header with gradient
+                        VStack(spacing: 0) {
                             HStack {
-                                Text("My Tools")
-                                    .font(.largeTitle)
-                                    .foregroundColor(.red)
-                                    .bold()
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("My Tools")
+                                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                    Text("Earn money by sharing your items")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.8))
+                                }
                                 Spacer()
+                                
+                                Button(action: { loadData() }) {
+                                    Image(systemName: "arrow.clockwise")
+                                        .font(.system(size: 20, weight: .medium))
+                                        .foregroundColor(.white)
+                                }
+                                .disabled(isLoading)
                             }
-                            .padding(.horizontal)
-                            .padding(.bottom)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 16)
                         }
-                        .background(Color.black)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.red, Color.orange]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                         
-                        ZStack {
-                            // Show empty state message when no tools in normal app mode
-                            if shouldShowEmptyState {
-                                VStack(spacing: 16) {
-                                    Image(systemName: "wrench.and.screwdriver")
-                                        .font(.system(size: 60))
-                                        .foregroundColor(.gray)
-                                    Text("No tools listed yet")
-                                        .font(.title2)
-                                        .foregroundColor(.primary)
-                                    Text("Post your first tool to start earning money by sharing your items with the community.")
-                                        .font(.body)
-                                        .foregroundColor(.secondary)
-                                        .multilineTextAlignment(.center)
-                                        .padding(.horizontal)
-                                    Button("Refresh") {
+                        // Main content
+                        ScrollView {
+                            LazyVStack(spacing: 20) {
+                                // Show empty state message when no tools in normal app mode
+                                if shouldShowEmptyState {
+                                    EmptyStateView {
                                         loadData()
                                     }
-                                    .buttonStyle(.borderedProminent)
-                                    .tint(.purple)
+                                    .padding(.horizontal, 20)
+                                    .padding(.top, 40)
                                 }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            }
-                            // Show dummy data in Preview mode when no real tools
-                            else if shouldShowDummyData {
-                                List(dummyTools) { tool in
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        ScrollingText(tool.name, font: .headline, color: .black)
-                                            .frame(height: 26)
-                                        Text(truncateText(tool.description ?? "No description available", maxLength: 155))
-                                            .font(.subheadline)
-                                            .foregroundColor(.black)
-                                        HStack {
-                                            Text("\(tool.price) / day")
-                                                .font(.caption)
-                                                .foregroundColor(.green)
-                                                .bold()
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 5)
-                                                .background(Color.black.opacity(0.5))
-                                                .cornerRadius(5)
-                                            Spacer()
+                                // Show dummy data in Preview mode when no real tools
+                                else if shouldShowDummyData {
+                                    LazyVGrid(columns: columns, spacing: 16) {
+                                        ForEach(dummyTools) { tool in
+                                            ToolCardView(tool: tool)
                                         }
                                     }
-                                    .padding(.vertical, 4)
-                                    .listRowBackground(Color.clear)
+                                    .padding(.horizontal, 20)
+                                    .padding(.top, 20)
                                 }
-                                .listStyle(.plain)
-                                .scrollContentBackground(.hidden)
-                                .ignoresSafeArea()
-                                .padding(.bottom, 0.5)
-                            }
-                            // Show real tools
-                            else {
-                                List(filteredTools) { tool in
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        ScrollingText(tool.name, font: .headline, color: .black)
-                                            .frame(height: 26)
-                                        Text(truncateText(tool.description ?? "No description available", maxLength: 155))
-                                            .font(.subheadline)
-                                            .foregroundColor(.black)
-                                        HStack {
-                                            Text("\(tool.price) / day")
-                                                .font(.caption)
-                                                .foregroundColor(.green)
-                                                .bold()
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 5)
-                                                .background(Color.black.opacity(0.5))
-                                                .cornerRadius(5)
-                                            Spacer()
+                                // Show real tools
+                                else if !filteredTools.isEmpty {
+                                    LazyVGrid(columns: columns, spacing: 16) {
+                                        ForEach(filteredTools) { tool in
+                                            ToolCardView(tool: tool)
                                         }
                                     }
-                                    .padding(.vertical, 4)
-                                    .listRowBackground(Color.clear)
+                                    .padding(.horizontal, 20)
+                                    .padding(.top, 20)
                                 }
-                                .listStyle(.plain)
-                                .scrollContentBackground(.hidden)
-                                .ignoresSafeArea()
-                                .padding(.bottom, 0.5)
                             }
-                            
-                            // Loading indicator
-                            if isLoading {
-                                ProgressView("Loading your tools...")
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .background(Color.black.opacity(0.3))
-                            }
+                            .padding(.bottom, 20)
                         }
-                        .applyThemeBackground()
+                        .background(Color(.systemGroupedBackground))
+                        
+                        // Loading indicator
+                        if isLoading {
+                            VStack(spacing: 16) {
+                                ProgressView()
+                                    .scaleEffect(1.2)
+                                    .tint(.orange)
+                                Text("Loading your tools...")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.black.opacity(0.3))
+                        }
                     }
                     .navigationBarHidden(true)
                 }
@@ -165,15 +158,6 @@ struct ListingsView: View {
                     loadData()
                 }
             }
-        }
-    }
-    
-    // Helper function to truncate text to specified length
-    private func truncateText(_ text: String, maxLength: Int) -> String {
-        if text.count <= maxLength {
-            return text
-        } else {
-            return String(text.prefix(maxLength)) + "..."
         }
     }
     
@@ -196,7 +180,7 @@ struct ListingsView: View {
                 id: 2,
                 name: "Circular Saw",
                 price: "$25",
-                description: "Heavy-duty 25-foot tape measure with standout up to 7 feet for one-person measuring. Features a durable nylon-coated steel blade with clear, easy-to-read markings in both imperial and metric units. The True Zero end hook moves in and out for inside and outside measurements. Cushioned case design withstands 10-foot drops. Belt clip attachment for convenient carrying. Blade width: 1 inch. Includes fraction markings down to 1/16 inch for precise measurements. Perfect for construction, home improvement, and professional contracting work.",
+                description: "Heavy-duty 25-foot tape measure with standout up to 7 feet for one-person measuring. Features a durable nylon-coated steel blade with clear, easy-to-read markings in both imperial and metric units.",
                 owner_id: 1,
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",
@@ -251,18 +235,6 @@ struct ListingsView: View {
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
                 image_url: nil
-            ),
-            Tool(
-                id: 7,
-                name: "Tile Saw 2",
-                price: "$30",
-                description: "Professional tile saw for precise cuts. Includes diamond blade and water cooling system.",
-                owner_id: 1,
-                owner_username: "daniel",
-                owner_email: "daniel@example.com",
-                owner_first_name: "Daniel",
-                owner_last_name: "Flores",
-                image_url: nil
             )
         ]
     }
@@ -287,6 +259,131 @@ struct ListingsView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Tool Card View
+struct ToolCardView: View {
+    let tool: Tool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Image placeholder
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.orange.opacity(0.3), Color.red.opacity(0.3)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(height: 120)
+                .overlay(
+                    VStack(spacing: 8) {
+                        Image(systemName: "wrench.and.screwdriver")
+                            .font(.system(size: 32))
+                            .foregroundColor(.white.opacity(0.8))
+                        Text("No Image")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text(tool.name)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                
+                Text(tool.description ?? "No description available")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                
+                Spacer()
+                
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(tool.price)")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.primary)
+                        Text("per day")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        // Action for viewing tool details
+                    }) {
+                        Image(systemName: "arrow.right.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.orange)
+                    }
+                }
+            }
+            .padding(12)
+        }
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+        )
+    }
+}
+
+// MARK: - Empty State View
+struct EmptyStateView: View {
+    let onRefresh: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 16) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 80))
+                    .foregroundColor(.orange)
+                    .shadow(color: Color.orange.opacity(0.3), radius: 10, x: 0, y: 5)
+                
+                VStack(spacing: 8) {
+                    Text("No tools listed yet")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    
+                    Text("Start earning money by sharing your tools with the community")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+                }
+            }
+            
+            VStack(spacing: 12) {
+                Button("Add Your First Tool") {
+                    // Action to add tool
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .frame(maxWidth: 200)
+                
+                Button("Refresh") {
+                    onRefresh()
+                }
+                .buttonStyle(SecondaryButtonStyle())
+                .frame(maxWidth: 200)
+            }
+        }
+        .padding(32)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+        )
     }
 }
 
