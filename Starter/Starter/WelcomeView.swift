@@ -11,26 +11,9 @@ struct WelcomeView: View {
             VStack(spacing: 0) {
                 // Header section with modern design
                 VStack(spacing: 20) {
-                    // Welcome text and branding
-                    HStack {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Welcome back,")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
-                            Text(username)
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .padding(.leading)
-                        }
-                        Spacer()
-                        Text("RNTL")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
+                    // Header spacing
+                    Spacer()
+                        .frame(height: 50)
                     
                     // Modern segmented control
                     VStack(spacing: 12) {
