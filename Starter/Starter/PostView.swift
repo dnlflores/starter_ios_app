@@ -196,6 +196,10 @@ struct PostView: View {
                                             )
                                             .shadow(color: Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
                                     )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.white.opacity(0.4), lineWidth: 2)
+                                    )
                                 }
                                 .disabled(name.isEmpty || description.isEmpty || price <= 0)
                                 .opacity(name.isEmpty || description.isEmpty || price <= 0 ? 0.6 : 1)
