@@ -7,95 +7,137 @@ struct WelcomeView: View {
     @State private var isLoading = false
     
     var body: some View {
-        ZStack {
-            NavigationStack {
-                VStack(spacing: 0) {
-                    VStack {
-                        Picker("View", selection: $selectedView) {
-                            Text("List").tag(0)
-                            Text("Map").tag(1)
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Header section with modern design
+                VStack(spacing: 20) {
+                    // Welcome text and branding
+                    HStack {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Welcome back,")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.8))
+                            Text(username)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding(.leading)
                         }
-                        .pickerStyle(.segmented)
-                        .padding()
-                        .background(.black)
-                        .tint(.white)
-                    }
-                    .background(.black)
-                    
-                    
-                    // 2) Now show either the List or the Map below it
-                    if selectedView == 0 {
-                        ZStack {
-                            List(tools) { tool in
-                                NavigationLink(destination: ToolDetailView(tool: tool)) {
-                                    VStack(alignment: .leading) {
-                                        Text(tool.name)
-                                            .font(.headline)
-                                        Text(truncateText(tool.description ?? "No description available", maxLength: 80))
-                                            .font(.subheadline)
-                                        HStack {
-                                            Text("$\(tool.price) / day")
-                                                .font(.caption)
-                                                .foregroundColor(.green)
-                                                .bold()
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 5)
-                                                .background(Color.black.opacity(0.5))
-                                                .cornerRadius(5)
-                                            Spacer()
-                                        }
-                                    }
-                                }
-                                .listRowBackground(
-                                    Color.clear
-                                )
-                            }
-                            .listStyle(.plain)
-                            .padding(.bottom, 84)
-                            .ignoresSafeArea()
-                            
-                            // Loading indicator
-                            if isLoading || tools.isEmpty {
-                                ProgressView("Loading available tools...")
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .background(Color.black.opacity(0.3))
-                            }
-                        }
-                    } else {
-                        MapView()
-                            .toolbarBackground(Color.black, for: .navigationBar)
-                            .toolbarColorScheme(.light, for: .navigationBar)
-                            .toolbarBackground(Color.black, for: .tabBar)
-                            .tint(.orange)
-                    }
-                }
-                .applyThemeBackground()
-                .toolbar {
-                    ToolbarItem(placement: .navigation) {
+                        Spacer()
                         Text("RNTL")
                             .font(.largeTitle)
-                            .foregroundColor(.red)
-                            .bold()
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    
+                    // Modern segmented control
+                    VStack(spacing: 12) {
+                        Text("Explore Available Tools")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .fontWeight(.medium)
+                        
+                        HStack(spacing: 0) {
+                            ForEach(0..<2) { index in
+                                Button(action: {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        selectedView = index
+                                    }
+                                }) {
+                                    HStack {
+                                        Image(systemName: index == 0 ? "list.bullet" : "map")
+                                            .font(.system(size: 16, weight: .medium))
+                                        Text(index == 0 ? "List" : "Map")
+                                            .font(.system(size: 16, weight: .medium))
+                                    }
+                                    .foregroundColor(selectedView == index ? .black : .white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(
+                                        selectedView == index ?
+                                        Color.white.opacity(0.9) :
+                                        Color.clear
+                                    )
+                                    .cornerRadius(8)
+                                }
+                            }
+                        }
+                        .padding(4)
+                        .background(Color.black.opacity(0.2))
+                        .cornerRadius(12)
+                        .padding(.horizontal, 20)
                     }
                 }
+                .padding(.bottom, 30)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.red, Color.orange]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                
+                // Content section
+                if selectedView == 0 {
+                    ZStack {
+                                                 if isLoading {
+                             VStack(spacing: 20) {
+                                 ProgressView()
+                                     .scaleEffect(1.2)
+                                     .tint(.orange)
+                                 Text("Finding the perfect tools for you...")
+                                     .font(.subheadline)
+                                     .foregroundColor(.gray)
+                                     .multilineTextAlignment(.center)
+                             }
+                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+                             .background(Color(UIColor.systemBackground))
+                                                 } else if tools.isEmpty {
+                             VStack(spacing: 20) {
+                                 Image(systemName: "wrench.and.screwdriver")
+                                     .font(.system(size: 50))
+                                     .foregroundColor(.gray.opacity(0.6))
+                                 Text("No tools available")
+                                     .font(.title2)
+                                     .fontWeight(.medium)
+                                     .foregroundColor(.gray)
+                                 Text("Check back later for new listings")
+                                     .font(.subheadline)
+                                     .foregroundColor(.gray.opacity(0.8))
+                             }
+                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+                             .background(Color(UIColor.systemBackground))
+                        } else {
+                            ScrollView {
+                                LazyVStack(spacing: 16) {
+                                    ForEach(tools) { tool in
+                                        NavigationLink(destination: ToolDetailView(tool: tool)) {
+                                            ToolCard(tool: tool)
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                    }
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.top, 20)
+                                                                 .padding(.bottom, 100) // Extra padding for tab bar
+                             }
+                             .background(Color(UIColor.systemBackground))
+                        }
+                    }
+                                 } else {
+                     MapView()
+                         .background(Color(UIColor.systemBackground))
+                 }
             }
-            .onAppear {
-                loadTools()
-            }
+            .ignoresSafeArea(.container, edges: .top)
+        }
+        .onAppear {
+            loadTools()
         }
     }
     
-    // Helper function to truncate text to specified length
-    private func truncateText(_ text: String, maxLength: Int) -> String {
-        if text.count <= maxLength {
-            return text
-        } else {
-            return String(text.prefix(maxLength)) + "..."
-        }
-    }
-    
-    // Load tools with loading state management
     private func loadTools() {
         isLoading = true
         fetchTools { fetched in
@@ -107,6 +149,116 @@ struct WelcomeView: View {
     }
 }
 
+struct ToolCard: View {
+    let tool: Tool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Image section
+            ZStack {
+                if let imageUrl = tool.image_url, let url = URL(string: imageUrl) {
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: 200)
+                            .clipped()
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(height: 200)
+                            .overlay(
+                                VStack(spacing: 8) {
+                                    Image(systemName: "photo")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.gray.opacity(0.6))
+                                    Text("Loading...")
+                                        .font(.caption)
+                                        .foregroundColor(.gray.opacity(0.8))
+                                }
+                            )
+                    }
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 200)
+                        .overlay(
+                            VStack(spacing: 8) {
+                                Image(systemName: "wrench.and.screwdriver")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.gray.opacity(0.6))
+                                Text("No Image")
+                                    .font(.caption)
+                                    .foregroundColor(.gray.opacity(0.8))
+                            }
+                        )
+                }
+                
+                // Price overlay
+                VStack {
+                    HStack {
+                        Spacer()
+                        Text("$\(tool.price)/day")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.red, Color.orange]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .cornerRadius(8)
+                            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                    }
+                    Spacer()
+                }
+                .padding(12)
+            }
+            
+            // Content section
+            VStack(alignment: .leading, spacing: 12) {
+                Text(tool.name)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                if let description = tool.description {
+                    Text(description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                // Owner info
+                if let ownerName = tool.owner_username {
+                    HStack(spacing: 8) {
+                        Image(systemName: "person.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(.gray.opacity(0.7))
+                        Text("by \(ownerName)")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            .padding(16)
+                 }
+         .background(Color(UIColor.systemBackground))
+         .cornerRadius(16)
+        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+        )
+    }
+}
+
 #Preview {
-    WelcomeView(username: "User")
+    WelcomeView(username: "John")
 }
