@@ -47,7 +47,7 @@ struct ListingsView: View {
                         showSignUp = true
                     }
                     .buttonStyle(.bordered)
-                    .tint(.purple)
+                    .tint(.red)
                 }
                 .padding()
             } else {
@@ -58,7 +58,7 @@ struct ListingsView: View {
                             HStack {
                                 Text("My Tools")
                                     .font(.largeTitle)
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(.red)
                                     .bold()
                                 Spacer()
                             }
@@ -96,17 +96,17 @@ struct ListingsView: View {
                                     VStack(alignment: .leading, spacing: 4) {
                                         ScrollingText(tool.name, font: .headline, color: .black)
                                             .frame(height: 26)
-                                        Text(truncateText(tool.description ?? "No description available", maxLength: 80))
+                                        Text(truncateText(tool.description ?? "No description available", maxLength: 155))
                                             .font(.subheadline)
                                             .foregroundColor(.black)
                                         HStack {
-                                            Text("\(tool.price)/day")
+                                            Text("\(tool.price) / day")
                                                 .font(.caption)
                                                 .foregroundColor(.green)
                                                 .bold()
                                                 .padding(.horizontal, 8)
                                                 .padding(.vertical, 5)
-                                                .background(Color.black.opacity(0.3))
+                                                .background(Color.black.opacity(0.5))
                                                 .cornerRadius(5)
                                             Spacer()
                                         }
@@ -125,17 +125,17 @@ struct ListingsView: View {
                                     VStack(alignment: .leading, spacing: 4) {
                                         ScrollingText(tool.name, font: .headline, color: .black)
                                             .frame(height: 26)
-                                        Text(truncateText(tool.description ?? "No description available", maxLength: 80))
+                                        Text(truncateText(tool.description ?? "No description available", maxLength: 155))
                                             .font(.subheadline)
                                             .foregroundColor(.black)
                                         HStack {
-                                            Text("\(tool.price)/day")
+                                            Text("\(tool.price) / day")
                                                 .font(.caption)
                                                 .foregroundColor(.green)
                                                 .bold()
                                                 .padding(.horizontal, 8)
                                                 .padding(.vertical, 5)
-                                                .background(Color.black.opacity(0.3))
+                                                .background(Color.black.opacity(0.5))
                                                 .cornerRadius(5)
                                             Spacer()
                                         }
@@ -195,7 +195,7 @@ struct ListingsView: View {
                 id: 2,
                 name: "Circular Saw",
                 price: "$25",
-                description: "Professional-grade circular saw for wood cutting. Includes safety guide and extra blades.",
+                description: "Heavy-duty 25-foot tape measure with standout up to 7 feet for one-person measuring. Features a durable nylon-coated steel blade with clear, easy-to-read markings in both imperial and metric units. The True Zero end hook moves in and out for inside and outside measurements. Cushioned case design withstands 10-foot drops. Belt clip attachment for convenient carrying. Blade width: 1 inch. Includes fraction markings down to 1/16 inch for precise measurements. Perfect for construction, home improvement, and professional contracting work.",
                 owner_id: 1,
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",

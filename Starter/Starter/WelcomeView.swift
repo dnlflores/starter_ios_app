@@ -17,10 +17,10 @@ struct WelcomeView: View {
                         }
                         .pickerStyle(.segmented)
                         .padding()
-                        .background(Color.black)
-                        .tint(.purple)
+                        .background(.black)
+                        .tint(.white)
                     }
-                    .background(Color.black)
+                    .background(.black)
                     
                     
                     // 2) Now show either the List or the Map below it
@@ -40,7 +40,7 @@ struct WelcomeView: View {
                                                 .bold()
                                                 .padding(.horizontal, 8)
                                                 .padding(.vertical, 5)
-                                                .background(Color.black.opacity(0.3))
+                                                .background(Color.black.opacity(0.5))
                                                 .cornerRadius(5)
                                             Spacer()
                                         }
@@ -67,7 +67,7 @@ struct WelcomeView: View {
                             .toolbarBackground(Color.black, for: .navigationBar)
                             .toolbarColorScheme(.light, for: .navigationBar)
                             .toolbarBackground(Color.black, for: .tabBar)
-                            .tint(.purple)
+                            .tint(.orange)
                     }
                 }
                 .applyThemeBackground()
@@ -75,7 +75,7 @@ struct WelcomeView: View {
                     ToolbarItem(placement: .navigation) {
                         Text("RNTL")
                             .font(.largeTitle)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.red)
                             .bold()
                     }
                 }

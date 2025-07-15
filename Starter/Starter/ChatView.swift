@@ -43,12 +43,12 @@ struct ChatView: View {
                         showLogin = true
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.purple)
+                    .tint(.red)
                     Button("Sign Up") {
                         showSignUp = true
                     }
                     .buttonStyle(.bordered)
-                    .tint(.purple)
+                    .tint(.red)
                 }
                 .padding()
             } else {
@@ -59,7 +59,7 @@ struct ChatView: View {
                             HStack {
                                 Text("Chat")
                                     .font(.largeTitle)
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(.red)
                                     .bold()
                                 Spacer()
                                 
@@ -99,7 +99,7 @@ struct ChatView: View {
                                         chatManager.loadChats(for: username)
                                     }
                                     .buttonStyle(.borderedProminent)
-                                    .tint(.purple)
+                                    .tint(.red)
                                 }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                             }

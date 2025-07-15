@@ -16,12 +16,12 @@ struct AccountView: View {
                     showLogin = true
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.purple)
+                .tint(.red)
                 Button("Sign Up") {
                     showSignUp = true
                 }
                 .buttonStyle(.bordered)
-                .tint(.purple)
+                .tint(.red)
             }
             .padding()
         } else {
@@ -106,7 +106,7 @@ struct AccountView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.white.opacity(0.8))
-                            .foregroundColor(.purple)
+                            .foregroundColor(.red)
                             .cornerRadius(8)
                     }
                     .buttonStyle(PlainButtonStyle())

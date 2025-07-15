@@ -5,7 +5,7 @@ struct BlackPurpleBackground: ViewModifier {
         content
             .background(
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.black.opacity(0.6), Color.purple.opacity(0.6)]),
+                    gradient: Gradient(colors: [Color.red, Color.orange]),
                     startPoint: .top,
                     endPoint: .bottom
                 )

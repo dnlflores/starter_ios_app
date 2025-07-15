@@ -60,7 +60,7 @@ struct MessageBubbleView: View {
                                 isEditing = false
                             }
                             .buttonStyle(.borderedProminent)
-                            .tint(.purple)
+                            .tint(.red)
                             .disabled(editedText.trimmingCharacters(in: .whitespaces).isEmpty)
                             
                             Button("Cancel") {
@@ -68,15 +68,17 @@ struct MessageBubbleView: View {
                                 editedText = message.text
                             }
                             .buttonStyle(.bordered)
+                            .tint(.gray)
+                            .foregroundStyle(.white)
                         }
                         .padding(8)
-                        .background(Color.purple.opacity(0.7))
+                        .background(.orange)
                         .cornerRadius(8)
                     } else {
                         // Display mode
                         Text(message.text)
                             .padding(8)
-                            .background(Color.purple.opacity(0.7))
+                            .background(Color.orange)
                             .cornerRadius(8)
                             .foregroundColor(.white)
                             .onLongPressGesture {
@@ -146,6 +148,7 @@ struct ChatDetailView: View {
                             .id(msg.id)
                         }
                     }
+                    .padding(.top)
                 }
                 .onChange(of: chat?.messages.count ?? 0) { _ in
                     if let last = chat?.messages.last {
@@ -166,7 +169,7 @@ struct ChatDetailView: View {
                     messageText = ""
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.purple)
+                .tint(.red)
             }
             .padding()
         }

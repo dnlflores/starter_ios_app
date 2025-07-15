@@ -20,13 +20,13 @@ struct StarterApp: App {
         if #available(iOS 15.0, *) {
             UITabBar.appearance().scrollEdgeAppearance = tabAppearance
         }
-        UITabBar.appearance().tintColor = .purple
+        UITabBar.appearance().tintColor = .red
 
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithTransparentBackground()
         navAppearance.backgroundColor = .black
-        navAppearance.titleTextAttributes = [.foregroundColor: UIColor.purple]
-        navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.purple]
+        navAppearance.titleTextAttributes = [.foregroundColor: UIColor.red]
+        navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.red]
         // Hide the navigation bar separator line
         navAppearance.shadowImage = UIImage()
         navAppearance.shadowColor = .clear
@@ -34,16 +34,16 @@ struct StarterApp: App {
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
         UINavigationBar.appearance().compactAppearance = navAppearance
         
-        UISegmentedControl.appearance().selectedSegmentTintColor = UIColor.purple
+        UISegmentedControl.appearance().selectedSegmentTintColor = UIColor.red
         UISegmentedControl.appearance().backgroundColor = UIColor.black
-        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.purple], for: .normal)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.red], for: .normal)
         UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.black], for: .selected)
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .accentColor(.purple)
+                .accentColor(.red)
         }
     }
 }
