@@ -72,11 +72,11 @@ struct ToolDetailView: View {
                         
                         HStack {
                             Text("$\(tool.price)")
-                                .font(.title2)
+                                .font(.system(size: 24))
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                             Text("per day")
-                                .font(.title3)
+                                .font(.system(size: 16))
                                 .foregroundColor(.white.opacity(0.8))
                             Spacer()
                         }
@@ -162,10 +162,20 @@ struct ToolDetailView: View {
                     
                     HStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("$\(tool.price) per day")
-                                .font(.title3)
+                            HStack {
+                                Text("$\(tool.price)")
+                                    .font(.system(size: 26))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                VStack {
+                                    Text("per")
+                                        .font(.system(size: 12))
+                                    Text("day")
+                                        .font(.system(size: 12))
+                                }
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
+                            }
                             Text("Available now")
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.8))
@@ -193,13 +203,13 @@ struct ToolDetailView: View {
                             .padding(.horizontal, 24)
                             .padding(.vertical, 16)
                             .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.black.opacity(0.6))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                    )
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.red, Color.orange]),
+                                    startPoint: .bottom,
+                                    endPoint: .top
+                                )
                             )
+                            .cornerRadius(12)
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
