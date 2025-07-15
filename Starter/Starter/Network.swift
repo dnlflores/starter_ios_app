@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct AuthResponse: Codable {
     let token: String
@@ -38,6 +39,7 @@ struct Tool: Codable, Identifiable {
     let owner_email: String?
     let owner_first_name: String?
     let owner_last_name: String?
+    let image_url: String?
 }
 
 func signup(username: String, email: String, password: String, street: String, city: String, state: String, zip: String, phone: String, completion: @escaping (Bool) -> Void) {
@@ -469,6 +471,186 @@ func editChatMessage(messageId: Int, newMessage: String, authToken: String, comp
         } else {
             print("Network: editChatMessage received no data")
             completion(nil)
+        }
+    }.resume()
+}
+
+// MARK: - Image Upload Functions
+
+// Image upload function
+func uploadImage(image: UIImage, completion: @escaping (String?) -> Void) {
+    guard let token = UserDefaults.standard.string(forKey: "authToken"),
+          let url = URL(string: "https://starter-ios-app-backend.onrender.com/upload-image") else {
+        print("Network: uploadImage failed - missing token or invalid URL")
+        completion(nil)
+        return
+    }
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    
+    // Create multipart form data
+    let boundary = UUID().uuidString
+    request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+    
+    // Convert image to JPEG data
+    guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+        print("Network: Failed to convert image to JPEG data")
+        completion(nil)
+        return
+    }
+    
+    // Create multipart body
+    var body = Data()
+    body.append("--\(boundary)\r\n".data(using: .utf8)!)
+    body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+    body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+    body.append(imageData)
+    body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+    
+    request.httpBody = body
+    
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Network: uploadImage error - \(error.localizedDescription)")
+            completion(nil)
+            return
+        }
+        
+        if let data = data,
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let imageUrl = json["imageUrl"] as? String {
+            print("Network: Image uploaded successfully - \(imageUrl)")
+            completion(imageUrl)
+        } else {
+            print("Network: uploadImage failed - invalid response")
+            completion(nil)
+        }
+    }.resume()
+}
+
+// Updated tool creation function with image support
+func createTool(name: String, price: String, description: String, ownerId: Int, image: UIImage? = nil, completion: @escaping (Bool) -> Void) {
+    guard let token = UserDefaults.standard.string(forKey: "authToken"),
+          let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools") else {
+        print("Network: createTool failed - missing token or invalid URL")
+        completion(false)
+        return
+    }
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    
+    // Create multipart form data
+    let boundary = UUID().uuidString
+    request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+    
+    var body = Data()
+    
+    // Add text fields
+    let fields = [
+        "name": name,
+        "price": price,
+        "description": description,
+        "owner_id": String(ownerId),
+        "created_at": ISO8601DateFormatter().string(from: Date())
+    ]
+    
+    for (key, value) in fields {
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(value)\r\n".data(using: .utf8)!)
+    }
+    
+    // Add image if provided
+    if let image = image, let imageData = image.jpegData(compressionQuality: 0.8) {
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+    }
+    
+    body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+    request.httpBody = body
+    
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Network: createTool error - \(error.localizedDescription)")
+            completion(false)
+            return
+        }
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("Network: createTool response status - \(httpResponse.statusCode)")
+            completion(httpResponse.statusCode == 201)
+        } else {
+            completion(false)
+        }
+    }.resume()
+}
+
+// Updated sendMessage function with image support
+func sendMessage(recipientId: Int, message: String, toolId: Int? = nil, image: UIImage? = nil, completion: @escaping (Bool) -> Void) {
+    guard let token = UserDefaults.standard.string(forKey: "authToken"),
+          let url = URL(string: "https://starter-ios-app-backend.onrender.com/chats") else {
+        print("Network: sendMessage failed - missing token or invalid URL")
+        completion(false)
+        return
+    }
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    
+    // Create multipart form data
+    let boundary = UUID().uuidString
+    request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+    
+    var body = Data()
+    
+    // Add text fields
+    var fields = [
+        "recipient_id": String(recipientId),
+        "message": message
+    ]
+    
+    if let toolId = toolId {
+        fields["tool_id"] = String(toolId)
+    }
+    
+    for (key, value) in fields {
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(value)\r\n".data(using: .utf8)!)
+    }
+    
+    // Add image if provided
+    if let image = image, let imageData = image.jpegData(compressionQuality: 0.8) {
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+    }
+    
+    body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+    request.httpBody = body
+    
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Network: sendMessage error - \(error.localizedDescription)")
+            completion(false)
+            return
+        }
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("Network: sendMessage response status - \(httpResponse.statusCode)")
+            completion(httpResponse.statusCode == 201)
+        } else {
+            completion(false)
         }
     }.resume()
 }

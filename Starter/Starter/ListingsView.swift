@@ -189,7 +189,8 @@ struct ListingsView: View {
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
-                owner_last_name: "Flores"
+                owner_last_name: "Flores",
+                image_url: nil
             ),
             Tool(
                 id: 2,
@@ -200,7 +201,8 @@ struct ListingsView: View {
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
-                owner_last_name: "Flores"
+                owner_last_name: "Flores",
+                image_url: nil
             ),
             Tool(
                 id: 3,
@@ -211,7 +213,8 @@ struct ListingsView: View {
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
-                owner_last_name: "Flores"
+                owner_last_name: "Flores",
+                image_url: nil
             ),
             Tool(
                 id: 4,
@@ -222,7 +225,8 @@ struct ListingsView: View {
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
-                owner_last_name: "Flores"
+                owner_last_name: "Flores",
+                image_url: nil
             ),
             Tool(
                 id: 5,
@@ -233,7 +237,8 @@ struct ListingsView: View {
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
-                owner_last_name: "Flores"
+                owner_last_name: "Flores",
+                image_url: nil
             ),
             Tool(
                 id: 6,
@@ -244,7 +249,8 @@ struct ListingsView: View {
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
-                owner_last_name: "Flores"
+                owner_last_name: "Flores",
+                image_url: nil
             ),
             Tool(
                 id: 7,
@@ -255,7 +261,8 @@ struct ListingsView: View {
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
-                owner_last_name: "Flores"
+                owner_last_name: "Flores",
+                image_url: nil
             )
         ]
     }

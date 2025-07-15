@@ -9,136 +9,228 @@ struct ToolDetailView: View {
 
     var body: some View {
         ScrollView {
-            ZStack {
-                Text(tool.name)
-                    .font(.title)
-                    .padding()
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.white)
-            }
-            .frame(width: UIScreen.main.bounds.width - 30)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.black.opacity(0.3))
-                    .shadow(color: .black.opacity(0.7), radius: 10, x: 0, y: 4)
-            )
-            .padding(.top, 25)
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Description")
-                    .font(.system(size: 14, weight: .bold))
-                ZStack {
-                    Text(tool.description ?? "No description available")
-                        .font(.system(size: 14))
-                        .multilineTextAlignment(.center)
-                        .padding()
-                        .foregroundStyle(.white)
-                }
-                .frame(width: UIScreen.main.bounds.width - 30)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.black.opacity(0.3))
-                        .shadow(color: .black.opacity(0.7), radius: 10, x: 0, y: 4)
-                )
-                HStack {
-                    HStack (spacing: 0) {
-                        Text("$\(tool.price)")
-                            .font(.system(size: 26))
-                            .padding(0)
-                            .foregroundColor(Color.green)
-                        VStack {
-                            Text("Per")
-                                .padding(.top, 4)
-                                .font(.system(size: 8))
-                                .foregroundColor(Color.green)
-                            Text("Day")
-                                .padding(.bottom, 4)
-                                .font(.system(size: 8))
-                                .foregroundColor(Color.green)
+            VStack(spacing: 0) {
+                // Hero Image Section
+                GeometryReader { geometry in
+                    ZStack {
+                        if let imageUrl = tool.image_url, let url = URL(string: imageUrl) {
+                            AsyncImage(url: url) { image in
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: geometry.size.width, height: geometry.size.height)
+                                    .clipped()
+                            } placeholder: {
+                                Rectangle()
+                                    .fill(Color.black.opacity(0.3))
+                                    .overlay(
+                                        VStack {
+                                            Image(systemName: "photo")
+                                                .font(.system(size: 40))
+                                                .foregroundColor(.white)
+                                            Text("Loading...")
+                                                .font(.caption)
+                                                .foregroundColor(.white)
+                                        }
+                                    )
+                            }
+                        } else {
+                            Rectangle()
+                                .fill(Color.black.opacity(0.3))
+                                .overlay(
+                                    VStack {
+                                        Image(systemName: "wrench.and.screwdriver")
+                                            .font(.system(size: 40))
+                                            .foregroundColor(.white)
+                                        Text("No Image")
+                                            .font(.caption)
+                                            .foregroundColor(.white)
+                                    }
+                                )
                         }
-                        .padding(.leading, 3)
+                        
+                        // Gradient overlay for better text readability
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.clear, Color.black.opacity(0.4)]),
+                            startPoint: .center,
+                            endPoint: .bottom
+                        )
                     }
-                        .padding()
-                        .background(Color.green.opacity(0.3).cornerRadius(10))
-                        .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 4)
-                    Spacer()
-                    HStack {
-                        Image(systemName: "person.crop.circle.fill")
-                            .font(.system(size: 30))
+                }
+                .frame(height: 300)
+                .cornerRadius(0)
+                
+                // Content Section
+                VStack(alignment: .leading, spacing: 24) {
+                    // Title and Price Section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(tool.name)
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
                             .foregroundColor(.white)
-                        Text("\(tool.owner_first_name ?? "Unknown") \(tool.owner_last_name ?? "User")")
-                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                        
+                        HStack {
+                            Text("$\(tool.price)")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("per day")
+                                .font(.title3)
+                                .foregroundColor(.white.opacity(0.8))
+                            Spacer()
+                        }
                     }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.black.opacity(0.4))
-                            .shadow(color: .black.opacity(0.7), radius: 10, x: 0, y: 4)
-                    )
+                    
+                    Divider()
+                        .background(Color.white)
+                    
+                    // Host Information
+                    HStack(spacing: 16) {
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.white)
+                            )
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Owned by")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                            Text("\(tool.owner_first_name ?? "Unknown") \(tool.owner_last_name ?? "User")")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Spacer()
+                    }
+                    
+                    Divider()
+                        .background(Color.white)
+                    
+                    // Description Section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("About this tool")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        Text(tool.description ?? "No description available")
+                            .font(.body)
+                            .foregroundColor(.white.opacity(0.9))
+                            .lineSpacing(4)
+                    }
+                    
+                    Divider()
+                        .background(Color.white.opacity(0.3))
+                    
+                    // Location Section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Where you'll pick up")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        MapView()
+                            .frame(height: 200)
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            )
+                    }
+                    
+                    Spacer(minLength: 100) // Space for bottom bar
                 }
-
-                MapView()
-                    .frame(height: 200)
-                    .cornerRadius(20)
-
-                Button(action: {
-                    let chat = chatManager.startChat(
-                        with: tool.owner_id ?? 0,
-                        username: tool.owner_username ?? "User",
-                        toolId: tool.id
-                    )
-                    startedChatID = chat.id
-                    showChat = true
-                }) {
-                    Text("Start Chat")
-                        .padding(10)
-                        .fontWeight(.bold)
-                    Image(systemName: "bubble.fill")
-                }
-                .font(.title2)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.black.opacity(0.4))
-                        .shadow(color: .black.opacity(0.7), radius: 10, x: 0, y: 4)
-                )
-                .foregroundColor(.white)
-                .padding(.top, 8)
-
-                Spacer()
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
             }
-            .padding()
         }
+        .ignoresSafeArea(edges: .top)
+        .overlay(
+            // Floating bottom bar
+            VStack {
+                Spacer()
+                
+                VStack(spacing: 0) {
+                    Divider()
+                        .background(Color.white.opacity(0.3))
+                    
+                    HStack(spacing: 16) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("$\(tool.price) per day")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("Available now")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            let chat = chatManager.startChat(
+                                with: tool.owner_id ?? 0,
+                                username: tool.owner_username ?? "User",
+                                toolId: tool.id
+                            )
+                            startedChatID = chat.id
+                            showChat = true
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "message")
+                                    .font(.system(size: 16, weight: .semibold))
+                                Text("Contact Owner")
+                                    .font(.body)
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.black.opacity(0.6))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .background(Color.black)
+                }
+            }
+        )
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Circle()
+                        .fill(Color.black.opacity(0.6))
+                        .frame(width: 32, height: 32)
+                        .overlay(
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                        )
+                }
+            }
+        }
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbarBackground(Color.black, for: .tabBar)
         .background(
             NavigationLink(destination: ChatDetailView(chatID: startedChatID ?? ""), isActive: $showChat) { EmptyView() }
                 .hidden()
         )
         .applyThemeBackground()
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss() }) {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
-                }
-            }
-            ToolbarItem(placement: .principal) {
-                Button(action: { dismiss() }) {
-                    HStack {
-                        Text("RNTL")
-                            .fontWeight(.bold)
-                            .font(.title)
-                    }
-                    .padding(.bottom, 5)
-                }
-            }
-        }
-        .toolbarBackground(Color.black, for: .navigationBar)
-        .toolbarColorScheme(.light, for: .navigationBar)
-        .toolbarBackground(Color.black, for: .tabBar)
-        .tint(.red)
     }
 }
 
@@ -146,6 +238,17 @@ struct ToolDetailView: View {
     let previewChatManager = ChatManager()
     previewChatManager.setupPreviewData()
     
-    return ToolDetailView(tool: Tool(id: 1, name: "Professional Claw Hammer 25 ", price: "10", description: "Heavy-duty 25-foot tape measure with standout up to 7 feet for one-person measuring. Features a durable nylon-coated steel blade with clear, easy-to-read markings in both imperial and metric units. The True Zero end hook moves in and out for inside and outside measurements. Cushioned case design withstands 10-foot drops. Belt clip attachment for convenient carrying. Blade width: 1 inch. Includes fraction markings down to 1/16 inch for precise measurements. Perfect for construction, home improvement, and professional contracting work.", owner_id: 1, owner_username: "johndoe", owner_email: "johndoe@example.com", owner_first_name: "John", owner_last_name: "Doe"))
-        .environmentObject(previewChatManager)
+    return ToolDetailView(tool: Tool(
+        id: 1, 
+        name: "Professional Drill Set", 
+        price: "25", 
+        description: "High-quality professional drill set with multiple bits and accessories. Perfect for home improvement projects, furniture assembly, and general construction work. Includes cordless drill, impact driver, and a comprehensive bit set. Battery included with 2-hour fast charging capability.", 
+        owner_id: 1, 
+        owner_username: "johndoe", 
+        owner_email: "johndoe@example.com", 
+        owner_first_name: "John", 
+        owner_last_name: "Doe",
+        image_url: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+    ))
+    .environmentObject(previewChatManager)
 }

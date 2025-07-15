@@ -23,6 +23,12 @@ struct PostView: View {
     @State private var address = ""
     @State private var selectedCoordinate: CLLocationCoordinate2D?
     
+    // Image picker states
+    @State private var selectedImage: UIImage?
+    @State private var isImagePickerShowing = false
+    @State private var imagePickerSourceType: UIImagePickerController.SourceType = .photoLibrary
+    @State private var showingImageSourceSelection = false
+    
     // Animation states
     @State private var isFormVisible = false
     @State private var showSaveSuccess = false
@@ -124,6 +130,51 @@ struct PostView: View {
                                             text: $description,
                                             placeholder: "Describe your tool's condition, features, and any special instructions..."
                                         )
+                                        
+                                        // Image picker section
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            Text("Photo")
+                                                .font(.subheadline)
+                                                .fontWeight(.medium)
+                                                .foregroundColor(.white)
+                                            
+                                            // Image preview
+                                            if let selectedImage = selectedImage {
+                                                Image(uiImage: selectedImage)
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fit)
+                                                    .frame(maxHeight: 200)
+                                                    .cornerRadius(12)
+                                                    .overlay(
+                                                        RoundedRectangle(cornerRadius: 12)
+                                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                                    )
+                                            }
+                                            
+                                            // Image picker button
+                                            Button(action: {
+                                                showingImageSourceSelection = true
+                                            }) {
+                                                HStack {
+                                                    Image(systemName: selectedImage == nil ? "photo.badge.plus" : "photo.badge.arrow.down")
+                                                        .font(.system(size: 16))
+                                                        .foregroundColor(.white)
+                                                    
+                                                    Text(selectedImage == nil ? "Add Photo" : "Change Photo")
+                                                        .font(.subheadline)
+                                                        .fontWeight(.medium)
+                                                        .foregroundColor(.white)
+                                                }
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 12)
+                                                .background(Color.white.opacity(0.1))
+                                                .cornerRadius(8)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                                 
@@ -233,6 +284,22 @@ struct PostView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
+        .confirmationDialog("Select Image Source", isPresented: $showingImageSourceSelection) {
+            Button("Camera") {
+                if ImagePicker.isCameraAvailable {
+                    imagePickerSourceType = .camera
+                    isImagePickerShowing = true
+                }
+            }
+            Button("Photo Library") {
+                imagePickerSourceType = .photoLibrary
+                isImagePickerShowing = true
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+        .sheet(isPresented: $isImagePickerShowing) {
+            ImagePicker(selectedImage: $selectedImage, isPickerShowing: $isImagePickerShowing, sourceType: imagePickerSourceType)
+        }
     }
     
     /// Save the entered data to the server and return to the previous tab on success.
@@ -248,7 +315,7 @@ struct PostView: View {
             }
             let ownerId = match.id
             let createdAt = ISO8601DateFormatter().string(from: Date())
-            createTool(name: name, price: price, description: description, ownerId: ownerId, createdAt: createdAt, authToken: authToken) { success in
+            createTool(name: name, price: String(price), description: description, ownerId: ownerId, image: selectedImage) { success in
                 if success {
                     DispatchQueue.main.async {
                         // Show success animation
@@ -263,6 +330,7 @@ struct PostView: View {
                             description = ""
                             address = ""
                             selectedCoordinate = nil
+                            selectedImage = nil
                             selection = previousSelection
                             showSaveSuccess = false
                         }
