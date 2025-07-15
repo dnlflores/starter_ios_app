@@ -9,111 +9,259 @@ struct AccountView: View {
 
     var body: some View {
         if authToken.isEmpty {
-            VStack(spacing: 16) {
-                Text("You are not logged in.")
-                    .font(.title2)
-                Button("Log In") {
-                    showLogin = true
+            ZStack {
+                // Background gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.red, Color.orange]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 0) {
+                    Spacer()
+                    
+                    VStack(spacing: 24) {
+                        // Icon
+                        Image(systemName: "person.crop.circle.fill")
+                            .font(.system(size: 48))
+                            .foregroundColor(.white)
+                            .padding(.bottom, 8)
+                        
+                        Text("Welcome to Your Account")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        Text("Sign in to access your profile, manage your listings, and connect with other users.")
+                            .font(.body)
+                            .foregroundColor(.white.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                        
+                        VStack(spacing: 16) {
+                            Button("Log In") {
+                                showLogin = true
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [Color.orange, Color.red]),
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .shadow(color: Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
+                            )
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            
+                            Button("Sign Up") {
+                                showSignUp = true
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(Color.black.opacity(0.2))
+                                    )
+                            )
+                            .font(.title3)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                        }
+                        .padding(.top, 8)
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 40)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.black.opacity(0.6))
+                            .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
+                    )
+                    .padding(.horizontal, 24)
+                    
+                    Spacer()
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.red)
-                Button("Sign Up") {
-                    showSignUp = true
-                }
-                .buttonStyle(.bordered)
-                .tint(.red)
             }
-            .padding()
         } else {
             ScrollView {
-                VStack(spacing: 20) {
-                    Image(systemName: "person.crop.circle.fill")
-                        .font(.system(size: 100))
-                        .foregroundColor(.white)
-
-                    Text(user?.username ?? username)
-                        .font(.title)
-                        .bold()
-                        .foregroundColor(.white)
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Account Details")
-                            .font(.title2)
-                            .padding(.bottom, 4)
-
-                    if let user = user {
-                        Group {
-                            Text("Username: \(user.username)")
-                                .font(.title2)
-                            Text("User ID: \(user.id)")
-                                .font(.title3)
-                            if let firstName = user.first_name {
-                                Text("First Name: \(firstName)")
+                VStack(spacing: 0) {
+                    // Header Section
+                    VStack(spacing: 20) {
+                        // Profile Picture
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.1))
+                                .frame(width: 120, height: 120)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                                )
+                            
+                            Image(systemName: "person.crop.circle.fill")
+                                .font(.system(size: 60))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.top, 40)
+                        
+                        // Username
+                        Text(user?.username ?? username)
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        // User Status Badge
+                        HStack(spacing: 8) {
+                            if let isSeller = user?.is_seller, isSeller {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "star.fill")
+                                        .font(.caption)
+                                    Text("Seller")
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                }
+                                .foregroundColor(.orange)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.white.opacity(0.9))
+                                )
                             }
-                        if let lastName = user.last_name {
-                            Text("Last Name: \(lastName)")
+                            
+                            if let isAdmin = user?.is_admin, isAdmin {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "shield.fill")
+                                        .font(.caption)
+                                    Text("Admin")
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                }
+                                .foregroundColor(.red)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.white.opacity(0.9))
+                                )
+                            }
                         }
-                        if let email = user.email {
-                            Text("Email: \(email)")
-                        }
-                        if let phone = user.phone {
-                            Text("Phone: \(phone)")
-                        }
-                        if let address = user.address {
-                            Text("Address: \(address)")
-                        }
-                        if let city = user.city {
-                            Text("City: \(city)")
-                        }
-                        if let state = user.state {
-                            Text("State: \(state)")
-                        }
-                        if let zip = user.zip {
-                            Text("ZIP: \(zip)")
-                        }
-                        if let isSeller = user.is_seller {
-                            Text("Seller: \(isSeller ? "Yes" : "No")")
-                        }
-                        if let isAdmin = user.is_admin {
-                            Text("Admin: \(isAdmin ? "Yes" : "No")")
-                        }
-                        if let created = user.created_at {
-                            Text("Created: \(created)")
-                        }
-                        if let updated = user.updated_at {
-                            Text("Updated: \(updated)")
-                        }
-                        }
-                    } else {
-                        Text("Username: \(username)")
-                            .font(.title2)
-                        Text("Loading user info...")
-                            .foregroundColor(.secondary)
+                        .padding(.bottom, 20)
                     }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-
-                    Button(action: {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            authToken = ""
+                    .padding(.horizontal, 24)
+                    
+                    // Content Cards
+                    VStack(spacing: 16) {
+                        // Personal Information Card
+                        if let user = user {
+                            AccountInfoCard(title: "Personal Information", icon: "person.circle") {
+                                VStack(spacing: 12) {
+                                    if let firstName = user.first_name, let lastName = user.last_name {
+                                        AccountInfoRow(label: "Name", value: "\(firstName) \(lastName)")
+                                    }
+                                    
+                                    if let email = user.email {
+                                        AccountInfoRow(label: "Email", value: email)
+                                    }
+                                    
+                                    if let phone = user.phone {
+                                        AccountInfoRow(label: "Phone", value: phone)
+                                    }
+                                    
+                                    AccountInfoRow(label: "User ID", value: "\(user.id)")
+                                }
+                            }
+                            
+                            // Address Information Card
+                            if user.address != nil || user.city != nil || user.state != nil || user.zip != nil {
+                                AccountInfoCard(title: "Address", icon: "location.circle") {
+                                    VStack(spacing: 12) {
+                                        if let address = user.address {
+                                            AccountInfoRow(label: "Street", value: address)
+                                        }
+                                        
+                                        if let city = user.city {
+                                            AccountInfoRow(label: "City", value: city)
+                                        }
+                                        
+                                        if let state = user.state {
+                                            AccountInfoRow(label: "State", value: state)
+                                        }
+                                        
+                                        if let zip = user.zip {
+                                            AccountInfoRow(label: "ZIP Code", value: zip)
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Account Information Card
+                            AccountInfoCard(title: "Account Details", icon: "info.circle") {
+                                VStack(spacing: 12) {
+                                    if let created = user.created_at {
+                                        AccountInfoRow(label: "Member Since", value: formatDate(created))
+                                    }
+                                    
+                                    if let updated = user.updated_at {
+                                        AccountInfoRow(label: "Last Updated", value: formatDate(updated))
+                                    }
+                                    
+                                    AccountInfoRow(label: "Account Type", value: user.is_seller == true ? "Seller" : "Member")
+                                }
+                            }
+                        } else {
+                            // Loading state
+                            AccountInfoCard(title: "Loading Profile", icon: "person.circle") {
+                                VStack(spacing: 12) {
+                                    HStack {
+                                        ProgressView()
+                                            .scaleEffect(0.8)
+                                            .tint(.orange)
+                                        
+                                        Text("Loading your profile information...")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                            }
                         }
-                    }) {
-                        Text("Log Out")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.white.opacity(0.8))
+                        
+                        // Logout Button
+                        Button(action: {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                authToken = ""
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "arrow.right.square")
+                                    .font(.system(size: 18, weight: .medium))
+                                
+                                Text("Log Out")
+                                    .font(.title3)
+                                    .fontWeight(.medium)
+                            }
                             .foregroundColor(.red)
-                            .cornerRadius(8)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.white)
+                                    .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                            )
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 8)
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding(.horizontal)
-                    .padding(.top)
+                    .padding(.bottom, 100) // Extra padding for tab bar
                 }
-                .padding(.vertical)
             }
             .applyThemeBackground()
             .onAppear {
@@ -126,6 +274,77 @@ struct AccountView: View {
                 }
             }
         }
+    }
+    
+    // Helper function to format dates
+    private func formatDate(_ dateString: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        
+        if let date = formatter.date(from: dateString) {
+            formatter.dateFormat = "MMM d, yyyy"
+            return formatter.string(from: date)
+        }
+        return dateString
+    }
+}
+
+// MARK: - Supporting Views
+
+struct AccountInfoCard<Content: View>: View {
+    let title: String
+    let icon: String
+    let content: Content
+    
+    init(title: String, icon: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.icon = icon
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.orange)
+                
+                Text(title)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+            }
+            
+            content
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        )
+        .padding(.horizontal, 24)
+    }
+}
+
+struct AccountInfoRow: View {
+    let label: String
+    let value: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+                .textCase(.uppercase)
+            
+            Text(value)
+                .font(.body)
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.bottom, 4)
     }
 }
 
