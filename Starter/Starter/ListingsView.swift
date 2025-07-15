@@ -102,42 +102,6 @@ struct ListingsView: View {
                             )
                         )
                         
-                        // Main content
-                        ScrollView {
-                            LazyVStack(spacing: 20) {
-                                // Show empty state message when no tools in normal app mode
-                                if shouldShowEmptyState {
-                                    EmptyStateView {
-                                        loadData()
-                                    }
-                                    .padding(.horizontal, 20)
-                                    .padding(.top, 40)
-                                }
-                                // Show dummy data in Preview mode when no real tools
-                                else if shouldShowDummyData {
-                                    LazyVGrid(columns: columns, spacing: 16) {
-                                        ForEach(dummyTools) { tool in
-                                            ToolCardView(tool: tool)
-                                        }
-                                    }
-                                    .padding(.horizontal, 20)
-                                    .padding(.top, 20)
-                                }
-                                // Show real tools
-                                else if !filteredTools.isEmpty {
-                                    LazyVGrid(columns: columns, spacing: 16) {
-                                        ForEach(filteredTools) { tool in
-                                            ToolCardView(tool: tool)
-                                        }
-                                    }
-                                    .padding(.horizontal, 20)
-                                    .padding(.top, 20)
-                                }
-                            }
-                            .padding(.bottom, 20)
-                        }
-                        .background(Color(.systemGroupedBackground))
-                        
                         // Loading indicator
                         if isLoading {
                             VStack(spacing: 16) {
@@ -150,6 +114,42 @@ struct ListingsView: View {
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(Color.black.opacity(0.3))
+                        } else {
+                            // Main content
+                            ScrollView {
+                                LazyVStack(spacing: 20) {
+                                    // Show empty state message when no tools in normal app mode
+                                    if shouldShowEmptyState {
+                                        EmptyStateView {
+                                            loadData()
+                                        }
+                                        .padding(.horizontal, 20)
+                                        .padding(.top, 40)
+                                    }
+                                    // Show dummy data in Preview mode when no real tools
+                                    else if shouldShowDummyData {
+                                        LazyVGrid(columns: columns, spacing: 16) {
+                                            ForEach(dummyTools) { tool in
+                                                ToolCardView(tool: tool)
+                                            }
+                                        }
+                                        .padding(.horizontal, 20)
+                                        .padding(.top, 20)
+                                    }
+                                    // Show real tools
+                                    else if !filteredTools.isEmpty {
+                                        LazyVGrid(columns: columns, spacing: 16) {
+                                            ForEach(filteredTools) { tool in
+                                                ToolCardView(tool: tool)
+                                            }
+                                        }
+                                        .padding(.horizontal, 20)
+                                        .padding(.top, 20)
+                                    }
+                                }
+                                .padding(.bottom, 20)
+                            }
+                            .background(Color(.systemGroupedBackground))
                         }
                     }
                     .navigationBarHidden(true)
@@ -167,7 +167,7 @@ struct ListingsView: View {
             Tool(
                 id: 1,
                 name: "Power Drill",
-                price: "$15",
+                price: "15",
                 description: "High-quality cordless drill with multiple bits. Perfect for home improvement projects.",
                 owner_id: 1,
                 owner_username: "daniel",
@@ -179,7 +179,7 @@ struct ListingsView: View {
             Tool(
                 id: 2,
                 name: "Circular Saw",
-                price: "$25",
+                price: "25",
                 description: "Heavy-duty 25-foot tape measure with standout up to 7 feet for one-person measuring. Features a durable nylon-coated steel blade with clear, easy-to-read markings in both imperial and metric units.",
                 owner_id: 1,
                 owner_username: "daniel",
@@ -191,7 +191,7 @@ struct ListingsView: View {
             Tool(
                 id: 3,
                 name: "Hammer Set",
-                price: "$8",
+                price: "8",
                 description: "Complete hammer set with different weights. Great for framing and general construction.",
                 owner_id: 1,
                 owner_username: "daniel",
@@ -203,7 +203,7 @@ struct ListingsView: View {
             Tool(
                 id: 4,
                 name: "Angle Grinder",
-                price: "$20",
+                price: "20",
                 description: "Heavy-duty angle grinder for metal cutting and polishing. Includes safety equipment.",
                 owner_id: 1,
                 owner_username: "daniel",
@@ -215,7 +215,7 @@ struct ListingsView: View {
             Tool(
                 id: 5,
                 name: "Ladder (8ft)",
-                price: "$12",
+                price: "12",
                 description: "Sturdy 8-foot aluminum ladder. Perfect for painting and light maintenance work.",
                 owner_id: 1,
                 owner_username: "daniel",
@@ -227,7 +227,7 @@ struct ListingsView: View {
             Tool(
                 id: 6,
                 name: "Tile Saw",
-                price: "$30",
+                price: "30",
                 description: "Professional tile saw for precise cuts. Includes diamond blade and water cooling system.",
                 owner_id: 1,
                 owner_username: "daniel",
@@ -307,7 +307,7 @@ struct ToolCardView: View {
                 
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(tool.price)")
+                        Text("$\(tool.price)")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.primary)
                         Text("per day")

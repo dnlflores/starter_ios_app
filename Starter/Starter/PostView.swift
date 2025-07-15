@@ -91,28 +91,43 @@ struct PostView: View {
                     Spacer()
                 }
             } else {
-                NavigationStack {
+                ZStack(alignment: .top) {
+                    // Header - positioned at the very top
+                    VStack(spacing: 0) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Create New Listing")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                Text("Share your tools with the community")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            Spacer()
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 70) // Account for status bar
+                        .padding(.bottom, 24)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.red, Color.yellow]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    }
+                    .frame(maxWidth: .infinity)
+                    .ignoresSafeArea(.all, edges: .top)
+                    .zIndex(1)
+                    
+                    // Content ScrollView - starts below header
                     ScrollView {
                         VStack(spacing: 0) {
-                            // Header
-                            VStack(spacing: 8) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Create New Listing")
-                                            .font(.title2)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
-                                        
-                                        Text("Share your tools with the community")
-                                            .font(.subheadline)
-                                            .foregroundColor(.white.opacity(0.8))
-                                    }
-                                    Spacer()
-                                }
-                                .padding(.horizontal, 24)
-                                .padding(.top, 16)
-                                .padding(.bottom, 24)
-                            }
+                            // Spacer to push content below header
+                            Spacer()
+                                .frame(height: 100) // Adjust this to match header height
                             
                             // Form Card
                             VStack(spacing: 24) {
@@ -122,7 +137,7 @@ struct PostView: View {
                                         CustomTextField(
                                             title: "Tool Name",
                                             text: $name,
-                                            placeholder: "e.g., Power Drill, Ladder, Lawn Mower"
+                                            placeholder: "Power Drill, Ladder, Lawn Mower"
                                         )
                                         
                                         CustomTextEditor(
@@ -264,22 +279,12 @@ struct PostView: View {
                     }
                     .scrollDismissesKeyboard(.interactively)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .applyThemeBackground()
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Cancel") {
-                                selection = previousSelection
-                            }
-                            .foregroundStyle(Color.white)
-                            .fontWeight(.medium)
-                        }
-                    }
                     .onAppear {
                         withAnimation(.easeOut(duration: 0.6)) {
                             isFormVisible = true
                         }
                     }
-                }
+                } // Close ZStack
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -90,7 +90,7 @@ struct ChatView: View {
             } else {
                 NavigationStack {
                     VStack(spacing: 0) {
-                        // Airbnb-style header
+                        // Header with orange-red gradient (matching other views)
                         VStack(spacing: 0) {
                             HStack {
                                 Text("Messages")
@@ -127,26 +127,32 @@ struct ChatView: View {
                             }
                             .padding(.horizontal, 20)
                             .padding(.bottom, 20)
-                            .background(Color.black)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.red, Color.orange]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
                             
                             // Connection status indicator (smaller and more subtle)
                             if !chatManager.webSocketManager.isConnected {
                                 HStack {
+                                    Spacer()
                                     Circle()
                                         .fill(Color.red)
                                         .frame(width: 6, height: 6)
                                     Text("Reconnecting...")
                                         .font(.caption)
                                         .foregroundColor(.gray)
-                                    Spacer()
                                 }
                                 .padding(.horizontal, 20)
-                                .padding(.bottom, 10)
+                                .padding(.top, 10)
+                                .background(Color.white)
                             }
                         }
-                        .background(Color.black)
                         
-                        // Content area with Airbnb-style design
+                        // Content area with system preference background
                         ScrollView {
                             LazyVStack(spacing: 0) {
                                 // Show empty state message when no chats in normal app mode
@@ -216,7 +222,7 @@ struct ChatView: View {
                                 }
                             }
                         }
-                        .applyThemeBackground()
+                        .background(Color.white)
                     }
                     .navigationBarHidden(true)
                     .navigationDestination(for: String.self) { chatID in
@@ -298,18 +304,18 @@ struct AirbnbChatRow: View {
                         
                         Text(timestamp)
                             .font(.subheadline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.gray)
                     }
                     
                     Text(message)
                         .font(.body)
-                        .foregroundColor(.white)
+                        .foregroundColor(.black)
                         .lineLimit(2)
                     
                     if !subtitle.isEmpty {
                         Text(subtitle)
                             .font(.caption)
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.gray)
                             .padding(.top, 2)
                     }
                 }
