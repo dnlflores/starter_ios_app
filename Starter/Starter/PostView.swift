@@ -22,6 +22,11 @@ struct PostView: View {
     @StateObject private var addressService = AddressSearchService()
     @State private var address = ""
     @State private var selectedCoordinate: CLLocationCoordinate2D?
+    
+    // Animation states
+    @State private var isFormVisible = false
+    @State private var showSaveSuccess = false
+    
     private var currencyFormatter: NumberFormatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -33,111 +38,190 @@ struct PostView: View {
     var body: some View {
         ZStack {
             if authToken.isEmpty {
-                VStack(spacing: 16) {
-                    Text("You are not logged in.")
-                        .font(.title2)
-                    Button("Log In") {
-                        showLogin = true
+                // Login prompt card
+                VStack(spacing: 0) {
+                    Spacer()
+                    
+                    VStack(spacing: 24) {
+                        // Icon
+                        Image(systemName: "hammer.fill")
+                            .font(.system(size: 48))
+                            .foregroundColor(.white)
+                            .padding(.bottom, 8)
+                        
+                        Text("Share Your Tools")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        Text("Sign in to start listing your tools and earn money from your unused equipment.")
+                            .font(.body)
+                            .foregroundColor(.white.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                        
+                        VStack(spacing: 16) {
+                            Button("Log In") {
+                                showLogin = true
+                            }
+                            .buttonStyle(PrimaryButtonStyle())
+                            
+                            Button("Sign Up") {
+                                showSignUp = true
+                            }
+                            .buttonStyle(SecondaryButtonStyle())
+                        }
+                        .padding(.top, 8)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.green)
-                    Button("Sign Up") {
-                        showSignUp = true
-                    }
-                    .buttonStyle(.bordered)
-                    .tint(.green)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 40)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.black.opacity(0.6))
+                            .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
+                    )
+                    .padding(.horizontal, 24)
+                    
+                    Spacer()
                 }
-                .padding()
             } else {
                 NavigationStack {
                     ScrollView {
-                        VStack(spacing: 16) {
-                        Text("New Listing")
-                            .font(.title)
-                            .bold()
-                            .padding(.top, 16)
-                            .padding(.horizontal, 20)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        VStack {
-                            ZStack {
-                                TextField("", text: $name)
-                                    .padding()
-                                    .background(.black.opacity(0.4))
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8.0)
-                                    .padding(.horizontal, 18)
-                                    .dismissKeyboardOnSwipeDown()
-                                if name.isEmpty {
-                                    Text("Tool Name")
-                                        .foregroundColor(.gray.opacity(0.4))
+                        VStack(spacing: 0) {
+                            // Header
+                            VStack(spacing: 8) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Create New Listing")
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                        
+                                        Text("Share your tools with the community")
+                                            .font(.subheadline)
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                    Spacer()
                                 }
+                                .padding(.horizontal, 24)
+                                .padding(.top, 16)
+                                .padding(.bottom, 24)
                             }
-                            .padding(.top, 16)
-                            ZStack {
-                                TextEditor(text: $description)
-                                    .padding()
-                                    .scrollContentBackground(.hidden)
-                                    .background(.black.opacity(0.4))
-                                    .cornerRadius(8)
-                                    .frame(width: 365, height: 150)
-                                    .foregroundColor(.white)
-                                    .dismissKeyboardOnSwipeDown()
-                                if description.isEmpty {
-                                    Text("Tool Description")
-                                        .foregroundColor(.gray.opacity(0.4))
+                            
+                            // Form Card
+                            VStack(spacing: 24) {
+                                // Basic Information Section
+                                FormSection(title: "Basic Information", icon: "info.circle.fill") {
+                                    VStack(spacing: 16) {
+                                        CustomTextField(
+                                            title: "Tool Name",
+                                            text: $name,
+                                            placeholder: "e.g., Power Drill, Ladder, Lawn Mower"
+                                        )
+                                        
+                                        CustomTextEditor(
+                                            title: "Description",
+                                            text: $description,
+                                            placeholder: "Describe your tool's condition, features, and any special instructions..."
+                                        )
+                                    }
                                 }
-                            }
-                            AddressSearchField(service: addressService, selectedAddress: $address, selectedCoordinate: $selectedCoordinate)
-                            Text("Price")
-                                .font(.system(size: 18))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 20)
-                                .padding(.bottom, 0)
+                                
+                                // Location Section
+                                FormSection(title: "Location", icon: "location.fill") {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("Address")
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.white)
+                                        
+                                        AddressSearchField(
+                                            service: addressService,
+                                            selectedAddress: $address,
+                                            selectedCoordinate: $selectedCoordinate
+                                        )
+                                    }
+                                }
+                                
+                                // Pricing Section
+                                FormSection(title: "Pricing", icon: "dollarsign.circle.fill") {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("Daily Rental Price")
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.white)
+                                        
+                                        TextField("$0.00", value: $price, formatter: currencyFormatter)
+                                            .keyboardType(.decimalPad)
+                                            .font(.title3)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 12)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .fill(Color.black.opacity(0.3))
+                                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                            )
+                                            .dismissKeyboardOnSwipeDown()
+                                    }
+                                }
+                                
+                                // Save Button
+                                Button(action: {
+                                    savePost()
+                                }) {
+                                    HStack {
+                                        if showSaveSuccess {
+                                            Image(systemName: "checkmark")
+                                                .font(.title3)
+                                                .fontWeight(.semibold)
+                                        } else {
+                                            Text("Publish Listing")
+                                                .font(.title3)
+                                                .fontWeight(.semibold)
+                                        }
+                                    }
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 16)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(
+                                                LinearGradient(
+                                                    gradient: Gradient(colors: [Color.orange, Color.red]),
+                                                    startPoint: .leading,
+                                                    endPoint: .trailing
+                                                )
+                                            )
+                                            .shadow(color: Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
+                                    )
+                                }
+                                .disabled(name.isEmpty || description.isEmpty || price <= 0)
+                                .opacity(name.isEmpty || description.isEmpty || price <= 0 ? 0.6 : 1)
+                                .scaleEffect(showSaveSuccess ? 1.05 : 1.0)
+                                .animation(.easeInOut(duration: 0.2), value: showSaveSuccess)
                                 .padding(.top, 8)
-                                .bold()
-                            TextField("", value: $price, formatter: currencyFormatter)
-                                .keyboardType(.decimalPad)
-                                .padding()
-                                .background(.black.opacity(0.4))
-                                .foregroundColor(.white)
-                                .cornerRadius(8.0)
-                                .padding(.horizontal, 18)
-                                .dismissKeyboardOnSwipeDown()
-                        }
-                            Button(action: {
-                                savePost()
-                            }) {
-                                Text("Save")
-                                    .padding(8)
-                                    .frame(width: 200)
                             }
-                            .font(.title)
-                            .background(Color.black.opacity(0.4))
-                            .shadow(radius: 8)
-                            .cornerRadius(8)
-
-                            Spacer()
+                            .padding(.horizontal, 24)
+                            .padding(.bottom, 32)
                         }
-                        .frame(maxWidth: .infinity)
                     }
                     .scrollDismissesKeyboard(.interactively)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .applyThemeBackground()
-                    .tint(.purple)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button("Cancel") {
                                 selection = previousSelection
                             }
-                            .foregroundStyle(Color.red)
+                            .foregroundStyle(Color.white)
+                            .fontWeight(.medium)
                         }
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button("Save") {
-                                savePost()
-                            }
-                            .foregroundStyle(Color.purple)
-                            .bold()
-                            .font(.title3)
+                    }
+                    .onAppear {
+                        withAnimation(.easeOut(duration: 0.6)) {
+                            isFormVisible = true
                         }
                     }
                 }
@@ -149,6 +233,11 @@ struct PostView: View {
     
     /// Save the entered data to the server and return to the previous tab on success.
     private func savePost() {
+        // Show loading state
+        withAnimation(.easeInOut(duration: 0.2)) {
+            showSaveSuccess = false
+        }
+        
         fetchUsers { users in
             guard let match = users.first(where: { $0.username == username }) else {
                 return
@@ -158,14 +247,175 @@ struct PostView: View {
             createTool(name: name, price: price, description: description, ownerId: ownerId, createdAt: createdAt, authToken: authToken) { success in
                 if success {
                     DispatchQueue.main.async {
-                        name = ""
-                        price = 0.0
-                        description = ""
-                        selection = previousSelection
+                        // Show success animation
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showSaveSuccess = true
+                        }
+                        
+                        // Reset form and navigate back after delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            name = ""
+                            price = 0.0
+                            description = ""
+                            address = ""
+                            selectedCoordinate = nil
+                            selection = previousSelection
+                            showSaveSuccess = false
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+// MARK: - Custom Components
+
+struct FormSection<Content: View>: View {
+    let title: String
+    let icon: String
+    let content: Content
+    
+    init(title: String, icon: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.icon = icon
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.headline)
+                    .foregroundColor(.orange)
+                
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+            }
+            
+            content
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.black.opacity(0.4))
+                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+        )
+    }
+}
+
+struct CustomTextField: View {
+    let title: String
+    @Binding var text: String
+    let placeholder: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+            
+            TextField(placeholder, text: $text)
+                .font(.body)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.black.opacity(0.3))
+                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                )
+                .dismissKeyboardOnSwipeDown()
+        }
+    }
+}
+
+struct CustomTextEditor: View {
+    let title: String
+    @Binding var text: String
+    let placeholder: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+            
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $text)
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: 100)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .dismissKeyboardOnSwipeDown()
+                
+                if text.isEmpty {
+                    Text(placeholder)
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.6))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 16)
+                        .allowsHitTesting(false)
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.3))
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+            )
+        }
+    }
+}
+
+struct PrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.title3)
+            .fontWeight(.semibold)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.orange, Color.red]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .shadow(color: Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
+            )
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.title3)
+            .fontWeight(.medium)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.black.opacity(0.2))
+                    )
+            )
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 
