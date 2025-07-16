@@ -111,6 +111,7 @@ struct WelcomeView: View {
                     }
                 } else {
                     MapView()
+                        .navigationBarHidden(true)
                         .background(Color(.systemBackground))
                 }
             }
