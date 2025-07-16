@@ -281,75 +281,78 @@ struct ToolCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Image section with AsyncImage
-            ZStack {
-                if let imageUrl = tool.image_url, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(height: 120)
-                                .clipped()
-                        case .failure(_):
-                            // Image failed to load
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(height: 120)
-                                .overlay(
-                                    VStack(spacing: 8) {
-                                        Image(systemName: "exclamationmark.triangle")
-                                            .font(.system(size: 20))
-                                            .foregroundColor(.orange.opacity(0.7))
-                                        Text("Failed to load")
-                                            .font(.caption2)
-                                            .foregroundColor(.gray.opacity(0.8))
-                                    }
-                                )
-                        case .empty:
-                            // Still loading
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(height: 120)
-                                .overlay(
-                                    VStack(spacing: 8) {
-                                        ProgressView()
-                                            .scaleEffect(0.8)
-                                            .tint(.orange)
-                                        Text("Loading...")
-                                            .font(.caption2)
-                                            .foregroundColor(.gray.opacity(0.8))
-                                    }
-                                )
-                        @unknown default:
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(height: 120)
-                        }
-                    }
-                } else {
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.orange.opacity(0.3), Color.red.opacity(0.3)]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(height: 120)
-                        .overlay(
-                            VStack(spacing: 8) {
-                                Image(systemName: "wrench.and.screwdriver")
-                                    .font(.system(size: 32))
-                                    .foregroundColor(.white.opacity(0.8))
-                                Text("No Image")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.6))
+            // Image section with AsyncImage - Fixed to uniform size
+            GeometryReader { geometry in
+                ZStack {
+                    if let imageUrl = tool.image_url, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: geometry.size.width, height: 120)
+                                    .clipped()
+                            case .failure(_):
+                                // Image failed to load
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.2))
+                                    .frame(width: geometry.size.width, height: 120)
+                                    .overlay(
+                                        VStack(spacing: 8) {
+                                            Image(systemName: "exclamationmark.triangle")
+                                                .font(.system(size: 20))
+                                                .foregroundColor(.orange.opacity(0.7))
+                                            Text("Failed to load")
+                                                .font(.caption2)
+                                                .foregroundColor(.gray.opacity(0.8))
+                                        }
+                                    )
+                            case .empty:
+                                // Still loading
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.2))
+                                    .frame(width: geometry.size.width, height: 120)
+                                    .overlay(
+                                        VStack(spacing: 8) {
+                                            ProgressView()
+                                                .scaleEffect(0.8)
+                                                .tint(.orange)
+                                            Text("Loading...")
+                                                .font(.caption2)
+                                                .foregroundColor(.gray.opacity(0.8))
+                                        }
+                                    )
+                            @unknown default:
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.2))
+                                    .frame(width: geometry.size.width, height: 120)
                             }
-                        )
+                        }
+                    } else {
+                        Rectangle()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.orange.opacity(0.3), Color.red.opacity(0.3)]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: geometry.size.width, height: 120)
+                            .overlay(
+                                VStack(spacing: 8) {
+                                    Image(systemName: "wrench.and.screwdriver")
+                                        .font(.system(size: 32))
+                                        .foregroundColor(.white.opacity(0.8))
+                                    Text("No Image")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.6))
+                                }
+                            )
+                    }
                 }
             }
+            .frame(height: 120)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             
             VStack(alignment: .leading, spacing: 8) {

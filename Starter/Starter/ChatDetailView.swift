@@ -199,7 +199,6 @@ struct ChatDetailView: View {
                     .fontWeight(.bold)
             }
             .frame(height: 60)
-            .background(Color.red)
             .overlay(
                 Rectangle()
                     .fill(Color.white.opacity(0.5))
@@ -312,6 +311,7 @@ struct ChatDetailView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
+        .navigationBarHidden(true)
         .onTapGesture {
             isMessageFieldFocused = false
         }
