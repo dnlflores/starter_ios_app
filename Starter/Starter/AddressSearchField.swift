@@ -40,7 +40,7 @@ struct AddressSearchField: View {
                 .padding(.vertical, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black.opacity(0.3))
+                        .fill(Color.white.opacity(0.3))
                         .stroke(Color.white.opacity(0.2), lineWidth: 1)
                 )
             }

@@ -531,7 +531,7 @@ func uploadImage(image: UIImage, completion: @escaping (String?) -> Void) {
 }
 
 // Updated tool creation function with image support
-func createTool(name: String, price: String, description: String, ownerId: Int, image: UIImage? = nil, completion: @escaping (Bool) -> Void) {
+func createTool(name: String, price: String, description: String, ownerId: Int, latitude: Double? = nil, longitude: Double? = nil, image: UIImage? = nil, completion: @escaping (Bool) -> Void) {
     guard let token = UserDefaults.standard.string(forKey: "authToken"),
           let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools") else {
         print("Network: createTool failed - missing token or invalid URL")
@@ -549,14 +549,25 @@ func createTool(name: String, price: String, description: String, ownerId: Int, 
     
     var body = Data()
     
+    // Format price to one decimal place
+    let formattedPrice = String(format: "%.1f", Double(price) ?? 0.0)
+    
     // Add text fields
-    let fields = [
+    var fields = [
         "name": name,
-        "price": price,
+        "price": formattedPrice,
         "description": description,
         "owner_id": String(ownerId),
         "created_at": ISO8601DateFormatter().string(from: Date())
     ]
+    
+    // Add coordinates if available
+    if let lat = latitude {
+        fields["latitude"] = String(lat)
+    }
+    if let lng = longitude {
+        fields["longitude"] = String(lng)
+    }
     
     for (key, value) in fields {
         body.append("--\(boundary)\r\n".data(using: .utf8)!)

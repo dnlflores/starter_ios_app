@@ -110,13 +110,7 @@ struct PostView: View {
                         .padding(.horizontal, 24)
                         .padding(.top, 70) // Account for status bar
                         .padding(.bottom, 24)
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.red, Color.yellow]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
+                        .background(Color.red)
                     }
                     .frame(maxWidth: .infinity)
                     .ignoresSafeArea(.all, edges: .top)
@@ -226,7 +220,7 @@ struct PostView: View {
                                             .padding(.vertical, 12)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 12)
-                                                    .fill(Color.black.opacity(0.3))
+                                                    .fill(Color.white.opacity(0.3))
                                                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
                                             )
                                             .dismissKeyboardOnSwipeDown()
@@ -320,7 +314,7 @@ struct PostView: View {
             }
             let ownerId = match.id
             let createdAt = ISO8601DateFormatter().string(from: Date())
-            createTool(name: name, price: String(price), description: description, ownerId: ownerId, image: selectedImage) { success in
+            createTool(name: name, price: String(format: "%.1f", price), description: description, ownerId: ownerId, latitude: selectedCoordinate?.latitude, longitude: selectedCoordinate?.longitude, image: selectedImage) { success in
                 if success {
                     DispatchQueue.main.async {
                         // Show success animation
@@ -364,7 +358,7 @@ struct FormSection<Content: View>: View {
             HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.headline)
-                    .foregroundColor(.orange)
+                    .foregroundColor(.white)
                 
                 Text(title)
                     .font(.headline)
@@ -378,7 +372,7 @@ struct FormSection<Content: View>: View {
         .padding(.vertical, 20)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.black.opacity(0.4))
+                .fill(Color.white.opacity(0.4))
                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
         )
     }
@@ -396,17 +390,28 @@ struct CustomTextField: View {
                 .fontWeight(.medium)
                 .foregroundColor(.white)
             
-            TextField(placeholder, text: $text)
-                .font(.body)
-                .foregroundColor(.white)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black.opacity(0.3))
-                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                )
-                .dismissKeyboardOnSwipeDown()
+            ZStack(alignment: .leading) {
+                TextField("", text: $text)
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .dismissKeyboardOnSwipeDown()
+                
+                if text.isEmpty {
+                    Text(placeholder)
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.6))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .allowsHitTesting(false)
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white.opacity(0.3))
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+            )
         }
     }
 }
@@ -444,7 +449,7 @@ struct CustomTextEditor: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.3))
+                    .fill(Color.white.opacity(0.3))
                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
             )
         }

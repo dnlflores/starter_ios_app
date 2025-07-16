@@ -51,6 +51,7 @@ struct MessageBubbleView: View {
                         VStack(spacing: 8) {
                             TextField("Edit message", text: $editedText, axis: .vertical)
                                 .textFieldStyle(PlainTextFieldStyle())
+                                .foregroundStyle(.black.opacity(0.8))
                                 .padding(12)
                                 .background(Color.white.opacity(0.9))
                                 .cornerRadius(12)
@@ -138,12 +139,12 @@ struct MessageBubbleView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(message.text)
                         .font(.system(size: 16, weight: .regular))
-                        .foregroundColor(.white)
+                        .foregroundColor(.black.opacity(0.8))
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.black)
+                                .fill(Color.white)
                                 .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 2)
                         )
                     
