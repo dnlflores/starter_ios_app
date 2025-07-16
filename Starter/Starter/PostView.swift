@@ -118,7 +118,7 @@ struct PostView: View {
                                     .padding(12)
                                     .background(
                                         RoundedRectangle(cornerRadius: 20)
-                                            .fill(Color.white.opacity(0.2))
+                                            .fill(Color.black.opacity(0.2))
                                             .stroke(Color.white.opacity(0.3), lineWidth: 1)
                                     )
                             }
@@ -242,7 +242,7 @@ struct PostView: View {
                                             .padding(.vertical, 12)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 12)
-                                                    .fill(Color.white.opacity(0.3))
+                                                    .fill(Color.black.opacity(0.3))
                                                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
                                             )
                                             .dismissKeyboardOnSwipeDown()
@@ -408,7 +408,7 @@ struct FormSection<Content: View>: View {
         .padding(.vertical, 20)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white.opacity(0.4))
+                .fill(Color.black.opacity(0.4))
                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
         )
     }
@@ -445,7 +445,7 @@ struct CustomTextField: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.white.opacity(0.3))
+                    .fill(Color.black.opacity(0.3))
                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
             )
         }
@@ -485,7 +485,7 @@ struct CustomTextEditor: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.white.opacity(0.3))
+                    .fill(Color.black.opacity(0.3))
                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
             )
         }
