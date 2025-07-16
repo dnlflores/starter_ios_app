@@ -6,6 +6,19 @@ struct ToolDetailView: View {
     @EnvironmentObject var chatManager: ChatManager
     @State private var showChat = false
     @State private var startedChatID: String?
+    
+    private var formattedPrice: String {
+        guard let price = Double(tool.price) else {
+            return tool.price // Return original string if conversion fails
+        }
+        
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        
+        return formatter.string(from: NSNumber(value: price)) ?? tool.price
+    }
 
     var body: some View {
         ScrollView {
@@ -71,7 +84,7 @@ struct ToolDetailView: View {
                             .lineLimit(2)
                         
                         HStack {
-                            Text("$\(tool.price)")
+                            Text("$\(formattedPrice)")
                                 .font(.system(size: 24))
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -163,10 +176,12 @@ struct ToolDetailView: View {
                     HStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                Text("$\(tool.price)")
+                                Text("$\(formattedPrice)")
                                     .font(.system(size: 26))
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
                                 VStack {
                                     Text("per")
                                         .font(.system(size: 12))
@@ -176,9 +191,10 @@ struct ToolDetailView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                             }
+                            .frame(maxWidth: 120)
                             Text("Available now")
                                 .font(.caption)
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(.green)
                         }
                         
                         Spacer()
@@ -245,20 +261,22 @@ struct ToolDetailView: View {
 }
 
 #Preview {
-    let previewChatManager = ChatManager()
-    previewChatManager.setupPreviewData()
-    
-    return ToolDetailView(tool: Tool(
-        id: 1, 
-        name: "Professional Drill Set", 
-        price: "25", 
-        description: "High-quality professional drill set with multiple bits and accessories. Perfect for home improvement projects, furniture assembly, and general construction work. Includes cordless drill, impact driver, and a comprehensive bit set. Battery included with 2-hour fast charging capability.", 
-        owner_id: 1, 
-        owner_username: "johndoe", 
-        owner_email: "johndoe@example.com", 
-        owner_first_name: "John", 
-        owner_last_name: "Doe",
-        image_url: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-    ))
-    .environmentObject(previewChatManager)
+    Group {
+        let previewChatManager = ChatManager()
+        let _ = previewChatManager.setupPreviewData()
+        
+        ToolDetailView(tool: Tool(
+            id: 1, 
+            name: "Professional Drill Set", 
+            price: "2500.00",
+            description: "High-quality professional drill set with multiple bits and accessories. Perfect for home improvement projects, furniture assembly, and general construction work. Includes cordless drill, impact driver, and a comprehensive bit set. Battery included with 2-hour fast charging capability.",
+            owner_id: 1, 
+            owner_username: "johndoe", 
+            owner_email: "johndoe@example.com", 
+            owner_first_name: "John", 
+            owner_last_name: "Doe",
+            image_url: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+        ))
+        .environmentObject(previewChatManager)
+    }
 }
