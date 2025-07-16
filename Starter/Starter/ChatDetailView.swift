@@ -176,6 +176,7 @@ struct ChatDetailView: View {
     @EnvironmentObject var chatManager: ChatManager
     @State private var messageText = ""
     @FocusState private var isMessageFieldFocused: Bool
+    @Environment(\.dismiss) private var dismiss
 
     private var chat: Chat? {
         chatManager.chats.first { $0.id == chatID }
@@ -193,11 +194,43 @@ struct ChatDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(chatTitle)
-                    .foregroundStyle(.white)
-                    .font(.title2)
-                    .fontWeight(.bold)
-            }
+                // Back button
+                Button(action: {
+                    dismiss()
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text("Chats")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                }
+                
+            Spacer()
+                    // Tool name as main title
+                    Text(chat?.toolName ?? "Tool")
+                        .foregroundStyle(.white)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Spacer()
+                    
+                    // Owner name in pill
+                    Text(chat?.otherUsername ?? "Owner")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule()
+                                .fill(Color.white.opacity(0.2))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                )
+                        )            }
+            .padding(.horizontal, 16)
             .frame(height: 60)
             .overlay(
                 Rectangle()
