@@ -111,6 +111,12 @@ struct PostView: View {
                         .padding(.top, 70) // Account for status bar
                         .padding(.bottom, 24)
                         .background(Color.red)
+                        .overlay(
+                            Rectangle()
+                                .fill(Color.white.opacity(0.5))
+                                .frame(width: 500, height: 0.5),
+                            alignment: .bottom
+                        )
                     }
                     .frame(maxWidth: .infinity)
                     .ignoresSafeArea(.all, edges: .top)
@@ -250,8 +256,8 @@ struct PostView: View {
                                             .fill(
                                                 LinearGradient(
                                                     gradient: Gradient(colors: [Color.orange, Color.red]),
-                                                    startPoint: .leading,
-                                                    endPoint: .trailing
+                                                    startPoint: .trailing,
+                                                    endPoint: .leading
                                                 )
                                             )
                                             .shadow(color: Color.orange.opacity(0.3), radius: 8, x: 0, y: 4)
@@ -365,7 +371,6 @@ struct FormSection<Content: View>: View {
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
             }
-            
             content
         }
         .padding(.horizontal, 20)

@@ -192,6 +192,21 @@ struct ChatDetailView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Text(chatTitle)
+                    .foregroundStyle(.white)
+                    .font(.title2)
+                    .fontWeight(.bold)
+            }
+            .frame(height: 60)
+            .background(Color.red)
+            .overlay(
+                Rectangle()
+                    .fill(Color.white.opacity(0.5))
+                    .frame(width: 500, height: 0.5),
+                alignment: .bottom
+            )
+            
             // Messages scroll view
             ScrollViewReader { proxy in
                 ScrollView {
@@ -295,8 +310,6 @@ struct ChatDetailView: View {
             }
             .background(Color.black.opacity(0.1))
         }
-        .navigationTitle(chatTitle)
-        .navigationBarTitleDisplayMode(.inline)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
         .onTapGesture {
