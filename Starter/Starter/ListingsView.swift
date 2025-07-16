@@ -174,7 +174,7 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: "https://unsplash.com/photos/the-valves-and-pipes-at-a-craft-modern-brewery-wall-ffocc9z8igo"
+                image_url: "https://images.pexels.com/photos/3970342/pexels-photo-3970342.jpeg"
             ),
             Tool(
                 id: 2,
@@ -186,7 +186,7 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: nil
+                image_url: "https://images.pexels.com/photos/2351865/pexels-photo-2351865.jpeg"
             ),
             Tool(
                 id: 3,
@@ -198,7 +198,7 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: nil
+                image_url: "https://images.pexels.com/photos/5853935/pexels-photo-5853935.jpeg"
             ),
             Tool(
                 id: 4,
@@ -210,19 +210,19 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: nil
+                image_url: "https://images.pexels.com/photos/2027044/pexels-photo-2027044.jpeg"
             ),
             Tool(
                 id: 5,
                 name: "Ladder (8ft)",
-                price: "12",
+                price: "1200",
                 description: "Sturdy 8-foot aluminum ladder. Perfect for painting and light maintenance work.",
                 owner_id: 1,
                 owner_username: "daniel",
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: nil
+                image_url: "https://images.pexels.com/photos/5803349/pexels-photo-5803349.jpeg"
             ),
             Tool(
                 id: 6,
@@ -234,7 +234,7 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: nil
+                image_url: "https://images.pexels.com/photos/17273711/pexels-photo-17273711.jpeg"
             )
         ]
     }
@@ -265,6 +265,19 @@ struct ListingsView: View {
 // MARK: - Tool Card View
 struct ToolCardView: View {
     let tool: Tool
+    
+    private var formattedPrice: String {
+        guard let price = Double(tool.price) else {
+            return tool.price // Return original string if conversion fails
+        }
+        
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        
+        return formatter.string(from: NSNumber(value: price)) ?? tool.price
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -356,7 +369,7 @@ struct ToolCardView: View {
                 
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("$\(tool.price)")
+                        Text("$\(formattedPrice)")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.primary)
                         Text("per day")

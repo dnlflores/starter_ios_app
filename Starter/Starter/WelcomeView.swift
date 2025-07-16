@@ -136,6 +136,19 @@ struct WelcomeView: View {
 struct ToolCard: View {
     let tool: Tool
     
+    private var formattedPrice: String {
+        guard let price = Double(tool.price) else {
+            return tool.price // Return original string if conversion fails
+        }
+        
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        
+        return formatter.string(from: NSNumber(value: price)) ?? tool.price
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Image section
@@ -204,7 +217,7 @@ struct ToolCard: View {
                 VStack {
                     HStack {
                         Spacer()
-                        Text("$\(tool.price)/day")
+                        Text("$\(formattedPrice)/day")
                             .font(.headline)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
