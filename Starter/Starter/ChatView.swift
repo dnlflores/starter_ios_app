@@ -46,7 +46,7 @@ struct ChatView: View {
                     
                     VStack(spacing: 24) {
                         // Icon
-                        Image(systemName: "message.bubble.fill")
+                        Image(systemName: "bubble.fill")
                             .font(.system(size: 48))
                             .foregroundColor(.white)
                             .padding(.bottom, 8)

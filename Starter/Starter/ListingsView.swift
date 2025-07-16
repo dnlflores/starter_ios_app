@@ -40,33 +40,52 @@ struct ListingsView: View {
     var body: some View {
         ZStack {
             if authToken.isEmpty {
-                VStack(spacing: 24) {
-                    VStack(spacing: 12) {
-                        Image(systemName: "lock.shield")
-                            .font(.system(size: 60))
-                            .foregroundColor(.white.opacity(0.8))
-                        Text("You are not logged in")
+                // Modern logged-out view with better structure
+                VStack(spacing: 0) {
+                    Spacer()
+                    
+                    VStack(spacing: 24) {
+                        // Icon
+                        Image(systemName: "list.bullet.rectangle.fill")
+                            .font(.system(size: 48))
+                            .foregroundColor(.white)
+                            .padding(.bottom, 8)
+                        
+                        Text("View Your Tools")
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
-                        Text("Please log in to view your tools")
+                        
+                        Text("Keep track of all your tools that you own here.")
                             .font(.body)
                             .foregroundColor(.white.opacity(0.8))
-                    }
-                    
-                    VStack(spacing: 12) {
-                        Button("Log In") {
-                            showLogin = true
-                        }
-                        .buttonStyle(PrimaryButtonStyle())
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
                         
-                        Button("Sign Up") {
-                            showSignUp = true
+                        VStack(spacing: 16) {
+                            Button("Log In") {
+                                showLogin = true
+                            }
+                            .buttonStyle(PrimaryButtonStyle())
+                            
+                            Button("Sign Up") {
+                                showSignUp = true
+                            }
+                            .buttonStyle(SecondaryButtonStyle())
                         }
-                        .buttonStyle(SecondaryButtonStyle())
+                        .padding(.top, 8)
                     }
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 40)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.black.opacity(0.6))
+                            .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
+                    )
+                    .padding(.horizontal, 24)
+                    
+                    Spacer()
                 }
-                .padding(.horizontal, 24)
                 .applyThemeBackground()
             } else {
                 NavigationStack {
