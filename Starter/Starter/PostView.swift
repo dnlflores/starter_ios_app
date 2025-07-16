@@ -105,7 +105,23 @@ struct PostView: View {
                                     .font(.subheadline)
                                     .foregroundColor(.white.opacity(0.8))
                             }
+                            
                             Spacer()
+                            
+                            // Cancel button
+                            Button(action: {
+                                cancelPost()
+                            }) {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .padding(12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(Color.white.opacity(0.2))
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    )
+                            }
                         }
                         .padding(.horizontal, 24)
                         .padding(.top, 70) // Account for status bar
@@ -343,6 +359,21 @@ struct PostView: View {
                 }
             }
         }
+    }
+    
+    /// Cancel the form, reset all fields, and return to the previous view.
+    private func cancelPost() {
+        // Reset all form fields
+        name = ""
+        price = 0.0
+        description = ""
+        address = ""
+        selectedCoordinate = nil
+        selectedImage = nil
+        showSaveSuccess = false
+        
+        // Navigate back to previous view
+        selection = previousSelection
     }
 }
 
