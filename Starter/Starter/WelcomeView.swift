@@ -65,33 +65,33 @@ struct WelcomeView: View {
                 // Content section
                 if selectedView == 0 {
                     ZStack {
-                                                 if isLoading {
-                             VStack(spacing: 20) {
-                                 ProgressView()
-                                     .scaleEffect(1.2)
-                                     .tint(.orange)
-                                 Text("Finding the perfect tools for you...")
-                                     .font(.subheadline)
-                                     .foregroundColor(.gray)
-                                     .multilineTextAlignment(.center)
-                             }
-                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                             .background(Color(UIColor.systemBackground))
-                                                 } else if tools.isEmpty {
-                             VStack(spacing: 20) {
-                                 Image(systemName: "wrench.and.screwdriver")
-                                     .font(.system(size: 50))
-                                     .foregroundColor(.gray.opacity(0.6))
-                                 Text("No tools available")
-                                     .font(.title2)
-                                     .fontWeight(.medium)
-                                     .foregroundColor(.gray)
-                                 Text("Check back later for new listings")
-                                     .font(.subheadline)
-                                     .foregroundColor(.gray.opacity(0.8))
-                             }
-                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                             .background(Color(UIColor.systemBackground))
+                        if isLoading {
+                            VStack(spacing: 20) {
+                                ProgressView()
+                                    .scaleEffect(1.2)
+                                    .tint(.orange)
+                                Text("Finding the perfect tools for you...")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color(.systemBackground))
+                        } else if tools.isEmpty {
+                            VStack(spacing: 20) {
+                                Image(systemName: "wrench.and.screwdriver")
+                                    .font(.system(size: 50))
+                                    .foregroundColor(.gray.opacity(0.6))
+                                Text("No tools available")
+                                    .font(.title2)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.gray)
+                                Text("Check back later for new listings")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray.opacity(0.8))
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color(.systemBackground))
                         } else {
                             ScrollView {
                                 LazyVStack(spacing: 16) {
@@ -104,15 +104,15 @@ struct WelcomeView: View {
                                 }
                                 .padding(.horizontal, 20)
                                 .padding(.top, 20)
-                                                                 .padding(.bottom, 100) // Extra padding for tab bar
-                             }
-                             .background(Color(UIColor.systemBackground))
+                                .padding(.bottom, 100) // Extra padding for tab bar
+                            }
+                            .background(Color(.systemBackground))
                         }
                     }
-                                 } else {
-                     MapView()
-                         .background(Color(UIColor.systemBackground))
-                 }
+                } else {
+                    MapView()
+                        .background(Color(.systemBackground))
+                }
             }
             .ignoresSafeArea(.container, edges: .top)
         }
@@ -139,27 +139,49 @@ struct ToolCard: View {
         VStack(alignment: .leading, spacing: 0) {
             // Image section
             ZStack {
-                if let imageUrl = tool.image_url, let url = URL(string: imageUrl) {
-                    AsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(height: 200)
-                            .clipped()
-                    } placeholder: {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.2))
-                            .frame(height: 200)
-                            .overlay(
-                                VStack(spacing: 8) {
-                                    Image(systemName: "photo")
-                                        .font(.system(size: 30))
-                                        .foregroundColor(.gray.opacity(0.6))
-                                    Text("Loading...")
-                                        .font(.caption)
-                                        .foregroundColor(.gray.opacity(0.8))
-                                }
-                            )
+                if let imageUrl = tool.image_url, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(height: 200)
+                                .clipped()
+                        case .failure(_):
+                            // Image failed to load
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(height: 200)
+                                .overlay(
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "exclamationmark.triangle")
+                                            .font(.system(size: 30))
+                                            .foregroundColor(.orange.opacity(0.7))
+                                        Text("Failed to load")
+                                            .font(.caption)
+                                            .foregroundColor(.gray.opacity(0.8))
+                                    }
+                                )
+                        case .empty:
+                            // Still loading
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(height: 200)
+                                .overlay(
+                                    VStack(spacing: 8) {
+                                        ProgressView()
+                                            .tint(.orange)
+                                        Text("Loading...")
+                                            .font(.caption)
+                                            .foregroundColor(.gray.opacity(0.8))
+                                    }
+                                )
+                        @unknown default:
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(height: 200)
+                        }
                     }
                 } else {
                     Rectangle()
@@ -231,9 +253,9 @@ struct ToolCard: View {
                 }
             }
             .padding(16)
-                 }
-         .background(Color(UIColor.systemBackground))
-         .cornerRadius(16)
+        }
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
