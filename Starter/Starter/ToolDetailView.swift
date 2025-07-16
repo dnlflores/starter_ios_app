@@ -215,6 +215,7 @@ struct ToolDetailView: View {
                                     .font(.body)
                                     .fontWeight(.semibold)
                             }
+                            .frame(width: 150)
                             .foregroundColor(.white)
                             .padding(.horizontal, 24)
                             .padding(.vertical, 16)
@@ -268,7 +269,7 @@ struct ToolDetailView: View {
         ToolDetailView(tool: Tool(
             id: 1, 
             name: "Professional Drill Set", 
-            price: "2500.00",
+            price: "7",
             description: "High-quality professional drill set with multiple bits and accessories. Perfect for home improvement projects, furniture assembly, and general construction work. Includes cordless drill, impact driver, and a comprehensive bit set. Battery included with 2-hour fast charging capability.",
             owner_id: 1, 
             owner_username: "johndoe", 

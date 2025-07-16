@@ -97,7 +97,7 @@ struct PostView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Create New Listing")
-                                    .font(.title2)
+                                    .font(.system(size: 22, weight: .bold, design: .rounded))
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                                 

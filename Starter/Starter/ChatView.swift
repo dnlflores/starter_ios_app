@@ -94,7 +94,7 @@ struct ChatView: View {
                         VStack(spacing: 0) {
                             HStack {
                                 Text("Messages")
-                                    .font(.largeTitle)
+                                    .font(.system(size: 32, weight: .bold, design: .rounded))
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                                 

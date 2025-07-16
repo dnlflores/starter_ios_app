@@ -18,7 +18,7 @@ struct WelcomeView: View {
                     // Modern segmented control
                     VStack(spacing: 12) {
                         Text("Explore Available Tools")
-                            .font(.headline)
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                             .fontWeight(.medium)
                         
