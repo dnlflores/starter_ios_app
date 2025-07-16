@@ -336,12 +336,12 @@ struct AccountInfoRow: View {
             Text(label)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundColor(.secondary)
+                .foregroundColor(.gray.opacity(0.6))
                 .textCase(.uppercase)
             
             Text(value)
                 .font(.body)
-                .foregroundColor(.primary)
+                .foregroundColor(.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.bottom, 4)

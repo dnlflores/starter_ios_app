@@ -345,6 +345,7 @@ struct ChatDetailView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyThemeBackground()
         .navigationBarHidden(true)
+        .dismissKeyboardOnSwipeDown()
         .onTapGesture {
             isMessageFieldFocused = false
         }
