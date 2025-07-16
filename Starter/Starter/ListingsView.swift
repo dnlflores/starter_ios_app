@@ -174,7 +174,9 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: "https://images.pexels.com/photos/3970342/pexels-photo-3970342.jpeg"
+                image_url: "https://images.pexels.com/photos/3970342/pexels-photo-3970342.jpeg",
+                latitude: 30.2672,
+                longitude: -97.7431
             ),
             Tool(
                 id: 2,
@@ -186,7 +188,9 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: "https://images.pexels.com/photos/2351865/pexels-photo-2351865.jpeg"
+                image_url: "https://images.pexels.com/photos/2351865/pexels-photo-2351865.jpeg",
+                latitude: 30.2676,
+                longitude: -97.7435
             ),
             Tool(
                 id: 3,
@@ -198,7 +202,9 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: "https://images.pexels.com/photos/5853935/pexels-photo-5853935.jpeg"
+                image_url: "https://images.pexels.com/photos/5853935/pexels-photo-5853935.jpeg",
+                latitude: 30.2680,
+                longitude: -97.7439
             ),
             Tool(
                 id: 4,
@@ -210,7 +216,9 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: "https://images.pexels.com/photos/2027044/pexels-photo-2027044.jpeg"
+                image_url: "https://images.pexels.com/photos/2027044/pexels-photo-2027044.jpeg",
+                latitude: 30.2684,
+                longitude: -97.7443
             ),
             Tool(
                 id: 5,
@@ -222,7 +230,9 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: "https://images.pexels.com/photos/5803349/pexels-photo-5803349.jpeg"
+                image_url: "https://images.pexels.com/photos/5803349/pexels-photo-5803349.jpeg",
+                latitude: 30.2688,
+                longitude: -97.7447
             ),
             Tool(
                 id: 6,
@@ -234,7 +244,9 @@ struct ListingsView: View {
                 owner_email: "daniel@example.com",
                 owner_first_name: "Daniel",
                 owner_last_name: "Flores",
-                image_url: "https://images.pexels.com/photos/17273711/pexels-photo-17273711.jpeg"
+                image_url: "https://images.pexels.com/photos/17273711/pexels-photo-17273711.jpeg",
+                latitude: 30.2692,
+                longitude: -97.7451
             )
         ]
     }

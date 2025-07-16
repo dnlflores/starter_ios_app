@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import MapKit
 
 struct AuthResponse: Codable {
     let token: String
@@ -29,7 +30,7 @@ struct User: Codable {
     let zip: String?
 }
 
-struct Tool: Codable, Identifiable {
+struct Tool: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let price: String
@@ -40,6 +41,62 @@ struct Tool: Codable, Identifiable {
     let owner_first_name: String?
     let owner_last_name: String?
     let image_url: String?
+    let latitude: Double?
+    let longitude: Double?
+    
+    // Custom coding keys for the properties we need to convert
+    private enum CodingKeys: String, CodingKey {
+        case id, name, price, description, owner_id, owner_username, owner_email
+        case owner_first_name, owner_last_name, image_url, latitude, longitude
+    }
+    
+    // Custom initializer from decoder to handle string-to-double conversion
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        id = try container.decode(Int.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        price = try container.decode(String.self, forKey: .price)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        owner_id = try container.decodeIfPresent(Int.self, forKey: .owner_id)
+        owner_username = try container.decodeIfPresent(String.self, forKey: .owner_username)
+        owner_email = try container.decodeIfPresent(String.self, forKey: .owner_email)
+        owner_first_name = try container.decodeIfPresent(String.self, forKey: .owner_first_name)
+        owner_last_name = try container.decodeIfPresent(String.self, forKey: .owner_last_name)
+        image_url = try container.decodeIfPresent(String.self, forKey: .image_url)
+        
+        // Handle latitude - can be String or Double
+        if let latString = try container.decodeIfPresent(String.self, forKey: .latitude) {
+            latitude = Double(latString)
+        } else {
+            latitude = try container.decodeIfPresent(Double.self, forKey: .latitude)
+        }
+        
+        // Handle longitude - can be String or Double
+        if let lngString = try container.decodeIfPresent(String.self, forKey: .longitude) {
+            longitude = Double(lngString)
+        } else {
+            longitude = try container.decodeIfPresent(Double.self, forKey: .longitude)
+        }
+    }
+    
+    // Standard initializer for when creating Tool instances manually
+    init(id: Int, name: String, price: String, description: String? = nil, owner_id: Int? = nil, 
+         owner_username: String? = nil, owner_email: String? = nil, owner_first_name: String? = nil, 
+         owner_last_name: String? = nil, image_url: String? = nil, latitude: Double? = nil, longitude: Double? = nil) {
+        self.id = id
+        self.name = name
+        self.price = price
+        self.description = description
+        self.owner_id = owner_id
+        self.owner_username = owner_username
+        self.owner_email = owner_email
+        self.owner_first_name = owner_first_name
+        self.owner_last_name = owner_last_name
+        self.image_url = image_url
+        self.latitude = latitude
+        self.longitude = longitude
+    }
 }
 
 func signup(username: String, email: String, password: String, street: String, city: String, state: String, zip: String, phone: String, completion: @escaping (Bool) -> Void) {

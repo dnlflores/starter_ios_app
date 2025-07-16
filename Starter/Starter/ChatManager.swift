@@ -375,8 +375,8 @@ final class ChatManager: ObservableObject {
         
         // Set up sample tool data
         toolLookup = [
-            1: Tool(id: 1, name: "Power Drill", price: "$15", description: "High-quality cordless drill", owner_id: 2, owner_username: "Sarah", owner_email: "sarah@example.com", owner_first_name: "Sarah", owner_last_name: "Johnson", image_url: nil),
-            2: Tool(id: 2, name: "Circular Saw", price: "$25", description: "Professional-grade saw", owner_id: 3, owner_username: "Mike", owner_email: "mike@example.com", owner_first_name: "Mike", owner_last_name: "Wilson", image_url: nil)
+            1: Tool(id: 1, name: "Power Drill", price: "$15", description: "High-quality cordless drill", owner_id: 2, owner_username: "Sarah", owner_email: "sarah@example.com", owner_first_name: "Sarah", owner_last_name: "Johnson", image_url: nil, latitude: 30.2672, longitude: -97.7431),
+            2: Tool(id: 2, name: "Circular Saw", price: "$25", description: "Professional-grade saw", owner_id: 3, owner_username: "Mike", owner_email: "mike@example.com", owner_first_name: "Mike", owner_last_name: "Wilson", image_url: nil, latitude: 30.2676, longitude: -97.7435)
         ]
         
         // Set up sample chat data for preview

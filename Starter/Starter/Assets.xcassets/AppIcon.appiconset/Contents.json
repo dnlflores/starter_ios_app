@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "PlaygroundImage2.jpg",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "PlaygroundImage2 1.jpg",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
