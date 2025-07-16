@@ -330,31 +330,110 @@ struct PostView: View {
             showSaveSuccess = false
         }
         
-        fetchUsers { users in
-            guard let match = users.first(where: { $0.username == username }) else {
+        // Convert address to coordinates if we don't have them yet
+        if !address.isEmpty && selectedCoordinate == nil {
+            print("🔍 Converting address to coordinates: \(address)")
+            convertAddressToCoordinates(address: address) { coordinate in
+                DispatchQueue.main.async {
+                    if let coordinate = coordinate {
+                        self.selectedCoordinate = coordinate
+                        print("✅ Address converted successfully!")
+                        print("📍 Latitude: \(coordinate.latitude)")
+                        print("📍 Longitude: \(coordinate.longitude)")
+                        self.proceedWithSave()
+                    } else {
+                        print("❌ Failed to convert address to coordinates")
+                        // Proceed without coordinates
+                        self.proceedWithSave()
+                    }
+                }
+            }
+        } else {
+            // Log existing coordinates or proceed without them
+            if let coordinate = selectedCoordinate {
+                print("📍 Using existing coordinates:")
+                print("📍 Latitude: \(coordinate.latitude)")
+                print("📍 Longitude: \(coordinate.longitude)")
+            } else {
+                print("⚠️ No address provided - proceeding without coordinates")
+            }
+            proceedWithSave()
+        }
+    }
+    
+    /// Convert an address string to coordinates using MapKit
+    private func convertAddressToCoordinates(address: String, completion: @escaping (CLLocationCoordinate2D?) -> Void) {
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(address) { placemarks, error in
+            if let error = error {
+                print("🚨 Geocoding error: \(error.localizedDescription)")
+                completion(nil)
                 return
             }
+            
+            guard let placemark = placemarks?.first,
+                  let location = placemark.location else {
+                print("🚨 No valid location found for address: \(address)")
+                completion(nil)
+                return
+            }
+            
+            completion(location.coordinate)
+        }
+    }
+    
+    /// Proceed with saving the tool to the backend
+    private func proceedWithSave() {
+        fetchUsers { users in
+            guard let match = users.first(where: { $0.username == username }) else {
+                print("❌ User not found: \(self.username)")
+                return
+            }
+            
             let ownerId = match.id
-            let createdAt = ISO8601DateFormatter().string(from: Date())
-            createTool(name: name, price: String(format: "%.1f", price), description: description, ownerId: ownerId, latitude: selectedCoordinate?.latitude, longitude: selectedCoordinate?.longitude, image: selectedImage) { success in
-                if success {
-                    DispatchQueue.main.async {
+            let latitude = self.selectedCoordinate?.latitude
+            let longitude = self.selectedCoordinate?.longitude
+            
+            print("🚀 Sending tool to backend...")
+            print("📝 Tool name: \(self.name)")
+            print("💰 Price: $\(String(format: "%.1f", self.price))")
+            print("👤 Owner ID: \(ownerId)")
+            if let lat = latitude, let lng = longitude {
+                print("📍 Coordinates: (\(lat), \(lng))")
+            } else {
+                print("📍 No coordinates available")
+            }
+            
+            createTool(
+                name: self.name,
+                price: String(format: "%.1f", self.price),
+                description: self.description,
+                ownerId: ownerId,
+                latitude: latitude,
+                longitude: longitude,
+                image: self.selectedImage
+            ) { success in
+                DispatchQueue.main.async {
+                    if success {
+                        print("✅ Tool created successfully!")
                         // Show success animation
                         withAnimation(.easeInOut(duration: 0.3)) {
-                            showSaveSuccess = true
+                            self.showSaveSuccess = true
                         }
                         
                         // Reset form and navigate back after delay
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            name = ""
-                            price = 0.0
-                            description = ""
-                            address = ""
-                            selectedCoordinate = nil
-                            selectedImage = nil
-                            selection = previousSelection
-                            showSaveSuccess = false
+                            self.name = ""
+                            self.price = 0.0
+                            self.description = ""
+                            self.address = ""
+                            self.selectedCoordinate = nil
+                            self.selectedImage = nil
+                            self.selection = self.previousSelection
+                            self.showSaveSuccess = false
                         }
+                    } else {
+                        print("❌ Failed to create tool")
                     }
                 }
             }

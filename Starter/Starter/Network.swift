@@ -186,35 +186,7 @@ func logout(chatManager: ChatManager? = nil) {
     chatManager?.disconnect()
 }
 
-/// Create a new tool on the server.
-func createTool(name: String, price: Double, description: String, ownerId: Int, createdAt: String, authToken: String, completion: @escaping (Bool) -> Void) {
-    guard let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools") else {
-        completion(false)
-        return
-    }
-
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-
-    let body: [String: Any] = [
-        "name": name,
-        "price": price,
-        "description": description,
-        "owner_id": ownerId,
-        "created_at": createdAt
-    ]
-    request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-
-    URLSession.shared.dataTask(with: request) { _, response, _ in
-        if let http = response as? HTTPURLResponse, http.statusCode == 201 {
-            completion(true)
-        } else {
-            completion(false)
-        }
-    }.resume()
-}
+// Old createTool function removed - replaced with multipart version below that supports coordinates and images
 
 // Model for basic chat message (used for POST responses)
 struct ChatAPIMessage: Codable, Identifiable {
