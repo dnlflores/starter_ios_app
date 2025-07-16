@@ -148,7 +148,7 @@ struct ToolDetailView: View {
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
                         
-                        MapView()
+                        MapView(tool: tool)
                             .frame(height: 200)
                             .cornerRadius(12)
                             .overlay(

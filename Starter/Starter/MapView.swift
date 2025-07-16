@@ -43,11 +43,35 @@ struct MapView: View {
     @State private var toolAnnotations: [ToolAnnotation] = []
     /// Selected tool for showing details
     @State private var selectedTool: Tool? = nil
+    
+    // Optional parameters for specific tool view
+    let specificTool: Tool?
+    let centerCoordinate: CLLocationCoordinate2D?
+    let showAllTools: Bool
+    
+    /// Default initializer for showing all tools
+    init() {
+        self.specificTool = nil
+        self.centerCoordinate = nil
+        self.showAllTools = true
+    }
+    
+    /// Initializer for showing a specific tool
+    init(tool: Tool) {
+        self.specificTool = tool
+        self.centerCoordinate = CLLocationCoordinate2D(
+            latitude: tool.latitude ?? 37.7749,
+            longitude: tool.longitude ?? -122.4194
+        )
+        self.showAllTools = false
+    }
 
     var body: some View {
         Map(position: $position) {
-            // Show user location
-            UserAnnotation()
+            // Show user location only if showing all tools
+            if showAllTools {
+                UserAnnotation()
+            }
             
             // Show tool annotations
             ForEach(toolAnnotations) { annotation in
@@ -72,22 +96,38 @@ struct MapView: View {
                             .shadow(radius: 2)
                     }
                     .onTapGesture {
-                        selectedTool = annotation.tool
+                        if showAllTools {
+                            selectedTool = annotation.tool
+                        }
                     }
                 }
             }
         }
         .edgesIgnoringSafeArea(.all)
         .onAppear {
-            fetchToolsForMap()
+            if showAllTools {
+                fetchToolsForMap()
+            } else if let tool = specificTool {
+                // Show only the specific tool
+                setupSpecificTool(tool)
+            }
         }
         .onReceive(locationManager.$location) { location in
-            // Only center on the user's location the first time we obtain it.
-            if let location, !hasCentered {
+            // Only center on the user's location if showing all tools and haven't centered yet
+            if showAllTools, let location, !hasCentered {
                 position = .region(
                     MKCoordinateRegion(
                         center: location,
                         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                    )
+                )
+                hasCentered = true
+            } else if !showAllTools, let centerCoordinate, !hasCentered {
+                // Center on the specific tool's location
+                position = .region(
+                    MKCoordinateRegion(
+                        center: centerCoordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
                     )
                 )
                 hasCentered = true
@@ -96,6 +136,25 @@ struct MapView: View {
         .sheet(item: $selectedTool) { tool in
             ToolDetailView(tool: tool)
                 .presentationDetents([.medium])
+        }
+    }
+    
+    /// Setup map for showing a specific tool
+    private func setupSpecificTool(_ tool: Tool) {
+        DispatchQueue.main.async {
+            self.tools = [tool]
+            self.toolAnnotations = [ToolAnnotation(tool: tool)]
+            
+            // Center on the tool's location immediately
+            if let centerCoordinate = self.centerCoordinate {
+                self.position = .region(
+                    MKCoordinateRegion(
+                        center: centerCoordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    )
+                )
+                self.hasCentered = true
+            }
         }
     }
     
