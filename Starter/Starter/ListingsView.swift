@@ -11,6 +11,18 @@ struct ListingsView: View {
     @State private var tools: [Tool] = []
     @State private var isLoading = false
     
+    // Delete confirmation state
+    @State private var showDeleteConfirmation = false
+    @State private var toolToDelete: Tool?
+    @State private var isDeleting = false
+    
+    // Edit coming soon alert state
+    @State private var showEditComingSoon = false
+    
+    // Long press menu state
+    @State private var showToolActionSheet = false
+    @State private var selectedTool: Tool?
+    
     // Check if we're in preview mode
     private var isInPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
@@ -149,7 +161,9 @@ struct ListingsView: View {
                                     else if shouldShowDummyData {
                                         LazyVGrid(columns: columns, spacing: 16) {
                                             ForEach(dummyTools) { tool in
-                                                ToolCardView(tool: tool)
+                                                ToolCardView(tool: tool) { action in
+                                                    // No-op for dummy data in preview
+                                                }
                                             }
                                         }
                                         .padding(.horizontal, 20)
@@ -159,7 +173,18 @@ struct ListingsView: View {
                                     else if !filteredTools.isEmpty {
                                         LazyVGrid(columns: columns, spacing: 16) {
                                             ForEach(filteredTools) { tool in
-                                                ToolCardView(tool: tool)
+                                                ToolCardView(tool: tool) { action in
+                                                    selectedTool = tool
+                                                    switch action {
+                                                    case .showMenu:
+                                                        showToolActionSheet = true
+                                                    case .edit:
+                                                        showEditComingSoon = true
+                                                    case .delete:
+                                                        toolToDelete = tool
+                                                        showDeleteConfirmation = true
+                                                    }
+                                                }
                                             }
                                         }
                                         .padding(.horizontal, 20)
@@ -176,6 +201,86 @@ struct ListingsView: View {
                 .onAppear {
                     loadData()
                 }
+                .alert("Delete Tool", isPresented: $showDeleteConfirmation) {
+                    Button("Cancel", role: .cancel) { }
+                    Button("Delete", role: .destructive) {
+                        if let tool = toolToDelete {
+                            performDeleteTool(tool)
+                        }
+                    }
+                } message: {
+                    if let tool = toolToDelete {
+                        Text("Are you sure you want to delete '\(tool.name)'? This action cannot be undone.")
+                    }
+                }
+                .alert("Edit Tool", isPresented: $showEditComingSoon) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text("Edit functionality is coming soon!")
+                }
+                .actionSheet(isPresented: $showToolActionSheet) {
+                    ActionSheet(
+                        title: Text(selectedTool?.name ?? "Tool Options"),
+                        message: Text("Choose an action"),
+                        buttons: [
+                            .default(Text("Edit")) {
+                                if let tool = selectedTool {
+                                    showEditComingSoon = true
+                                }
+                            },
+                            .destructive(Text("Delete")) {
+                                if let tool = selectedTool {
+                                    toolToDelete = tool
+                                    showDeleteConfirmation = true
+                                }
+                            },
+                            .cancel()
+                        ]
+                    )
+                }
+                .overlay(
+                    // Deletion loading overlay
+                    Group {
+                        if isDeleting {
+                            ZStack {
+                                Color.black.opacity(0.3)
+                                    .ignoresSafeArea()
+                                
+                                VStack(spacing: 16) {
+                                    ProgressView()
+                                        .scaleEffect(1.2)
+                                        .tint(.orange)
+                                    Text("Deleting tool...")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white)
+                                }
+                                .padding(24)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.black.opacity(0.8))
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    }
+    
+    // Delete tool function
+    private func performDeleteTool(_ tool: Tool) {
+        isDeleting = true
+        deleteTool(toolId: tool.id) { success in
+            DispatchQueue.main.async {
+                self.isDeleting = false
+                if success {
+                    // Remove the tool from the local array
+                    self.tools.removeAll { $0.id == tool.id }
+                } else {
+                    // Show error message if needed
+                    print("Failed to delete tool: \(tool.name)")
+                }
+                self.toolToDelete = nil
             }
         }
     }
@@ -294,8 +399,15 @@ struct ListingsView: View {
 }
 
 // MARK: - Tool Card View
+enum ToolCardAction {
+    case showMenu
+    case edit
+    case delete
+}
+
 struct ToolCardView: View {
     let tool: Tool
+    let onAction: (ToolCardAction) -> Void
     
     private var formattedPrice: String {
         guard let price = Double(tool.price) else {
@@ -413,13 +525,8 @@ struct ToolCardView: View {
                     
                     Spacer()
                     
-                    Button(action: {
-                        // Action for viewing tool details
-                    }) {
-                        Image(systemName: "arrow.right.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.orange)
-                    }
+                    // Removed the delete button and view details button
+                    // Long press will now handle the menu
                 }
             }
             .padding(12)
@@ -431,6 +538,10 @@ struct ToolCardView: View {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.gray.opacity(0.1), lineWidth: 1)
         )
+        .onTapGesture {
+            // Tap to show action sheet
+            onAction(.showMenu)
+        }
     }
 }
 

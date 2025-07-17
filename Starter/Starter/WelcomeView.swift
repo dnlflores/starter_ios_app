@@ -521,7 +521,7 @@ struct FilterView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
             VStack(spacing: 24) {
                 // Price Range Section
                 VStack(alignment: .leading, spacing: 16) {
@@ -541,6 +541,7 @@ struct FilterView: View {
                         
                         Spacer()
                     }
+                    .padding(.top)
                     
                     VStack(spacing: 12) {
                         // Price range display
@@ -664,8 +665,6 @@ struct FilterView: View {
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(16)
                 
-                Spacer()
-                
                 // Action buttons
                 VStack(spacing: 12) {
                     Button(action: onApply) {
@@ -696,19 +695,11 @@ struct FilterView: View {
                             .cornerRadius(12)
                     }
                 }
-            }
-            .padding(20)
-            .navigationTitle("Filters")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.orange)
-                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 40) // Extra bottom padding for safe area
             }
         }
+        .background(Color(.systemBackground))
     }
 }

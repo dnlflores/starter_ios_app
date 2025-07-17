@@ -694,3 +694,32 @@ func sendMessage(recipientId: Int, message: String, toolId: Int? = nil, image: U
         }
     }.resume()
 }
+
+// Delete tool function
+func deleteTool(toolId: Int, completion: @escaping (Bool) -> Void) {
+    guard let token = UserDefaults.standard.string(forKey: "authToken"),
+          let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools/\(toolId)") else {
+        print("Network: deleteTool failed - missing token or invalid URL")
+        completion(false)
+        return
+    }
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "DELETE"
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Network: deleteTool error - \(error.localizedDescription)")
+            completion(false)
+            return
+        }
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("Network: deleteTool response status - \(httpResponse.statusCode)")
+            completion(httpResponse.statusCode == 204 || httpResponse.statusCode == 200)
+        } else {
+            completion(false)
+        }
+    }.resume()
+}
