@@ -723,3 +723,75 @@ func deleteTool(toolId: Int, completion: @escaping (Bool) -> Void) {
         }
     }.resume()
 }
+
+// Update tool function with image support
+func updateToolInBackend(toolId: Int, name: String, price: String, description: String, latitude: Double? = nil, longitude: Double? = nil, image: UIImage? = nil, completion: @escaping (Bool) -> Void) {
+    guard let token = UserDefaults.standard.string(forKey: "authToken"),
+          let url = URL(string: "https://starter-ios-app-backend.onrender.com/tools/\(toolId)") else {
+        print("Network: updateTool failed - missing token or invalid URL")
+        completion(false)
+        return
+    }
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "PUT"
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    
+    // Create multipart form data
+    let boundary = UUID().uuidString
+    request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+    
+    var body = Data()
+    
+    // Format price to one decimal place
+    let formattedPrice = String(format: "%.1f", Double(price) ?? 0.0)
+    
+    // Add text fields
+    var fields = [
+        "name": name,
+        "price": formattedPrice,
+        "description": description,
+        "updated_at": ISO8601DateFormatter().string(from: Date())
+    ]
+    
+    // Add coordinates if available
+    if let lat = latitude {
+        fields["latitude"] = String(lat)
+    }
+    if let lng = longitude {
+        fields["longitude"] = String(lng)
+    }
+    
+    for (key, value) in fields {
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(value)\r\n".data(using: .utf8)!)
+    }
+    
+    // Add image if provided
+    if let image = image, let imageData = image.jpegData(compressionQuality: 0.8) {
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+    }
+    
+    body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+    request.httpBody = body
+    
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Network: updateTool error - \(error.localizedDescription)")
+            completion(false)
+            return
+        }
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("Network: updateTool response status - \(httpResponse.statusCode)")
+            completion(httpResponse.statusCode == 200 || httpResponse.statusCode == 204)
+        } else {
+            completion(false)
+        }
+    }.resume()
+}

@@ -16,8 +16,8 @@ struct ListingsView: View {
     @State private var toolToDelete: Tool?
     @State private var isDeleting = false
     
-    // Edit coming soon alert state
-    @State private var showEditComingSoon = false
+    // Navigation state for editing tools
+    @State private var navigationPath = NavigationPath()
     
     // Long press menu state
     @State private var showToolActionSheet = false
@@ -100,7 +100,7 @@ struct ListingsView: View {
                 }
                 .applyThemeBackground()
             } else {
-                NavigationStack {
+                NavigationStack(path: $navigationPath) {
                     VStack(spacing: 0) {
                         // Modern header with gradient
                         VStack(spacing: 0) {
@@ -179,7 +179,7 @@ struct ListingsView: View {
                                                     case .showMenu:
                                                         showToolActionSheet = true
                                                     case .edit:
-                                                        showEditComingSoon = true
+                                                        navigationPath.append(tool)
                                                     case .delete:
                                                         toolToDelete = tool
                                                         showDeleteConfirmation = true
@@ -213,10 +213,15 @@ struct ListingsView: View {
                         Text("Are you sure you want to delete '\(tool.name)'? This action cannot be undone.")
                     }
                 }
-                .alert("Edit Tool", isPresented: $showEditComingSoon) {
-                    Button("OK", role: .cancel) { }
-                } message: {
-                    Text("Edit functionality is coming soon!")
+                .navigationDestination(for: Tool.self) { tool in
+                    EditToolView(
+                        tool: tool,
+                        isPresented: .constant(true),
+                        onToolUpdated: {
+                            loadData() // Refresh the tools list
+                            navigationPath.removeLast() // Go back after update
+                        }
+                    )
                 }
                 .actionSheet(isPresented: $showToolActionSheet) {
                     ActionSheet(
@@ -225,7 +230,7 @@ struct ListingsView: View {
                         buttons: [
                             .default(Text("Edit")) {
                                 if let tool = selectedTool {
-                                    showEditComingSoon = true
+                                    navigationPath.append(tool)
                                 }
                             },
                             .destructive(Text("Delete")) {
