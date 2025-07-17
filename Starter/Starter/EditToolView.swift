@@ -6,6 +6,7 @@ struct EditToolView: View {
     let tool: Tool
     /// Controls presentation of the view
     @Binding var isPresented: Bool
+    @Environment(\.dismiss) private var dismiss
     /// Callback when tool is successfully updated
     let onToolUpdated: () -> Void
     
@@ -304,6 +305,22 @@ struct EditToolView: View {
         .sheet(isPresented: $isImagePickerShowing) {
             ImagePicker(selectedImage: $selectedImage, isPickerShowing: $isImagePickerShowing, sourceType: imagePickerSourceType)
         }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Circle()
+                        .fill(Color.black.opacity(0.6))
+                        .frame(width: 32, height: 32)
+                        .overlay(
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                        )
+                }
+            }
+        }
+        .toolbarBackground(.hidden, for: .navigationBar)
     }
     
     /// Check if the tool has an existing image (either original or newly selected)
@@ -468,7 +485,7 @@ struct EditToolView: View {
                     // Call the callback and navigate back after delay
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         self.onToolUpdated()
-                        self.isPresented = false
+                        self.dismiss()
                         self.showSaveSuccess = false
                     }
                 } else {
