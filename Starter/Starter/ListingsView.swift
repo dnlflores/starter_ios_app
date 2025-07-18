@@ -43,7 +43,7 @@ struct ListingsView: View {
     private var shouldShowDummyData: Bool {
         return isInPreview && filteredTools.isEmpty && !isLoading
     }
-    
+
     private let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
@@ -52,223 +52,55 @@ struct ListingsView: View {
     var body: some View {
         ZStack {
             if authToken.isEmpty {
-                // Modern logged-out view with better structure
-                VStack(spacing: 0) {
-                    Spacer()
-                    
-                    VStack(spacing: 24) {
-                        // Icon
-                        Image(systemName: "list.bullet.rectangle.fill")
-                            .font(.system(size: 48))
-                            .foregroundColor(.white)
-                            .padding(.bottom, 8)
-                        
-                        Text("View Your Tools")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                        
-                        Text("Keep track of all your tools that you own here.")
-                            .font(.body)
-                            .foregroundColor(.white.opacity(0.8))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
-                        
-                        VStack(spacing: 16) {
-                            Button("Log In") {
-                                showLogin = true
-                            }
-                            .buttonStyle(PrimaryButtonStyle())
-                            
-                            Button("Sign Up") {
-                                showSignUp = true
-                            }
-                            .buttonStyle(SecondaryButtonStyle())
-                        }
-                        .padding(.top, 8)
-                    }
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 40)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.black.opacity(0.6))
-                            .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
-                    )
-                    .padding(.horizontal, 24)
-                    
-                    Spacer()
-                }
-                .applyThemeBackground()
+                LoggedOutView(showLogin: $showLogin, showSignUp: $showSignUp)
             } else {
-                NavigationStack(path: $navigationPath) {
-                    VStack(spacing: 0) {
-                        // Modern header with gradient
-                        VStack(spacing: 0) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("My Tools")
-                                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                                        .foregroundColor(.white)
-                                    Text("Earn money by sharing your items")
-                                        .font(.subheadline)
-                                        .foregroundColor(.white.opacity(0.8))
-                                }
-                                Spacer()
-                                
-                                Button(action: { loadData() }) {
-                                    Image(systemName: "arrow.clockwise")
-                                        .font(.system(size: 20, weight: .medium))
-                                        .foregroundColor(.white)
-                                }
-                                .disabled(isLoading)
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 16)
+                LoggedInView(
+                    navigationPath: $navigationPath,
+                    isLoading: isLoading,
+                    shouldShowEmptyState: shouldShowEmptyState,
+                    shouldShowDummyData: shouldShowDummyData,
+                    filteredTools: filteredTools,
+                    dummyTools: dummyTools,
+                    columns: columns,
+                    showToolActionSheet: $showToolActionSheet,
+                    selectedTool: $selectedTool,
+                    toolToDelete: $toolToDelete,
+                    showDeleteConfirmation: $showDeleteConfirmation,
+                    isDeleting: isDeleting,
+                    onRefresh: { loadData() },
+                    onToolAction: { action, tool in
+                        selectedTool = tool
+                        switch action {
+                        case .showMenu:
+                            showToolActionSheet = true
+                        case .edit:
+                            navigationPath.append(tool)
+                        case .delete:
+                            toolToDelete = tool
+                            showDeleteConfirmation = true
                         }
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.red, Color.orange]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        
-                        // Loading indicator
-                        if isLoading {
-                            VStack(spacing: 16) {
-                                ProgressView()
-                                    .scaleEffect(1.2)
-                                    .tint(.orange)
-                                Text("Loading your tools...")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.black.opacity(0.3))
-                        } else {
-                            // Main content
-                            ScrollView {
-                                LazyVStack(spacing: 20) {
-                                    // Show empty state message when no tools in normal app mode
-                                    if shouldShowEmptyState {
-                                        EmptyStateView {
-                                            loadData()
-                                        }
-                                        .padding(.horizontal, 20)
-                                        .padding(.top, 40)
-                                    }
-                                    // Show dummy data in Preview mode when no real tools
-                                    else if shouldShowDummyData {
-                                        LazyVGrid(columns: columns, spacing: 16) {
-                                            ForEach(dummyTools) { tool in
-                                                ToolCardView(tool: tool) { action in
-                                                    // No-op for dummy data in preview
-                                                }
-                                            }
-                                        }
-                                        .padding(.horizontal, 20)
-                                        .padding(.top, 20)
-                                    }
-                                    // Show real tools
-                                    else if !filteredTools.isEmpty {
-                                        LazyVGrid(columns: columns, spacing: 16) {
-                                            ForEach(filteredTools) { tool in
-                                                ToolCardView(tool: tool) { action in
-                                                    selectedTool = tool
-                                                    switch action {
-                                                    case .showMenu:
-                                                        showToolActionSheet = true
-                                                    case .edit:
-                                                        navigationPath.append(tool)
-                                                    case .delete:
-                                                        toolToDelete = tool
-                                                        showDeleteConfirmation = true
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        .padding(.horizontal, 20)
-                                        .padding(.top, 20)
-                                    }
-                                }
-                                .padding(.bottom, 20)
-                            }
-                            .background(Color(.systemGroupedBackground))
-                        }
-                    }
-                    .navigationBarHidden(true)
-                }
-                .onAppear {
-                    loadData()
-                }
-                .alert("Delete Tool", isPresented: $showDeleteConfirmation) {
-                    Button("Cancel", role: .cancel) { }
-                    Button("Delete", role: .destructive) {
+                    },
+                    onDeleteConfirmed: {
                         if let tool = toolToDelete {
                             performDeleteTool(tool)
                         }
-                    }
-                } message: {
-                    if let tool = toolToDelete {
-                        Text("Are you sure you want to delete '\(tool.name)'? This action cannot be undone.")
-                    }
-                }
-                .navigationDestination(for: Tool.self) { tool in
-                    EditToolView(
-                        tool: tool,
-                        isPresented: .constant(true),
-                        onToolUpdated: {
-                            loadData() // Refresh the tools list
-                            navigationPath.removeLast() // Go back after update
+                    },
+                    onEditFromSheet: {
+                        if let tool = selectedTool {
+                            navigationPath.append(tool)
                         }
-                    )
-                }
-                .actionSheet(isPresented: $showToolActionSheet) {
-                    ActionSheet(
-                        title: Text(selectedTool?.name ?? "Tool Options"),
-                        message: Text("Choose an action"),
-                        buttons: [
-                            .default(Text("Edit")) {
-                                if let tool = selectedTool {
-                                    navigationPath.append(tool)
-                                }
-                            },
-                            .destructive(Text("Delete")) {
-                                if let tool = selectedTool {
-                                    toolToDelete = tool
-                                    showDeleteConfirmation = true
-                                }
-                            },
-                            .cancel()
-                        ]
-                    )
-                }
-                .overlay(
-                    // Deletion loading overlay
-                    Group {
-                        if isDeleting {
-                            ZStack {
-                                Color.black.opacity(0.3)
-                                    .ignoresSafeArea()
-                                
-                                VStack(spacing: 16) {
-                                    ProgressView()
-                                        .scaleEffect(1.2)
-                                        .tint(.orange)
-                                    Text("Deleting tool...")
-                                        .font(.subheadline)
-                                        .foregroundColor(.white)
-                                }
-                                .padding(24)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.black.opacity(0.8))
-                                )
-                            }
+                    },
+                    onDeleteFromSheet: {
+                        if let tool = selectedTool {
+                            toolToDelete = tool
+                            showDeleteConfirmation = true
                         }
                     }
                 )
             }
+        }
+        .onAppear {
+            loadData()
         }
     }
     
@@ -403,6 +235,272 @@ struct ListingsView: View {
     }
 }
 
+// MARK: - Logged Out View
+struct LoggedOutView: View {
+    @Binding var showLogin: Bool
+    @Binding var showSignUp: Bool
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            
+            VStack(spacing: 24) {
+                // Icon
+                Image(systemName: "list.bullet.rectangle.fill")
+                    .font(.system(size: 48))
+                    .foregroundColor(.white)
+                    .padding(.bottom, 8)
+                
+                Text("View Your Tools")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                
+                Text("Keep track of all your tools that you own here.")
+                    .font(.body)
+                    .foregroundColor(.white.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                
+                VStack(spacing: 16) {
+                    Button("Log In") {
+                        showLogin = true
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    
+                    Button("Sign Up") {
+                        showSignUp = true
+                    }
+                    .buttonStyle(SecondaryButtonStyle())
+                }
+                .padding(.top, 8)
+            }
+            .padding(.horizontal, 32)
+            .padding(.vertical, 40)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.black.opacity(0.6))
+                    .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
+            )
+            .padding(.horizontal, 24)
+            
+            Spacer()
+        }
+        .applyThemeBackground()
+    }
+}
+
+// MARK: - Logged In View
+struct LoggedInView: View {
+    @Binding var navigationPath: NavigationPath
+    let isLoading: Bool
+    let shouldShowEmptyState: Bool
+    let shouldShowDummyData: Bool
+    let filteredTools: [Tool]
+    let dummyTools: [Tool]
+    let columns: [GridItem]
+    @Binding var showToolActionSheet: Bool
+    @Binding var selectedTool: Tool?
+    @Binding var toolToDelete: Tool?
+    @Binding var showDeleteConfirmation: Bool
+    let isDeleting: Bool
+    let onRefresh: () -> Void
+    let onToolAction: (ToolCardAction, Tool) -> Void
+    let onDeleteConfirmed: () -> Void
+    let onEditFromSheet: () -> Void
+    let onDeleteFromSheet: () -> Void
+    
+    var body: some View {
+        NavigationStack(path: $navigationPath) {
+            VStack(spacing: 0) {
+                HeaderView(onRefresh: onRefresh, isLoading: isLoading)
+                
+                if isLoading {
+                    LoadingView()
+                } else {
+                    MainContentView(
+                        shouldShowEmptyState: shouldShowEmptyState,
+                        shouldShowDummyData: shouldShowDummyData,
+                        filteredTools: filteredTools,
+                        dummyTools: dummyTools,
+                        columns: columns,
+                        onRefresh: onRefresh,
+                        onToolAction: onToolAction
+                    )
+                }
+            }
+            .navigationDestination(for: Tool.self) { tool in
+                EditToolView(
+                    tool: tool,
+                    isPresented: .constant(true),
+                    onToolUpdated: {
+                        onRefresh() // Refresh the tools list
+                        navigationPath.removeLast() // Go back after update
+                    },
+                    navigationPath: $navigationPath
+                )
+                .navigationBarHidden(true)
+            }
+            .navigationBarHidden(true)
+        }
+        .alert("Delete Tool", isPresented: $showDeleteConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                onDeleteConfirmed()
+            }
+        } message: {
+            if let tool = toolToDelete {
+                Text("Are you sure you want to delete '\(tool.name)'? This action cannot be undone.")
+            }
+        }
+        .actionSheet(isPresented: $showToolActionSheet) {
+            ActionSheet(
+                title: Text(selectedTool?.name ?? "Tool Options"),
+                message: Text("Choose an action"),
+                buttons: [
+                    .default(Text("Edit")) {
+                        onEditFromSheet()
+                    },
+                    .destructive(Text("Delete")) {
+                        onDeleteFromSheet()
+                    },
+                    .cancel()
+                ]
+            )
+        }
+        .overlay(
+            Group {
+                if isDeleting {
+                    DeletingOverlayView()
+                }
+            }
+        )
+    }
+}
+
+// MARK: - Header View
+struct HeaderView: View {
+    let onRefresh: () -> Void
+    let isLoading: Bool
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("My Tools")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                    Text("Earn money by sharing your items")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                Spacer()
+                
+                Button(action: { onRefresh() }) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .disabled(isLoading)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+        }
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color.red, Color.orange]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+    }
+}
+
+// MARK: - Loading View
+struct LoadingView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.2)
+                .tint(.orange)
+            Text("Loading your tools...")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.3))
+    }
+}
+
+// MARK: - Main Content View
+struct MainContentView: View {
+    let shouldShowEmptyState: Bool
+    let shouldShowDummyData: Bool
+    let filteredTools: [Tool]
+    let dummyTools: [Tool]
+    let columns: [GridItem]
+    let onRefresh: () -> Void
+    let onToolAction: (ToolCardAction, Tool) -> Void
+    
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                if shouldShowEmptyState {
+                    EmptyStateView(onRefresh: onRefresh)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 40)
+                } else if shouldShowDummyData {
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(dummyTools) { tool in
+                            ToolCardView(tool: tool) { action in
+                                // No-op for dummy data in preview
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                } else if !filteredTools.isEmpty {
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(filteredTools) { tool in
+                            ToolCardView(tool: tool) { action in
+                                onToolAction(action, tool)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                }
+            }
+            .padding(.bottom, 20)
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+}
+
+// MARK: - Deleting Overlay View
+struct DeletingOverlayView: View {
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 16) {
+                ProgressView()
+                    .scaleEffect(1.2)
+                    .tint(.orange)
+                Text("Deleting tool...")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+            }
+            .padding(24)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.8))
+            )
+        }
+    }
+}
+
 // MARK: - Tool Card View
 enum ToolCardAction {
     case showMenu
@@ -529,9 +627,6 @@ struct ToolCardView: View {
                     }
                     
                     Spacer()
-                    
-                    // Removed the delete button and view details button
-                    // Long press will now handle the menu
                 }
             }
             .padding(12)

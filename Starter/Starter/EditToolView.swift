@@ -20,6 +20,9 @@ struct EditToolView: View {
     @State private var address = ""
     @State private var selectedCoordinate: CLLocationCoordinate2D?
     
+    // Navigation path from previous view
+    @Binding var navigationPath: NavigationPath
+    
     // Image picker states
     @State private var selectedImage: UIImage?
     @State private var isImagePickerShowing = false
@@ -57,6 +60,21 @@ struct EditToolView: View {
                         }
                         
                         Spacer()
+                        
+                        // Cancel button
+                        Button(action: {
+                            navigationPath.removeLast()
+                        }) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(Color.black.opacity(0.2))
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                )
+                        }
                     }
                     .padding(.horizontal, 24)
                     .padding(.top, 70) // Account for status bar
@@ -481,6 +499,8 @@ struct EditToolView: View {
 }
 
 #Preview {
+    @Previewable @State var navigationPath = NavigationPath()
+    
     EditToolView(
         tool: Tool(
             id: 1,
@@ -497,6 +517,7 @@ struct EditToolView: View {
             longitude: -97.7431
         ),
         isPresented: .constant(true),
-        onToolUpdated: {}
+        onToolUpdated: {},
+        navigationPath: $navigationPath
     )
 } 
