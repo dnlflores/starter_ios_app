@@ -810,10 +810,8 @@ struct ToolActionModal: View {
                         }
                         .background(Color.clear)
                     }
-                    
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.1))
-                        .frame(height: 8)
+                    Divider()
+                        .padding(.horizontal, 20)
                     
                     // Cancel button
                     Button {
