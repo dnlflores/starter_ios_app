@@ -343,35 +343,29 @@ struct LoggedInView: View {
             }
             .navigationBarHidden(true)
         }
-        .alert("Delete Tool", isPresented: $showDeleteConfirmation) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
-                onDeleteConfirmed()
-            }
-        } message: {
-            if let tool = toolToDelete {
-                Text("Are you sure you want to delete '\(tool.name)'? This action cannot be undone.")
-            }
-        }
-        .actionSheet(isPresented: $showToolActionSheet) {
-            ActionSheet(
-                title: Text(selectedTool?.name ?? "Tool Options"),
-                message: Text("Choose an action"),
-                buttons: [
-                    .default(Text("Edit")) {
-                        onEditFromSheet()
-                    },
-                    .destructive(Text("Delete")) {
-                        onDeleteFromSheet()
-                    },
-                    .cancel()
-                ]
-            )
-        }
         .overlay(
             Group {
                 if isDeleting {
                     DeletingOverlayView()
+                }
+                
+                // Custom Tool Action Modal
+                if showToolActionSheet {
+                    ToolActionModal(
+                        tool: selectedTool,
+                        isPresented: $showToolActionSheet,
+                        onEdit: onEditFromSheet,
+                        onDelete: onDeleteFromSheet
+                    )
+                }
+                
+                // Custom Delete Confirmation Modal
+                if showDeleteConfirmation {
+                    DeleteConfirmationModal(
+                        tool: toolToDelete,
+                        isPresented: $showDeleteConfirmation,
+                        onConfirm: onDeleteConfirmed
+                    )
                 }
             }
         )
@@ -691,6 +685,303 @@ struct EmptyStateView: View {
                 .fill(Color(.systemBackground))
                 .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
         )
+    }
+}
+
+// MARK: - Tool Action Modal
+struct ToolActionModal: View {
+    let tool: Tool?
+    @Binding var isPresented: Bool
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        ZStack {
+            // Background overlay
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    isPresented = false
+                }
+            
+            VStack {
+                VStack(spacing: 0) {
+                    // Header
+                    VStack(spacing: 12) {
+                        HStack {
+                            Spacer()
+                            Button {
+                                isPresented = false
+                            } label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.gray)
+                                    .padding(8)
+                                    .background(Color.gray.opacity(0.1))
+                                    .clipShape(Circle())
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
+                        
+                        VStack(spacing: 8) {
+                            Text(tool?.name ?? "Tool Options")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.primary)
+                                .multilineTextAlignment(.center)
+                            
+                            Text("Choose what you'd like to do")
+                                .font(.system(size: 15))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 20)
+                    }
+                    
+                    Divider()
+                        .padding(.horizontal, 20)
+                    
+                    // Action buttons
+                    VStack(spacing: 0) {
+                        Button {
+                            isPresented = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                onEdit()
+                            }
+                        } label: {
+                            HStack(spacing: 16) {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundColor(.blue)
+                                    .frame(width: 24)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Edit Tool")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.primary)
+                                    Text("Update details and pricing")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.gray.opacity(0.5))
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 16)
+                        }
+                        .background(Color.clear)
+                        
+                        Divider()
+                            .padding(.horizontal, 20)
+                        
+                        Button {
+                            isPresented = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                onDelete()
+                            }
+                        } label: {
+                            HStack(spacing: 16) {
+                                Image(systemName: "trash")
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundColor(.red)
+                                    .frame(width: 24)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Delete Tool")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.primary)
+                                    Text("Remove from your listings")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.gray.opacity(0.5))
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 16)
+                        }
+                        .background(Color.clear)
+                    }
+                    
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.1))
+                        .frame(height: 8)
+                    
+                    // Cancel button
+                    Button {
+                        isPresented = false
+                    } label: {
+                        Text("Cancel")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                    }
+                    .background(Color.clear)
+                }
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: -5)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 34) // Account for safe area
+            }
+        }
+        .transition(.asymmetric(
+            insertion: .move(edge: .bottom).combined(with: .opacity),
+            removal: .move(edge: .bottom).combined(with: .opacity)
+        ))
+        .animation(.easeInOut(duration: 0.3), value: isPresented)
+    }
+}
+
+// MARK: - Delete Confirmation Modal
+struct DeleteConfirmationModal: View {
+    let tool: Tool?
+    @Binding var isPresented: Bool
+    let onConfirm: () -> Void
+    
+    var body: some View {
+        ZStack {
+            // Background overlay
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    isPresented = false
+                }
+            
+            DeleteConfirmationContent(
+                tool: tool,
+                isPresented: $isPresented,
+                onConfirm: onConfirm
+            )
+        }
+        .transition(.asymmetric(
+            insertion: .scale(scale: 0.8).combined(with: .opacity),
+            removal: .scale(scale: 0.9).combined(with: .opacity)
+        ))
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isPresented)
+    }
+}
+
+// MARK: - Delete Confirmation Content
+struct DeleteConfirmationContent: View {
+    let tool: Tool?
+    @Binding var isPresented: Bool
+    let onConfirm: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            DeleteConfirmationIcon()
+            
+            DeleteConfirmationText(toolName: tool?.name)
+            
+            DeleteConfirmationButtons(
+                isPresented: $isPresented,
+                onConfirm: onConfirm
+            )
+        }
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: Color.black.opacity(0.15), radius: 30, x: 0, y: 10)
+        .padding(.horizontal, 32)
+    }
+}
+
+// MARK: - Delete Confirmation Icon
+struct DeleteConfirmationIcon: View {
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.orange.opacity(0.1))
+                .frame(width: 80, height: 80)
+            
+            Image(systemName: "trash.fill")
+                .font(.system(size: 32, weight: .medium))
+                .foregroundColor(.orange)
+        }
+        .padding(.top, 24)
+    }
+}
+
+// MARK: - Delete Confirmation Text
+struct DeleteConfirmationText: View {
+    let toolName: String?
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("Delete Tool")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundColor(.primary)
+            
+            VStack(spacing: 8) {
+                if let toolName = toolName {
+                    (Text("Are you sure you want to delete")
+                        .font(.system(size: 16))
+                        .foregroundColor(.secondary)
+                    + Text(" '\(toolName)'")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.primary)
+                    + Text("?")
+                        .font(.system(size: 16))
+                        .foregroundColor(.secondary))
+                        .multilineTextAlignment(.center)
+                }
+                
+                Text("This action cannot be undone and will remove the tool from your listings permanently.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 20)
+    }
+}
+
+// MARK: - Delete Confirmation Buttons
+struct DeleteConfirmationButtons: View {
+    @Binding var isPresented: Bool
+    let onConfirm: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Button {
+                isPresented = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    onConfirm()
+                }
+            } label: {
+                Text("Delete Tool")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.orange)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            
+            Button {
+                isPresented = false
+            } label: {
+                Text("Cancel")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.gray.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 24)
     }
 }
 
